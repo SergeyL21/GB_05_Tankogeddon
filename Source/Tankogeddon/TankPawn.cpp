@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Tankogeddon.h"
 #include "TankPawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -29,6 +30,11 @@ ATankPawn::ATankPawn()
 	Camera->SetupAttachment(SpringArm);
 }
 
+void ATankPawn::MoveForward(float AxisValue)
+{
+	targetForwardAxisValue = AxisValue;
+}
+
 // Called when the game starts or when spawned
 void ATankPawn::BeginPlay()
 {
@@ -41,6 +47,11 @@ void ATankPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	const auto currentLocation{ GetActorLocation() };
+	const auto forwardVector{ GetActorForwardVector() };
+	const auto movePosition{ currentLocation + forwardVector * MoveSpeed * targetForwardAxisValue * DeltaTime };
+	SetActorLocation(movePosition, true);
+	DEBUG_MESSAGE(0, "Position: %s", *movePosition.ToString())
 }
 
 // Called to bind functionality to input

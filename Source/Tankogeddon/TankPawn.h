@@ -30,9 +30,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSpeed{ 100.f };
 
+	float targetForwardAxisValue{ 0.f };
+
 public:
 	// Sets default values for this pawn's properties
 	ATankPawn();
+
+	UFUNCTION()
+	void MoveForward(float AxisValue);
 
 protected:
 	// Called when the game starts or when spawned

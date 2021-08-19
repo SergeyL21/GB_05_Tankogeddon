@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "TankPlayerController.generated.h"
 
+class ATankPawn;
+
 /**
  * 
  */
@@ -14,4 +16,15 @@ class TANKOGEDDON_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+protected:
+	UPROPERTY()
+	ATankPawn* TankPawn;
+
+public:
+	ATankPlayerController() = default;
+	virtual void SetupInputComponent() override;
+
+protected:
+	virtual void BeginPlay() override;
+	void MoveForward(float AxisValue);
 };
