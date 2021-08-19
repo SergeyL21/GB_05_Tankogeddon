@@ -7,6 +7,8 @@
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
+class UCameraComponent;
+class USpringArmComponent;
 
 UCLASS()
 class TANKOGEDDON_API ATankPawn : public APawn
@@ -18,6 +20,10 @@ protected:
 	UStaticMeshComponent* BodyMesh;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* TurretMesh;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	USpringArmComponent* SpringArm;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UCameraComponent* Camera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed{ 100.f };
