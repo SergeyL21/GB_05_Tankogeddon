@@ -35,11 +35,20 @@ void ATankPawn::MoveForward(float AxisValue)
 	targetForwardAxisValue = AxisValue;
 }
 
+void ATankPawn::MoveRight(float AxisValue)
+{
+	targetRightAxisValue = AxisValue;
+}
+
 // Called when the game starts or when spawned
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// TODO: implement the correct way to bind tank to the floor.
+	auto currentLocation{ GetActorLocation() };
+	currentLocation.Z = 0;
+	SetActorLocation(currentLocation);
 }
 
 // Called every frame
@@ -48,10 +57,11 @@ void ATankPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	const auto currentLocation{ GetActorLocation() };
-	const auto forwardVector{ GetActorForwardVector() };
-	const auto movePosition{ currentLocation + forwardVector * MoveSpeed * targetForwardAxisValue * DeltaTime };
+	const auto forwardVector{ GetActorForwardVector() * targetForwardAxisValue };
+	const auto rightVector{ GetActorRightVector() * targetRightAxisValue };
+	const auto movePosition{ currentLocation + (forwardVector + rightVector) * MoveSpeed * DeltaTime};
 	SetActorLocation(movePosition, true);
-	DEBUG_MESSAGE(0, "Position: %s", *movePosition.ToString())
+	DEBUG_MESSAGE(0, "Location: %s", *movePosition.ToString())
 }
 
 // Called to bind functionality to input

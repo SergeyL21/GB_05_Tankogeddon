@@ -31,6 +31,7 @@ protected:
 	float RotationSpeed{ 100.f };
 
 	float targetForwardAxisValue{ 0.f };
+	float targetRightAxisValue{ 0.f };
 
 public:
 	// Sets default values for this pawn's properties
@@ -38,6 +39,9 @@ public:
 
 	UFUNCTION()
 	void MoveForward(float AxisValue);
+
+	UFUNCTION()
+	void MoveRight(float AxisValue);
 
 protected:
 	// Called when the game starts or when spawned
