@@ -6,10 +6,23 @@
 #include "GameFramework/Pawn.h"
 #include "TankPawn.generated.h"
 
+class UStaticMeshComponent;
+
 UCLASS()
 class TANKOGEDDON_API ATankPawn : public APawn
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* BodyMesh;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* TurretMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+	float MoveSpeed{ 100.f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+	float RotationSpeed{ 100.f };
 
 public:
 	// Sets default values for this pawn's properties

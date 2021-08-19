@@ -2,6 +2,7 @@
 
 
 #include "TankPawn.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ATankPawn::ATankPawn()
@@ -9,6 +10,11 @@ ATankPawn::ATankPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank body"));
+	RootComponent = BodyMesh;
+
+	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank turret"));
+	TurretMesh->SetupAttachment(BodyMesh);
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +35,5 @@ void ATankPawn::Tick(float DeltaTime)
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
