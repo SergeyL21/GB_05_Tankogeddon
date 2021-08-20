@@ -32,12 +32,12 @@ ATankPawn::ATankPawn()
 
 void ATankPawn::MoveForward(float AxisValue)
 {
-	targetForwardAxisValue = AxisValue;
+	TargetForwardAxisValue = AxisValue;
 }
 
 void ATankPawn::RotateRight(float AxisValue)
 {
-	targetRightAxisValue = AxisValue;
+	TargetRightAxisValue = AxisValue;
 }
 
 // Called when the game starts or when spawned
@@ -57,12 +57,13 @@ void ATankPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	const auto currentLocation{ GetActorLocation() };
-	const auto forwardVector{ GetActorForwardVector() * targetForwardAxisValue };
+	const auto forwardVector{ GetActorForwardVector() * TargetForwardAxisValue };
 	const auto movePosition{ currentLocation + forwardVector  * MoveSpeed * DeltaTime};
 	SetActorLocation(movePosition, true);
 	DEBUG_MESSAGE(0, "Location: %s", *movePosition.ToString())
 
-	auto yawRotation{ RotationSpeed * targetRightAxisValue * DeltaTime };
+	CurrentRightAxisValue = FMath::Lerp(CurrentRightAxisValue, TargetRightAxisValue, InterpolationKey);
+	auto yawRotation{ RotationSpeed * CurrentRightAxisValue * DeltaTime };
 	const auto currentRotation{ GetActorRotation() };
 	yawRotation += currentRotation.Yaw;
 	const auto newRotation{ FRotator{0.f, yawRotation, 0.f} };
