@@ -2,10 +2,14 @@
 
 
 #include "Tankogeddon.h"
+
+#include <Components/StaticMeshComponent.h>
+#include <GameFramework/SpringArmComponent.h>
+#include <Camera/CameraComponent.h>
+#include <Kismet/KismetMathLibrary.h>
+
 #include "TankPawn.h"
-#include "Components/StaticMeshComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
+#include "TankPlayerController.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -48,6 +52,8 @@ void ATankPawn::RotateRight(float AxisValue)
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TankController = Cast<ATankPlayerController>(GetController());
 }
 
 // --------------------------------------------------------------------------------------
@@ -56,20 +62,34 @@ void ATankPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Tank movement
 	const auto currentLocation{ GetActorLocation() };
 	const auto forwardVector{ GetActorForwardVector() * TargetForwardAxisValue };
 	const auto movePosition{ currentLocation + forwardVector  *  MoveSpeed * DeltaTime};
 	SetActorLocation(movePosition, true);
 	DEBUG_MESSAGE(0, "Location: %s", *movePosition.ToString())
 
+	// Tank rotation
 	CurrentRightAxisValue = FMath::Lerp(CurrentRightAxisValue, TargetRightAxisValue, InterpolationKey);
 	auto yawRotation{ RotationSpeed * CurrentRightAxisValue * DeltaTime };
 	const auto currentRotation{ GetActorRotation() };
 	yawRotation += currentRotation.Yaw;
 	const auto newRotation{ FRotator{0.f, yawRotation, 0.f} };
 	SetActorRotation(newRotation);
+	DEBUG_MESSAGE(1, "Body Rotation: %f", newRotation.Yaw)
 
-	DEBUG_MESSAGE(1, "Rotation: %f", newRotation.Yaw)
+	// Turret rotation
+	if (TankController)
+	{
+		const auto mousePos{ TankController->GetMousePos() };
+		auto targetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), mousePos) };
+		const auto currentTurretRotation{ TurretMesh->GetComponentRotation() };
+		targetRotation.Pitch = currentTurretRotation.Pitch;
+		targetRotation.Roll = currentTurretRotation.Roll;
+		const auto newTurretRotation{ FMath::Lerp(currentTurretRotation, targetRotation, TurretRotationInterpolationKey) };
+		TurretMesh->SetWorldRotation(newTurretRotation);
+		DEBUG_MESSAGE(2, "Turret Rotation: %f", newTurretRotation.Yaw)
+	}
 }
 
 // --------------------------------------------------------------------------------------

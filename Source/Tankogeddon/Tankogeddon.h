@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 
 #define DEBUG_MESSAGE(Id, Text, ...) \
 	if (GEngine) { \
