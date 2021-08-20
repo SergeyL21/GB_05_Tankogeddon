@@ -2,13 +2,14 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include <CoreMinimal.h>
+#include <GameFramework/Pawn.h>
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
+class ATankPlayerController;
 
 UCLASS()
 class TANKOGEDDON_API ATankPawn : public APawn
@@ -31,6 +32,11 @@ protected:
 	float RotationSpeed{ 100.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float InterpolationKey{ 0.1f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Speed")
+	float TurretRotationInterpolationKey{ 0.5f };
+
+	UPROPERTY()
+	ATankPlayerController* TankController;
 
 	float TargetForwardAxisValue{ 0.f };
 	float TargetRightAxisValue{ 0.f };
