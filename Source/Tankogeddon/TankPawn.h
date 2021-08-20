@@ -41,7 +41,7 @@ public:
 	void MoveForward(float AxisValue);
 
 	UFUNCTION()
-	void MoveRight(float AxisValue);
+	void RotateRight(float AxisValue);
 
 protected:
 	// Called when the game starts or when spawned

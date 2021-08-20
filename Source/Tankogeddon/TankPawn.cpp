@@ -35,7 +35,7 @@ void ATankPawn::MoveForward(float AxisValue)
 	targetForwardAxisValue = AxisValue;
 }
 
-void ATankPawn::MoveRight(float AxisValue)
+void ATankPawn::RotateRight(float AxisValue)
 {
 	targetRightAxisValue = AxisValue;
 }
@@ -58,10 +58,16 @@ void ATankPawn::Tick(float DeltaTime)
 
 	const auto currentLocation{ GetActorLocation() };
 	const auto forwardVector{ GetActorForwardVector() * targetForwardAxisValue };
-	const auto rightVector{ GetActorRightVector() * targetRightAxisValue };
-	const auto movePosition{ currentLocation + (forwardVector + rightVector) * MoveSpeed * DeltaTime};
+	const auto movePosition{ currentLocation + forwardVector  * MoveSpeed * DeltaTime};
 	SetActorLocation(movePosition, true);
 	DEBUG_MESSAGE(0, "Location: %s", *movePosition.ToString())
+
+	auto yawRotation{ RotationSpeed * targetRightAxisValue * DeltaTime };
+	const auto currentRotation{ GetActorRotation() };
+	yawRotation += currentRotation.Yaw;
+	const auto newRotation{ FRotator{0.f, yawRotation, 0.f} };
+	SetActorRotation(newRotation);
+	DEBUG_MESSAGE(0, "Rotation: %f", newRotation.Yaw)
 }
 
 // Called to bind functionality to input
