@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
+// --------------------------------------------------------------------------------------
 // Sets default values
 ATankPawn::ATankPawn()
 {
@@ -30,27 +31,26 @@ ATankPawn::ATankPawn()
 	Camera->SetupAttachment(SpringArm);
 }
 
+// --------------------------------------------------------------------------------------
 void ATankPawn::MoveForward(float AxisValue)
 {
 	TargetForwardAxisValue = AxisValue;
 }
 
+// --------------------------------------------------------------------------------------
 void ATankPawn::RotateRight(float AxisValue)
 {
 	TargetRightAxisValue = AxisValue;
 }
 
+// --------------------------------------------------------------------------------------
 // Called when the game starts or when spawned
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// TODO: implement the correct way to bind tank to the floor.
-	auto currentLocation{ GetActorLocation() };
-	currentLocation.Z = 0;
-	SetActorLocation(currentLocation);
 }
 
+// --------------------------------------------------------------------------------------
 // Called every frame
 void ATankPawn::Tick(float DeltaTime)
 {
@@ -58,7 +58,7 @@ void ATankPawn::Tick(float DeltaTime)
 
 	const auto currentLocation{ GetActorLocation() };
 	const auto forwardVector{ GetActorForwardVector() * TargetForwardAxisValue };
-	const auto movePosition{ currentLocation + forwardVector  * MoveSpeed * DeltaTime};
+	const auto movePosition{ currentLocation + forwardVector  *  MoveSpeed * DeltaTime};
 	SetActorLocation(movePosition, true);
 	DEBUG_MESSAGE(0, "Location: %s", *movePosition.ToString())
 
@@ -68,9 +68,11 @@ void ATankPawn::Tick(float DeltaTime)
 	yawRotation += currentRotation.Yaw;
 	const auto newRotation{ FRotator{0.f, yawRotation, 0.f} };
 	SetActorRotation(newRotation);
-	DEBUG_MESSAGE(0, "Rotation: %f", newRotation.Yaw)
+
+	DEBUG_MESSAGE(1, "Rotation: %f", newRotation.Yaw)
 }
 
+// --------------------------------------------------------------------------------------
 // Called to bind functionality to input
 void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
