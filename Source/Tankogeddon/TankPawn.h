@@ -29,9 +29,12 @@ protected:
 	float MoveSpeed{ 100.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSpeed{ 100.f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+	float InterpolationKey{ 0.1f };
 
-	float targetForwardAxisValue{ 0.f };
-	float targetRightAxisValue{ 0.f };
+	float TargetForwardAxisValue{ 0.f };
+	float TargetRightAxisValue{ 0.f };
+	float CurrentRightAxisValue{ 0.f };
 
 public:
 	// Sets default values for this pawn's properties
