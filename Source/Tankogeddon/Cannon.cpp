@@ -31,7 +31,10 @@ void ACannon::Fire()
 
 	if (Type == ECannonType::FireProjectile)
 	{
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile")
+		if (CurrentAmmo > 0) {
+			--CurrentAmmo;
+		}
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%i/%i]", CurrentAmmo, MaxAmmo)
 	}
 	else
 	{
