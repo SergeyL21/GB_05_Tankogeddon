@@ -31,11 +31,11 @@ void ACannon::Fire()
 
 	if (Type == ECannonType::FireProjectile)
 	{
-		DEBUG_MESSAGE(10, FColor::Green, "Fire - projectile")
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile")
 	}
 	else
 	{
-		DEBUG_MESSAGE(10, FColor::Green, "Fire - trace")
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
