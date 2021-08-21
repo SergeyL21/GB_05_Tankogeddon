@@ -8,7 +8,17 @@
 	if (GEngine) { \
 		GEngine->AddOnScreenDebugMessage( \
 			Id, \
-			0.f, \
+			3.f, \
+			Color, \
+			FString::Printf(TEXT(Text), __VA_ARGS__) \
+		); \
+	}
+
+#define DEBUG_MESSAGE_EX(Id, Color, Text, ...) \
+	if (GEngine) { \
+		GEngine->AddOnScreenDebugMessage( \
+			Id, \
+			3.f, \
 			Color, \
 			FString::Printf(TEXT(Text), __VA_ARGS__) \
 		); \
