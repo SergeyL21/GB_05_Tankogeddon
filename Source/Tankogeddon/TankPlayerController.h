@@ -27,10 +27,13 @@ public:
 
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaTime) override;
+
 	inline auto GetMousePos() { return MousePos; };
 
 protected:
 	virtual void BeginPlay() override;
+
 	void MoveForward(float AxisValue);
 	void RotateRight(float AxisValue);
+	void Fire();
 };
