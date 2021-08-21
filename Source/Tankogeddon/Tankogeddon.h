@@ -4,13 +4,12 @@
 
 #include <CoreMinimal.h>
 
-#define DEBUG_MESSAGE(Id, Text, ...) \
+#define DEBUG_MESSAGE(Id, Color, Text, ...) \
 	if (GEngine) { \
 		GEngine->AddOnScreenDebugMessage( \
 			Id, \
 			0.f, \
-			FColor::Yellow, \
+			Color, \
 			FString::Printf(TEXT(Text), __VA_ARGS__) \
 		); \
 	}
-

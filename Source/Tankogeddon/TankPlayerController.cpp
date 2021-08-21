@@ -23,6 +23,8 @@ void ATankPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	InputComponent->BindAxis("MoveForward", this, &ATankPlayerController::MoveForward);
 	InputComponent->BindAxis("RotateRight", this, &ATankPlayerController::RotateRight);
+	InputComponent->BindAction("Fire", IE_Pressed, this, &ATankPlayerController::Fire);
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -38,6 +40,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 	direction.Normalize();
 	MousePos = pawnPos + direction * DEBUG_DIRECTION_LENGTH;
 	DrawDebugLine(GetWorld(), pawnPos, MousePos, FColor::Red, false, 0.1f, 0, 5.f);
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -46,16 +49,26 @@ void ATankPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	TankPawn = Cast<ATankPawn>(GetPawn());
+	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::MoveForward(float AxisValue)
 {
 	TankPawn->MoveForward(AxisValue);
+	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::RotateRight(float AxisValue)
 {
 	TankPawn->RotateRight(AxisValue);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::Fire()
+{
+	TankPawn->Fire();
+	return;
 }
