@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "Tankogeddon.h"
+#include "TankPawn.h"
 
 #include <Components/StaticMeshComponent.h>
 #include <GameFramework/SpringArmComponent.h>
@@ -9,8 +8,8 @@
 #include <Kismet/KismetMathLibrary.h>
 #include <Components/ArrowComponent.h>
 
+#include "Tankogeddon.h"
 #include "Cannon.h"
-#include "TankPawn.h"
 #include "TankPlayerController.h"
 
 // --------------------------------------------------------------------------------------
@@ -88,6 +87,15 @@ void ATankPawn::Fire()
 	if (Cannon)
 	{
 		Cannon->Fire();
+	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::FireSpecial() {
+	if (Cannon)
+	{
+		Cannon->FireSpecial();
 	}
 	return;
 }

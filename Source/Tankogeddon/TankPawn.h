@@ -63,6 +63,9 @@ public:
 	UFUNCTION()
 	void Fire();
 
+	UFUNCTION()
+	void FireSpecial();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
