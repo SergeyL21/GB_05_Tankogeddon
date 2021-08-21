@@ -43,6 +43,27 @@ void ACannon::Fire()
 }
 
 // --------------------------------------------------------------------------------------
+void ACannon::FireSpecial()
+{
+	if (!bReadyToFire) {
+		return;
+	}
+	bReadyToFire = false;
+
+	if (Type == ECannonType::FireProjectile)
+	{
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Alt Fire - projectile")
+	}
+	else
+	{
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Alt Fire - trace")
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 bool ACannon::IsReadyToFire()
 {
 	return bReadyToFire;
