@@ -5,7 +5,8 @@
 #include "GameStructs.generated.h"
 
 UENUM(BlueprintType)
-enum class ECannonType : uint8 {
+enum class ECannonType : uint8 
+{
     FireProjectile = 0  UMETA(DisplayName = "Use projectile"),
     FireTrace = 1       UMETA(DisplayName = "Use trace")
 };

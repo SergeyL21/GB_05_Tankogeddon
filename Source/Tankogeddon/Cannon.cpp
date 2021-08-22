@@ -22,48 +22,33 @@ ACannon::ACannon()
 }
 
 // --------------------------------------------------------------------------------------
-void ACannon::Fire()
+bool ACannon::Fire()
 {
-	if (!bReadyToFire) {
-		return;
+	if (!bReadyToFire)
+	{
+		DEBUG_MESSAGE_EX(11, FColor::Green, "The cannon isn't ready to fire!");
+		return false;
 	}
+
+	--CurrentAmmo;
+	if (CurrentAmmo < 1)
+	{
+		DEBUG_MESSAGE_EX(11, FColor::Green, "There are no ammo!");
+		bReadyToFire = true;
+		return false;
+	}
+
 	bReadyToFire = false;
-
-	if (Type == ECannonType::FireProjectile)
-	{
-		if (CurrentAmmo > 0) {
-			--CurrentAmmo;
-		}
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%i/%i]", CurrentAmmo, MaxAmmo)
-	}
-	else
-	{
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
-	}
-
-	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
-	return;
+	DEBUG_MESSAGE_EX(11, FColor::Green, "Shooting process...");
+	SingleShot();
+	return true;
 }
 
 // --------------------------------------------------------------------------------------
-void ACannon::FireSpecial()
+bool ACannon::FireSpecial()
 {
-	if (!bReadyToFire) {
-		return;
-	}
-	bReadyToFire = false;
-
-	if (Type == ECannonType::FireProjectile)
-	{
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Alt Fire - projectile")
-	}
-	else
-	{
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Alt Fire - trace")
-	}
-
-	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, 1.f / FireRate, false);
-	return;
+	// some special fire code
+	return true;
 }
 
 // --------------------------------------------------------------------------------------
@@ -75,7 +60,42 @@ bool ACannon::IsReadyToFire()
 // --------------------------------------------------------------------------------------
 void ACannon::Reload()
 {
+	if (CurrentShot >= FireShotNums) 
+	{
+		Reset();
+	}
+	else 
+	{
+		SingleShot();
+	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ACannon::SingleShot()
+{
+	++CurrentShot;
+	auto Delay{ CurrentShot < FireShotNums ? FireShotDelay : 1.f / FireRate };
+	
+	if (Type == ECannonType::FireProjectile)
+	{
+		float Progress{ float(CurrentShot) / FireShotNums * 100 };
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, Progress);
+	}
+	else
+	{
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, Delay, false);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ACannon::Reset()
+{
 	bReadyToFire = true;
+	CurrentShot = 0;
 	return;
 }
 
@@ -83,13 +103,15 @@ void ACannon::Reload()
 void ACannon::BeginPlay()
 {
 	Super::BeginPlay();
-	Reload();
+
+	Reset();
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ACannon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	Super::EndPlay(EndPlayReason);
+
 	GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
 	return;
 }
