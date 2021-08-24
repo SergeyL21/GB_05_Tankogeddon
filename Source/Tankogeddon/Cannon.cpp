@@ -60,7 +60,7 @@ bool ACannon::IsReadyToFire()
 // --------------------------------------------------------------------------------------
 void ACannon::Reload()
 {
-	if (CurrentShot >= FireShotNums) 
+	if (CurrentShot >= NumShotsInSeries) 
 	{
 		Reset();
 	}
@@ -75,11 +75,11 @@ void ACannon::Reload()
 void ACannon::SingleShot()
 {
 	++CurrentShot;
-	auto Delay{ CurrentShot < FireShotNums ? FireShotDelay : 1.f / FireRate };
+	auto Delay{ CurrentShot < NumShotsInSeries ? FireShotDelay : 1.f / FireRate };
 	
 	if (Type == ECannonType::FireProjectile)
 	{
-		float Progress{ float(CurrentShot) / FireShotNums * 100 };
+		float Progress{ float(CurrentShot) / NumShotsInSeries * 100 };
 		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, Progress);
 	}
 	else
@@ -104,6 +104,7 @@ void ACannon::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentAmmo = MaxAmmo;
 	Reset();
 	return;
 }

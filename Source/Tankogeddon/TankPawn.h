@@ -35,9 +35,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSpeed{ 100.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
-	float InterpolationKey{ 0.1f };
+	float MovementSmootheness{ 0.1f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+	float RotationSmootheness{ 0.1f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Speed")
-	float TurretRotationInterpolationKey{ 0.5f };
+	float TurretRotationSpeed{ 0.5f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> CannonClass;
 
@@ -48,6 +50,7 @@ protected:
 
 	float TargetForwardAxisValue{ 0.f };
 	float TargetRightAxisValue{ 0.f };
+	float CurrentForwardAxisValue{ 0.f };
 	float CurrentRightAxisValue{ 0.f };
 
 public:
