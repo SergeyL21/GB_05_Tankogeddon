@@ -26,17 +26,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 	float FireDamage{ 1.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-	int MaxAmmo{ 10 };
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-	int FireShotNums{ 3 };
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+	int32 MaxAmmo{ 10 };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = 1), Category = "Fire params")
+	int32 NumShotsInSeries{ 3 };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "NumShotsInSeries > 1", EditConditionHides), Category = "Fire params")
 	float FireShotDelay{ 1.f };
 
 	FTimerHandle ReloadTimerHandle;
 
 	bool bReadyToFire{ false };
-	int CurrentAmmo{ MaxAmmo };
-	int CurrentShot{ 0 };
+	int32 CurrentAmmo{ 0 };
+	int32 CurrentShot{ 0 };
 
 public:
 	ACannon();

@@ -107,15 +107,15 @@ void ATankPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Tank movement
+	CurrentForwardAxisValue = FMath::FInterpTo(CurrentForwardAxisValue, TargetForwardAxisValue, DeltaTime, MovementSmootheness);
 	const auto currentLocation{ GetActorLocation() };
-	const auto forwardVector{ GetActorForwardVector() * TargetForwardAxisValue };
-	const auto movePosition{ currentLocation + forwardVector  *  MoveSpeed * DeltaTime};
+	const auto forwardVector{ GetActorForwardVector()};
+	const auto movePosition{ currentLocation + forwardVector  * CurrentForwardAxisValue * MoveSpeed * DeltaTime};
 	SetActorLocation(movePosition, true);
 	DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *movePosition.ToString())
 
-		// Tank rotation
-	//CurrentRightAxisValue = FMath::Lerp(CurrentRightAxisValue, TargetRightAxisValue, InterpolationKey);
-	CurrentRightAxisValue = FMath::FInterpTo(CurrentRightAxisValue, TargetRightAxisValue, DeltaTime, InterpolationKey);
+	// Tank rotation
+	CurrentRightAxisValue = FMath::FInterpTo(CurrentRightAxisValue, TargetRightAxisValue, DeltaTime, RotationSmootheness);
 	auto yawRotation{ RotationSpeed * CurrentRightAxisValue * DeltaTime };
 	const auto currentRotation{ GetActorRotation() };
 	yawRotation += currentRotation.Yaw;
@@ -131,8 +131,7 @@ void ATankPawn::Tick(float DeltaTime)
 		const auto currentTurretRotation{ TurretMesh->GetComponentRotation() };
 		targetRotation.Pitch = currentTurretRotation.Pitch;
 		targetRotation.Roll = currentTurretRotation.Roll;
-		//const auto newTurretRotation{ FMath::Lerp(currentTurretRotation, targetRotation, TurretRotationInterpolationKey) };
-		const auto newTurretRotation{ FMath::RInterpTo(currentTurretRotation, targetRotation, DeltaTime, TurretRotationInterpolationKey) };
+		const auto newTurretRotation{ FMath::RInterpConstantTo(currentTurretRotation, targetRotation, DeltaTime, TurretRotationSpeed) };
 		TurretMesh->SetWorldRotation(newTurretRotation);
 		DEBUG_MESSAGE(2, FColor::Yellow, "Turret Rotation: %f", newTurretRotation.Yaw)
 	}
