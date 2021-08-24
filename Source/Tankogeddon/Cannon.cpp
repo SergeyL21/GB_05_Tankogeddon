@@ -6,6 +6,7 @@
 #include <Engine/Engine.h>
 
 #include "Tankogeddon.h"
+#include "Projectile.h"
 
 // --------------------------------------------------------------------------------------
 ACannon::ACannon()
@@ -79,8 +80,12 @@ void ACannon::SingleShot()
 	
 	if (Type == ECannonType::FireProjectile)
 	{
-		float Progress{ float(CurrentShot) / NumShotsInSeries * 100 };
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, Progress);
+		float progress{ float(CurrentShot) / NumShotsInSeries * 100 };
+		auto projectile{ GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation())};
+		if (projectile) {
+			projectile->Start();
+		}
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 	}
 	else
 	{
