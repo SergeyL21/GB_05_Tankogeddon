@@ -60,42 +60,69 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 
 	TankController = Cast<ATankPlayerController>(GetController());
-	SetupCannon(CannonClass);
+	if (ensure(MainCannonClass))
+	{
+		SetupCurrentCannon(MainCannonClass);
+	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-void ATankPawn::SetupCannon(TSubclassOf<ACannon> InCannonClass)
+void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 {
-	if (Cannon)
+	if (CurrentCannon)
 	{
-		Cannon->Destroy();
-		Cannon = nullptr;
+		CurrentCannon->Destroy();
+		CurrentCannon = nullptr;
+	}
+
+	if (bIsMainCannonActive) 
+	{
+		MainCannonClass = InCannonClass;
+		CurrentCannon = MainCannon;
+	}
+	else
+	{
+		SecondaryCannonClass = InCannonClass;
+		CurrentCannon = SecondaryCannon;
 	}
 
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, params);
-	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	CurrentCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, params);
+	CurrentCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::ChangeWeapon()
+{
+	bIsMainCannonActive = !bIsMainCannonActive;
+	SetupCurrentCannon(bIsMainCannonActive ? MainCannonClass : SecondaryCannonClass);
+}
+
+// --------------------------------------------------------------------------------------
+bool ATankPawn::IsMainCannonActive() const
+{
+	return bIsMainCannonActive;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPawn::Fire()
 {
-	if (Cannon)
+	if (CurrentCannon)
 	{
-		Cannon->Fire();
+		CurrentCannon->Fire();
 	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPawn::FireSpecial() {
-	if (Cannon)
+	if (CurrentCannon)
 	{
-		Cannon->FireSpecial();
+		CurrentCannon->FireSpecial();
 	}
 	return;
 }

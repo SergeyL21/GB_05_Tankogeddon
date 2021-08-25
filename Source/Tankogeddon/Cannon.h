@@ -49,7 +49,7 @@ public:
 	bool Fire();
 	bool FireSpecial();
 
-	bool IsReadyToFire();
+	bool IsReadyToFire() const;
 
 protected:
 	virtual void BeginPlay() override;
