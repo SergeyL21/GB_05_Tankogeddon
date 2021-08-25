@@ -34,6 +34,8 @@ protected:
 	int32 NumShotsInSeries{ 3 };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "NumShotsInSeries > 1", EditConditionHides), Category = "Fire params")
 	float FireShotDelay{ 1.f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+	bool bHasSpecialFire{ true };
 
 	FTimerHandle ReloadTimerHandle;
 
