@@ -69,11 +69,12 @@ public:
 	UFUNCTION()
 	void FireSpecial();
 
+	UFUNCTION()
+	void SetupCannon(TSubclassOf<ACannon> InCannonClass);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	void SetupCannon();
 
 public:	
 	// Called every frame
