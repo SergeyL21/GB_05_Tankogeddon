@@ -60,12 +60,12 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 
 	TankController = Cast<ATankPlayerController>(GetController());
-	SetupCannon();
+	SetupCannon(CannonClass);
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-void ATankPawn::SetupCannon()
+void ATankPawn::SetupCannon(TSubclassOf<ACannon> InCannonClass)
 {
 	if (Cannon)
 	{
@@ -76,7 +76,7 @@ void ATankPawn::SetupCannon()
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, params);
+	Cannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, params);
 	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
 }
