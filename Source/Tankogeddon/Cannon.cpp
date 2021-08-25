@@ -2,6 +2,7 @@
 
 #include <Components/ArrowComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include <TimerManager.h>
 #include <Engine/Engine.h>
 
@@ -89,6 +90,25 @@ void ACannon::SingleShot()
 	}
 	else
 	{
+		FHitResult hitResult;
+		auto traceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
+		traceParams.bTraceComplex = true;
+		traceParams.bReturnPhysicalMaterial = false;
+
+		auto start{ ProjectileSpawnPoint->GetComponentLocation() };
+		auto end{ ProjectileSpawnPoint->GetForwardVector() * FireRange + start };
+		if (GetWorld()->LineTraceSingleByChannel(OUT hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
+		{
+			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Red, false, 0.5f, 0, 5);
+			if (hitResult.Actor.Get())
+			{
+				hitResult.Actor.Get()->Destroy();
+			}
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), start, end, FColor::Red, false, 0.5f, 0, 5);
+		}
 		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
 	}
 

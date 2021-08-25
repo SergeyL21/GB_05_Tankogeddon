@@ -16,12 +16,14 @@ AProjectile::AProjectile()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnMeshOverlapBegin);
+	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 }
 
 // --------------------------------------------------------------------------------------
 void AProjectile::Start() 
 {
 	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
+	SetLifeSpan(FlyRange / MoveSpeed);
 }
 
 // --------------------------------------------------------------------------------------
@@ -33,6 +35,8 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 									const FHitResult& SweepResult) 
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
+	OtherActor->Destroy();
+	Destroy();
 }
 
 // --------------------------------------------------------------------------------------
