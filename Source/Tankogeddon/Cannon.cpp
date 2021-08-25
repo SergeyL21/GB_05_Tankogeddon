@@ -54,7 +54,7 @@ bool ACannon::FireSpecial()
 }
 
 // --------------------------------------------------------------------------------------
-bool ACannon::IsReadyToFire()
+bool ACannon::IsReadyToFire() const
 {
 	return bReadyToFire;
 }
