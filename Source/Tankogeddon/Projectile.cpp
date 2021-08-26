@@ -4,6 +4,7 @@
 
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include "ObjectPoolComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -20,10 +21,16 @@ AProjectile::AProjectile()
 }
 
 // --------------------------------------------------------------------------------------
-void AProjectile::Start() 
+void AProjectile::Start(const FVector &SpawnLocation, const FRotator &SpawnRotation) 
 {
-	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
-	SetLifeSpan(FlyRange / MoveSpeed);
+	if (!IsActive()) 
+	{
+		SetActorLocation(SpawnLocation);
+		SetActorRotation(SpawnRotation);
+		SetActive(true);
+		GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
+		SetLifeSpan(FlyRange / MoveSpeed);
+	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -36,7 +43,7 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 	OtherActor->Destroy();
-	Destroy();
+	SetActive(false);
 }
 
 // --------------------------------------------------------------------------------------

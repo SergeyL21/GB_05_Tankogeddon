@@ -3,13 +3,13 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include <GameFramework/Actor.h>
+#include "PooledActor.h"
 #include "Projectile.generated.h"
 
-UStaticMeshComponent;
+class UStaticMeshComponent;
 
 UCLASS()
-class TANKOGEDDON_API AProjectile : public AActor
+class TANKOGEDDON_API AProjectile : public APooledActor
 {
 	GENERATED_BODY()
 	
@@ -32,7 +32,7 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	void Start();
+	void Start(const FVector &SpawnLocation, const FRotator &SpawnRotation);
 
 protected:
 	UFUNCTION()

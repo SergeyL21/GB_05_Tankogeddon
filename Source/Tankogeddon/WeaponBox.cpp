@@ -9,9 +9,13 @@
 AWeaponBox::AWeaponBox()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
-	ensure(CannonClass);
 }
+
+// --------------------------------------------------------------------------------------
+//void AWeaponBox::BeginPlay() 
+//{
+//	ensure(CannonClass);
+//}
 
 // --------------------------------------------------------------------------------------
 void AWeaponBox::MeshOverlapBeginImpl(ATankPawn* Pawn)

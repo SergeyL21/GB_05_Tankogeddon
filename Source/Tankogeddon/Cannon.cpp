@@ -8,6 +8,7 @@
 
 #include "Tankogeddon.h"
 #include "Projectile.h"
+#include "ObjectPoolComponent.h"
 
 // --------------------------------------------------------------------------------------
 ACannon::ACannon()
@@ -21,6 +22,8 @@ ACannon::ACannon()
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Spawn point"));
 	ProjectileSpawnPoint->SetupAttachment(Mesh);
+
+	ProjectileObjectPool = CreateDefaultSubobject<UObjectPoolComponent>(TEXT("Projectile object pool"));
 }
 
 // --------------------------------------------------------------------------------------
@@ -89,11 +92,17 @@ void ACannon::SingleShot()
 	if (Type == ECannonType::FireProjectile)
 	{
 		float progress{ float(CurrentShot) / NumShotsInSeries * 100 };
-		auto projectile{ GetWorld()->SpawnActor<AProjectile>(ProjectileClass, ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation())};
-		if (projectile) {
-			projectile->Start();
+		auto PoolableActor{ ProjectileObjectPool->GetPooledObject() };
+		if (nullptr == PoolableActor) {
+			UE_LOG(LogTemp, Warning, TEXT("Cannot spawn projectile! The object pool is filled."));
 		}
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
+		else {
+			auto Projectile{ Cast<AProjectile>(PoolableActor) };
+			if (nullptr != Projectile) {
+				Projectile->Start(ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+				DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
+			}	
+		}
 	}
 	else
 	{

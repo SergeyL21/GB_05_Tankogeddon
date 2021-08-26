@@ -6,6 +6,7 @@
 #include "Cannon.generated.h"
 
 class UArrowComponent;
+class UObjectPoolComponent;
 class AProjectile;
 
 UCLASS()
@@ -16,9 +17,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UObjectPoolComponent* ProjectileObjectPool;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UArrowComponent* ProjectileSpawnPoint;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
-	TSubclassOf<AProjectile> ProjectileClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 	ECannonType Type {ECannonType::FireProjectile};

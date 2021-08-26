@@ -23,5 +23,7 @@ public:
 	AWeaponBox();
 
 protected:
+	//virtual void BeginPlay() override;
+
 	virtual void MeshOverlapBeginImpl(ATankPawn* Pawn) override;
 };
