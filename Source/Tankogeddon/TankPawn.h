@@ -78,8 +78,9 @@ public:
 	UFUNCTION()
 	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass);
 
-	UFUNCTION()
 	void ChangeWeapon();
+
+	void AddAmmoToWeapon(int32 Count = 0);
 
 	bool IsMainCannonActive() const;
 
@@ -93,5 +94,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };

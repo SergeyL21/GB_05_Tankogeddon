@@ -48,6 +48,7 @@ public:
 
 	bool Fire();
 	bool FireSpecial();
+	void AddAmmo(int32 Count);
 
 	bool IsReadyToFire() const;
 

@@ -1,20 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AmmoBox.h"
+#include "WeaponBox.h"
 #include "TankPawn.h"
+#include "Cannon.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
-AAmmoBox::AAmmoBox()
+AWeaponBox::AWeaponBox()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	ensure(CannonClass);
 }
 
 // --------------------------------------------------------------------------------------
-void AAmmoBox::MeshOverlapBeginImpl(ATankPawn *Pawn)
+void AWeaponBox::MeshOverlapBeginImpl(ATankPawn* Pawn)
 {
 	if (ensure(Pawn)) {
-		Pawn->AddAmmoToWeapon(Count);
+		Pawn->SetupCurrentCannon(CannonClass);
 	}
 	return;
 }

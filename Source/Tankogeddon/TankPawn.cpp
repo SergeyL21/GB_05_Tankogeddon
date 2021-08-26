@@ -102,6 +102,15 @@ void ATankPawn::ChangeWeapon()
 	SetupCurrentCannon(bIsMainCannonActive ? MainCannonClass : SecondaryCannonClass);
 }
 
+void ATankPawn::AddAmmoToWeapon(int32 Count)
+{
+	if (nullptr != CurrentCannon) 
+	{
+		// TODO: check type weapon
+		CurrentCannon->AddAmmo(Count);
+	}
+}
+
 // --------------------------------------------------------------------------------------
 bool ATankPawn::IsMainCannonActive() const
 {

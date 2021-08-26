@@ -54,6 +54,13 @@ bool ACannon::FireSpecial()
 }
 
 // --------------------------------------------------------------------------------------
+void ACannon::AddAmmo(int32 Count)
+{
+	CurrentAmmo = FMath::Clamp(CurrentAmmo + Count, 0, MaxAmmo);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 bool ACannon::IsReadyToFire() const
 {
 	return bReadyToFire;

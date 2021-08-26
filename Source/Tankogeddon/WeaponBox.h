@@ -3,25 +3,25 @@
 #pragma once
 
 #include "BaseBox.h"
-#include "AmmoBox.generated.h"
+#include "WeaponBox.generated.h"
 
 class ACannon;
 
+/**
+ * 
+ */
 UCLASS()
-class TANKOGEDDON_API AAmmoBox : public ABaseBox
+class TANKOGEDDON_API AWeaponBox : public ABaseBox
 {
 	GENERATED_BODY()
-
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	TSubclassOf<ACannon> CannonClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int32 Count { 1 };
 
 public:
-	AAmmoBox();
+	AWeaponBox();
 
 protected:
-	virtual void MeshOverlapBeginImpl(ATankPawn *Pawn) override;
-
+	virtual void MeshOverlapBeginImpl(ATankPawn* Pawn) override;
 };
