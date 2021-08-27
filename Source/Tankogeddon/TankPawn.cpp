@@ -70,68 +70,64 @@ void ATankPawn::BeginPlay()
 // --------------------------------------------------------------------------------------
 void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 {
-	if (CurrentCannon)
+	if (ActiveCannon)
 	{
-		CurrentCannon->Destroy();
-		CurrentCannon = nullptr;
-	}
-
-	if (bIsMainCannonActive) 
-	{
-		MainCannonClass = InCannonClass;
-		CurrentCannon = MainCannon;
-	}
-	else
-	{
-		SecondaryCannonClass = InCannonClass;
-		CurrentCannon = SecondaryCannon;
+		ActiveCannon->Destroy();
+		ActiveCannon = nullptr;
 	}
 
 	FActorSpawnParameters params;
 	params.Instigator = this;
 	params.Owner = this;
-	CurrentCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, params);
-	CurrentCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, params);
+	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPawn::ChangeWeapon()
 {
-	bIsMainCannonActive = !bIsMainCannonActive;
-	SetupCurrentCannon(bIsMainCannonActive ? MainCannonClass : SecondaryCannonClass);
+	Swap(ActiveCannon, InactiveCannon);
+	
+	if (ActiveCannon)
+	{
+		ActiveCannon->SetVisibility(true);
+	}
+
+	if (InactiveCannon)
+	{
+		InactiveCannon->SetVisibility(false);
+	}
+
+	return;
 }
 
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
-	if (nullptr != CurrentCannon) 
+	if (ActiveCannon) 
 	{
 		// TODO: check type weapon
-		CurrentCannon->AddAmmo(Count);
+		ActiveCannon->AddAmmo(Count);
 	}
-}
 
-// --------------------------------------------------------------------------------------
-bool ATankPawn::IsMainCannonActive() const
-{
-	return bIsMainCannonActive;
+	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPawn::Fire()
 {
-	if (CurrentCannon)
+	if (ActiveCannon)
 	{
-		CurrentCannon->Fire();
+		ActiveCannon->Fire();
 	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPawn::FireSpecial() {
-	if (CurrentCannon)
+	if (ActiveCannon)
 	{
-		CurrentCannon->FireSpecial();
+		ActiveCannon->FireSpecial();
 	}
 	return;
 }

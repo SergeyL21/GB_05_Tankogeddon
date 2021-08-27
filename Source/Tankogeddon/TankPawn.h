@@ -48,11 +48,10 @@ protected:
 	UPROPERTY()
 	ATankPlayerController* TankController;
 	UPROPERTY()
-	ACannon* MainCannon {nullptr};
+	ACannon* ActiveCannon {nullptr};
 	UPROPERTY()
-	ACannon* SecondaryCannon {nullptr};
+	ACannon* InactiveCannon {nullptr};
 
-	ACannon* CurrentCannon {nullptr};
 	float TargetForwardAxisValue{ 0.f };
 	float TargetRightAxisValue{ 0.f };
 	float CurrentForwardAxisValue{ 0.f };
@@ -81,8 +80,6 @@ public:
 	void ChangeWeapon();
 
 	void AddAmmoToWeapon(int32 Count = 0);
-
-	bool IsMainCannonActive() const;
 
 protected:
 	// Called when the game starts or when spawned

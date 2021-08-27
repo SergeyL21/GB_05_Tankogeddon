@@ -50,6 +50,7 @@ public:
 	bool Fire();
 	bool FireSpecial();
 	void AddAmmo(int32 Count);
+	void SetVisibility(bool bIsVisible);
 
 	bool IsReadyToFire() const;
 
