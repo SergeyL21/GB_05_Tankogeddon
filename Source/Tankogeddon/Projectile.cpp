@@ -4,7 +4,8 @@
 
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
-#include "ObjectPoolComponent.h"
+
+#include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -18,18 +19,31 @@ AProjectile::AProjectile()
 	Mesh->SetupAttachment(RootComponent);
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnMeshOverlapBegin);
 	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	Mesh->SetHiddenInGame(true);
 }
 
 // --------------------------------------------------------------------------------------
-void AProjectile::Start(const FVector &SpawnLocation, const FRotator &SpawnRotation) 
+void AProjectile::Start() 
 {
-	if (!IsActive()) 
+	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
+	StartLocation = GetActorLocation();
+	Mesh->SetHiddenInGame(false);
+	return;
+}
+
+void AProjectile::Stop()
+{
+	GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
+	Mesh->SetHiddenInGame(true);
+
+	auto Pool{ GetWorld()->GetSubsystem<UActorPoolSubsystem>() };
+	if (Pool && Pool->IsActorInPool(this))
 	{
-		SetActorLocation(SpawnLocation);
-		SetActorRotation(SpawnRotation);
-		SetActive(true);
-		GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
-		SetLifeSpan(FlyRange / MoveSpeed);
+		Pool->ReturnActor(this);
+	}
+	else
+	{
+		Destroy();
 	}
 }
 
@@ -43,12 +57,18 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 	OtherActor->Destroy();
-	SetActive(false);
+	Stop();
+	return;
 }
 
 // --------------------------------------------------------------------------------------
 void AProjectile::Move()
 {
-	auto nextPosition{ GetActorLocation() + GetActorForwardVector() * MoveSpeed * MoveRate };
-	SetActorLocation(nextPosition);
+	auto NextPosition{ GetActorLocation() + GetActorForwardVector() * MoveSpeed * MoveRate };
+	SetActorLocation(NextPosition);
+	if (FVector::Distance(NextPosition, StartLocation) > FlyRange)
+	{
+		Stop();
+	}
+	return;
 }

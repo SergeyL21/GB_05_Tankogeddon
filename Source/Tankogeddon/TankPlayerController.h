@@ -38,4 +38,7 @@ protected:
 	void Fire();
 	void FireSpecial();
 	void ChangeWeapon();
+
+	UFUNCTION(exec)
+	void DumpActorPoolSubsystemStats();
 };

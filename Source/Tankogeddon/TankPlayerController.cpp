@@ -7,6 +7,7 @@
 
 #include "Tankogeddon.h"
 #include "TankPawn.h"
+#include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
 constexpr auto DEBUG_DIRECTION_LENGTH{ 1000.f };
@@ -87,4 +88,10 @@ void ATankPlayerController::ChangeWeapon()
 {
 	TankPawn->ChangeWeapon();
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::DumpActorPoolSubsystemStats()
+{
+	GetWorld()->GetSubsystem<UActorPoolSubsystem>()->DumpPoolStats();
 }
