@@ -117,7 +117,7 @@ void ACannon::SingleShot()
 		auto End{ ProjectileSpawnPoint->GetForwardVector() * FireRange + Start };
 		if (GetWorld()->LineTraceSingleByChannel(OUT HitResult, Start, End, ECollisionChannel::ECC_Visibility, TraceParams))
 		{
-			DrawDebugLine(GetWorld(), Start, HitResult.Location, FColor::Green, false, 0.5f, 0, 5);
+			DrawDebugLine(GetWorld(), Start, HitResult.Location, FColor::Red, false, 0.5f, 0, 5);
 			if (HitResult.Component.IsValid() && HitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
 			{
 				HitResult.Actor.Get()->Destroy();
@@ -125,7 +125,7 @@ void ACannon::SingleShot()
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f, 0, 5);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.5f, 0, 5);
 		}
 		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
 	}
