@@ -6,8 +6,8 @@
 ABaseBox::ABaseBox()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	auto sceneComponent{ CreateDefaultSubobject<USceneComponent>(TEXT("Root")) };
-	RootComponent = sceneComponent;
+	auto SceneComponent{ CreateDefaultSubobject<USceneComponent>(TEXT("Root")) };
+	RootComponent = SceneComponent;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
@@ -32,10 +32,10 @@ void ABaseBox::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 								  bool bFromSweep,
 								  const FHitResult& SweepResult)
 {
-	auto playerPawn{ Cast<ATankPawn>(GetWorld()->GetFirstPlayerController()->GetPawn()) };
-	if (OtherActor == playerPawn)
+	auto PlayerPawn{ Cast<ATankPawn>(GetWorld()->GetFirstPlayerController()->GetPawn()) };
+	if (OtherActor == PlayerPawn)
 	{
-		MeshOverlapBeginImpl(playerPawn);
+		MeshOverlapBeginImpl(PlayerPawn);
 		Destroy();
 	}
 }

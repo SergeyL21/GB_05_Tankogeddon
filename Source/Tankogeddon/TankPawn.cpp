@@ -76,10 +76,10 @@ void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 		ActiveCannon = nullptr;
 	}
 
-	FActorSpawnParameters params;
-	params.Instigator = this;
-	params.Owner = this;
-	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, params);
+	FActorSpawnParameters Params;
+	Params.Instigator = this;
+	Params.Owner = this;
+	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
 	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
 }
@@ -102,6 +102,7 @@ void ATankPawn::ChangeWeapon()
 	return;
 }
 
+// --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
 	if (ActiveCannon) 
@@ -140,38 +141,38 @@ void ATankPawn::Tick(float DeltaTime)
 
 	// Tank movement
 	CurrentForwardAxisValue = FMath::FInterpTo(CurrentForwardAxisValue, TargetForwardAxisValue, DeltaTime, MovementSmootheness);
-	const auto currentLocation{ GetActorLocation() };
-	const auto forwardVector{ GetActorForwardVector()};
-	const auto movePosition{ currentLocation + forwardVector  * CurrentForwardAxisValue * MoveSpeed * DeltaTime};
+	const auto CurrentLocation{ GetActorLocation() };
+	const auto ForwardVector{ GetActorForwardVector()};
+	const auto MovePosition{ CurrentLocation + ForwardVector  * CurrentForwardAxisValue * MoveSpeed * DeltaTime};
 
 	FHitResult* SweepHitResult{ nullptr };
-	SetActorLocation(movePosition, true, SweepHitResult);
+	SetActorLocation(MovePosition, true, SweepHitResult);
 	if (SweepHitResult)
 	{
 		CurrentForwardAxisValue = 0.f;
 	}
-	DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *movePosition.ToString())
+	DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *MovePosition.ToString())
 
 	// Tank rotation
 	CurrentRightAxisValue = FMath::FInterpTo(CurrentRightAxisValue, TargetRightAxisValue, DeltaTime, RotationSmootheness);
-	auto yawRotation{ RotationSpeed * CurrentRightAxisValue * DeltaTime };
-	const auto currentRotation{ GetActorRotation() };
-	yawRotation += currentRotation.Yaw;
-	const auto newRotation{ FRotator{0.f, yawRotation, 0.f} };
-	SetActorRotation(newRotation);
-	DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", newRotation.Yaw)
+	auto YawRotation{ RotationSpeed * CurrentRightAxisValue * DeltaTime };
+	const auto CurrentRotation{ GetActorRotation() };
+	YawRotation += CurrentRotation.Yaw;
+	const auto NewRotation{ FRotator{0.f, YawRotation, 0.f} };
+	SetActorRotation(NewRotation);
+	DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
 
 	// Turret rotation
 	if (TankController)
 	{
-		const auto mousePos{ TankController->GetMousePos() };
-		auto targetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), mousePos) };
-		const auto currentTurretRotation{ TurretMesh->GetComponentRotation() };
-		targetRotation.Pitch = currentTurretRotation.Pitch;
-		targetRotation.Roll = currentTurretRotation.Roll;
-		const auto newTurretRotation{ FMath::RInterpConstantTo(currentTurretRotation, targetRotation, DeltaTime, TurretRotationSpeed) };
-		TurretMesh->SetWorldRotation(newTurretRotation);
-		DEBUG_MESSAGE(2, FColor::Yellow, "Turret Rotation: %f", newTurretRotation.Yaw)
+		const auto MousePos{ TankController->GetMousePos() };
+		auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), MousePos) };
+		const auto CurrentTurretRotation{ TurretMesh->GetComponentRotation() };
+		TargetRotation.Pitch = CurrentTurretRotation.Pitch;
+		TargetRotation.Roll = CurrentTurretRotation.Roll;
+		const auto NewTurretRotation{ FMath::RInterpConstantTo(CurrentTurretRotation, TargetRotation, DeltaTime, TurretRotationSpeed) };
+		TurretMesh->SetWorldRotation(NewTurretRotation);
+		DEBUG_MESSAGE(2, FColor::Yellow, "Turret Rotation: %f", NewTurretRotation.Yaw)
 	}
 	return;
 }

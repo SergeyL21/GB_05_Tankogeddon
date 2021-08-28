@@ -108,24 +108,24 @@ void ACannon::SingleShot()
 	}
 	else
 	{
-		FHitResult hitResult;
-		auto traceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
-		traceParams.bTraceComplex = true;
-		traceParams.bReturnPhysicalMaterial = false;
+		FHitResult HitResult;
+		auto TraceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
+		TraceParams.bTraceComplex = true;
+		TraceParams.bReturnPhysicalMaterial = false;
 
-		auto start{ ProjectileSpawnPoint->GetComponentLocation() };
-		auto end{ ProjectileSpawnPoint->GetForwardVector() * FireRange + start };
-		if (GetWorld()->LineTraceSingleByChannel(OUT hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
+		auto Start{ ProjectileSpawnPoint->GetComponentLocation() };
+		auto End{ ProjectileSpawnPoint->GetForwardVector() * FireRange + Start };
+		if (GetWorld()->LineTraceSingleByChannel(OUT HitResult, Start, End, ECollisionChannel::ECC_Visibility, TraceParams))
 		{
-			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Green, false, 0.5f, 0, 5);
-			if (hitResult.Component.IsValid() && hitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
+			DrawDebugLine(GetWorld(), Start, HitResult.Location, FColor::Green, false, 0.5f, 0, 5);
+			if (HitResult.Component.IsValid() && HitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
 			{
-				hitResult.Actor.Get()->Destroy();
+				HitResult.Actor.Get()->Destroy();
 			}
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), start, end, FColor::Red, false, 0.5f, 0, 5);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f, 0, 5);
 		}
 		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
 	}

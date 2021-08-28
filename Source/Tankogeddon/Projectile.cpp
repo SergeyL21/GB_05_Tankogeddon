@@ -12,8 +12,8 @@
 AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	auto sceneComponent{ CreateDefaultSubobject<USceneComponent>(TEXT("Root")) };
-	RootComponent = sceneComponent;
+	auto SceneComponent{ CreateDefaultSubobject<USceneComponent>(TEXT("Root")) };
+	RootComponent = SceneComponent;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
