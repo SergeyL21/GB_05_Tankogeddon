@@ -8,6 +8,7 @@
 
 #include "Tankogeddon.h"
 #include "Projectile.h"
+#include "DamageTaker.h"
 #include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
@@ -119,16 +120,32 @@ void ACannon::SingleShot()
 		if (GetWorld()->LineTraceSingleByChannel(OUT HitResult, Start, End, ECollisionChannel::ECC_Visibility, TraceParams))
 		{
 			DrawDebugLine(GetWorld(), Start, HitResult.Location, FColor::Red, false, 0.5f, 0, 5);
-			if (HitResult.Component.IsValid() && HitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
+			if (HitResult.Component.IsValid())
 			{
-				HitResult.Actor.Get()->Destroy();
+				auto HitActor{ HitResult.Actor.Get() };
+				if (HitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
+				{
+					HitActor->Destroy();
+				}
+				else if (IDamageTaker* DamageTaker = Cast<IDamageTaker>(HitActor))
+				{
+					auto CurrentInstigator{ GetInstigator() };
+					if (HitActor != CurrentInstigator)
+					{
+						FDamageData DamageData;
+						DamageData.DamageValue = FireDamage;
+						DamageData.DamageMaker = this;
+						DamageData.Instigator = CurrentInstigator;
+						DamageTaker->TakeDamage(MoveTemp(DamageData));
+					}
+				}
 			}
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.5f, 0, 5);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f, 0, 5);
 		}
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace [%d/%d]", CurrentAmmo, MaxAmmo);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, Delay, false);

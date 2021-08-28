@@ -74,25 +74,32 @@ void ATankPawn::BeginPlay()
 	TankController = Cast<ATankPlayerController>(GetController());
 	if (ensure(MainCannonClass))
 	{
-		SetupCurrentCannon(MainCannonClass);
+		SetupCurrentCannon(MainCannonClass, false);
+		SetupCurrentCannon(SecondaryCannonClass, true);
 	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
+void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass, bool bForceInactive)
 {
-	if (ActiveCannon)
+	if (!InCannonClass)
 	{
-		ActiveCannon->Destroy();
-		ActiveCannon = nullptr;
+		return;
+	}
+
+	auto& LocalCannon{ bForceInactive ? InactiveCannon : ActiveCannon };
+	if (LocalCannon)
+	{
+		LocalCannon->Destroy();
+		LocalCannon = nullptr;
 	}
 
 	FActorSpawnParameters Params;
 	Params.Instigator = this;
 	Params.Owner = this;
-	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
-	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	LocalCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
+	LocalCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
 }
 
@@ -106,7 +113,7 @@ void ATankPawn::Die()
 // --------------------------------------------------------------------------------------
 void ATankPawn::DamageTaken(float InDamage)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s taken damage: %f"), *GetName(), InDamage);
+	UE_LOG(LogTemp, Warning, TEXT("Tank %s taken damage: %f. HP left: %f"), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
 

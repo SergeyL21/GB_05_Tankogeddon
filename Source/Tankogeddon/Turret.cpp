@@ -140,7 +140,7 @@ void ATurret::Die()
 // --------------------------------------------------------------------------------------
 void ATurret::DamageTaken(float InDamage)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Turret %s taken damage: %f"), *GetName(), InDamage);
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s taken damage: %f. HP left: %f"), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
 

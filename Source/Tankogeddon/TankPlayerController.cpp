@@ -42,7 +42,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 	auto Direction{ MousePos - PawnPos };
 	Direction.Normalize();
 	MousePos = PawnPos + Direction * DEBUG_DIRECTION_LENGTH;
-	DrawDebugLine(GetWorld(), PawnPos, MousePos, FColor::Red, false, 0.1f, 0, 5.f);
+	DrawDebugLine(GetWorld(), PawnPos, MousePos, FColor::Green, false, 0.1f, 0, 5.f);
 	return;
 }
 

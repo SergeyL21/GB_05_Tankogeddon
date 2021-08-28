@@ -82,7 +82,7 @@ public:
 	void FireSpecial();
 
 	UFUNCTION()
-	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass);
+	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass, bool bForceInactive = false);
 
 	UFUNCTION()
 	void Die();
