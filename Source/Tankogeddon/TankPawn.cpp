@@ -20,12 +20,6 @@ ATankPawn::ATankPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank body"));
-	RootComponent = BodyMesh;
-
-	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank turret"));
-	TurretMesh->SetupAttachment(BodyMesh);
-
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring arm"));
 	SpringArm->SetupAttachment(BodyMesh);
 	SpringArm->bDoCollisionTest = false;
@@ -36,19 +30,8 @@ ATankPawn::ATankPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
-	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
-
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
 	HealthComponent->OnDie.AddDynamic(this, &ATankPawn::Die);
 	HealthComponent->OnDamaged.AddDynamic(this, &ATankPawn::DamageTaken);
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::TakeDamage(const FDamageData& DamageData)
-{
-	HealthComponent->TakeDamage(DamageData);
-	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -72,34 +55,6 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 
 	TankController = Cast<ATankPlayerController>(GetController());
-	if (ensure(MainCannonClass))
-	{
-		SetupCurrentCannon(MainCannonClass, false);
-		SetupCurrentCannon(SecondaryCannonClass, true);
-	}
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass, bool bForceInactive)
-{
-	if (!InCannonClass)
-	{
-		return;
-	}
-
-	auto& LocalCannon{ bForceInactive ? InactiveCannon : ActiveCannon };
-	if (LocalCannon)
-	{
-		LocalCannon->Destroy();
-		LocalCannon = nullptr;
-	}
-
-	FActorSpawnParameters Params;
-	Params.Instigator = this;
-	Params.Owner = this;
-	LocalCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
-	LocalCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
 }
 
@@ -118,24 +73,6 @@ void ATankPawn::DamageTaken(float InDamage)
 }
 
 // --------------------------------------------------------------------------------------
-void ATankPawn::ChangeWeapon()
-{
-	Swap(ActiveCannon, InactiveCannon);
-	
-	if (ActiveCannon)
-	{
-		ActiveCannon->SetVisibility(true);
-	}
-
-	if (InactiveCannon)
-	{
-		InactiveCannon->SetVisibility(false);
-	}
-
-	return;
-}
-
-// --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
 	if (ActiveCannon) 
@@ -144,25 +81,6 @@ void ATankPawn::AddAmmoToWeapon(int32 Count)
 		ActiveCannon->AddAmmo(Count);
 	}
 
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::Fire()
-{
-	if (ActiveCannon)
-	{
-		ActiveCannon->Fire();
-	}
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::FireSpecial() {
-	if (ActiveCannon)
-	{
-		ActiveCannon->FireSpecial();
-	}
 	return;
 }
 

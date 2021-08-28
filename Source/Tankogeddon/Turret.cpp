@@ -16,19 +16,9 @@ ATurret::ATurret()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret body"));
-	RootComponent = BodyMesh;
-
-	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret turret"));
-	TurretMesh->AttachToComponent(BodyMesh, FAttachmentTransformRules::KeepRelativeTransform);
-
-	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
-	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
-
 	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
 	HitCollider->SetupAttachment(TurretMesh);
 
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
 	HealthComponent->OnDie.AddDynamic(this, &ATurret::Die);
 	HealthComponent->OnDamaged.AddDynamic(this, &ATurret::DamageTaken);
 
@@ -45,36 +35,19 @@ ATurret::ATurret()
 }
 
 // --------------------------------------------------------------------------------------
-void ATurret::TakeDamage(const FDamageData& DamageData)
-{
-	HealthComponent->TakeDamage(DamageData);
-	return;
-}
-
-// --------------------------------------------------------------------------------------
 void ATurret::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FActorSpawnParameters Params;
-	Params.Owner = this;
-	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, OUT Params);
-	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//FActorSpawnParameters Params;
+	//Params.Owner = this;
+	//Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, OUT Params);
+	//Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
 	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
 	FTimerHandle TargetingTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(OUT TargetingTimerHandle, this, &ATurret::Targeting, TargetingRate, true, TargetingRate);
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATurret::Destroyed()
-{
-	if (Cannon)
-	{
-		Cannon->Destroy();
-	}
 	return;
 }
 
@@ -86,7 +59,7 @@ void ATurret::Targeting()
 		RotateToPlayer();
 	}
 
-	if (CanFire() && Cannon && Cannon->IsReadyToFire())
+	if (CanFire() && ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		Fire();
 	}
@@ -100,7 +73,7 @@ void ATurret::RotateToPlayer()
 	auto currRotation{ TurretMesh->GetComponentRotation() };
 	targetRotation.Pitch = currRotation.Pitch;
 	targetRotation.Roll = currRotation.Roll;
-	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(currRotation, targetRotation, GetWorld()->GetDeltaSeconds(), TargetingSpeed));
+	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(currRotation, targetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
 	return;
 }
 
@@ -111,7 +84,7 @@ bool ATurret::IsPlayerInRange()
 }
 
 // --------------------------------------------------------------------------------------
-bool ATurret::CanFire()
+bool ATurret::CanFire() const
 {
 	auto TargetingDirection{ TurretMesh->GetForwardVector() };
 	auto DirectionToPlayer{ PlayerPawn->GetActorLocation() - GetActorLocation() };
@@ -121,18 +94,9 @@ bool ATurret::CanFire()
 }
 
 // --------------------------------------------------------------------------------------
-void ATurret::Fire()
-{
-	if (Cannon)
-	{
-		Cannon->Fire();
-	}
-	return;
-}
-
-// --------------------------------------------------------------------------------------
 void ATurret::Die()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Destroy turret %s"), *GetName());
 	Destroy();
 	return;
 }

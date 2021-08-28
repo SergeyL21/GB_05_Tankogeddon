@@ -1,8 +1,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include <GameFramework/Actor.h>
-#include "DamageTaker.h"
+#include "BaseShootingPawn.h"
 #include "Turret.generated.h"
 
 class UStaticMeshComponent;
@@ -12,34 +11,19 @@ class UHealthComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATurret : public AActor, public IDamageTaker
+class TANKOGEDDON_API ATurret : public ABaseShootingPawn
 {
     GENERATED_BODY()
 
 protected:
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* BodyMesh;
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* TurretMesh;
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UArrowComponent* CannonSetupPoint;
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     UBoxComponent* HitCollider;
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UHealthComponent* HealthComponent;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-    TSubclassOf<ACannon> CannonClass;
-
-    UPROPERTY()
-    ACannon* Cannon;
     UPROPERTY()
     APawn* PlayerPawn;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
     float TargetingRange{ 1000.f };
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-    float TargetingSpeed{ 0.1f };
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
     float TargetingRate{ 0.005f };
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
@@ -51,22 +35,17 @@ protected:
 public:
     ATurret();
 
-    virtual void TakeDamage(const FDamageData& DamageData) override;
-
 protected:
     virtual void BeginPlay() override;
-    virtual void Destroyed() override;
 
     void Targeting();
     void RotateToPlayer();
     bool IsPlayerInRange();
-    bool CanFire();
-    void Fire();
+    
+    virtual bool CanFire() const;
 
-    UFUNCTION()
-    void Die();
+    void Die() override;
 
-    UFUNCTION()
-    void DamageTaken(float InDamage);
+    void DamageTaken(float InDamage) override;
 };
 
