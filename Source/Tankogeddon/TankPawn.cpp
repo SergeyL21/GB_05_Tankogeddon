@@ -143,7 +143,13 @@ void ATankPawn::Tick(float DeltaTime)
 	const auto currentLocation{ GetActorLocation() };
 	const auto forwardVector{ GetActorForwardVector()};
 	const auto movePosition{ currentLocation + forwardVector  * CurrentForwardAxisValue * MoveSpeed * DeltaTime};
-	SetActorLocation(movePosition, true);
+
+	FHitResult* SweepHitResult{ nullptr };
+	SetActorLocation(movePosition, true, SweepHitResult);
+	if (SweepHitResult)
+	{
+		CurrentForwardAxisValue = 0.f;
+	}
 	DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *movePosition.ToString())
 
 	// Tank rotation
