@@ -11,6 +11,7 @@
 #include "Tankogeddon.h"
 #include "Cannon.h"
 #include "TankPlayerController.h"
+#include "HealthComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -37,6 +38,17 @@ ATankPawn::ATankPawn()
 
 	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
 	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+	HealthComponent->OnDie.AddDynamic(this, &ATankPawn::Die);
+	HealthComponent->OnDamaged.AddDynamic(this, &ATankPawn::DamageTaken);
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::TakeDamage(const FDamageData& DamageData)
+{
+	HealthComponent->TakeDamage(DamageData);
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -81,6 +93,20 @@ void ATankPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 	Params.Owner = this;
 	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
 	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::Die()
+{
+	Destroy();
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::DamageTaken(float InDamage)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tank %s taken damage: %f"), *GetName(), InDamage);
 	return;
 }
 

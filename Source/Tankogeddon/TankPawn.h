@@ -4,17 +4,20 @@
 
 #include <CoreMinimal.h>
 #include <GameFramework/Pawn.h>
+#include "DamageTaker.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class ATankPlayerController;
-class ACannon;
 class UArrowComponent;
+class UHealthComponent;
+class ACannon;
+
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public APawn
+class TANKOGEDDON_API ATankPawn : public APawn, public IDamageTaker
 {
 	GENERATED_BODY()
 
@@ -29,6 +32,8 @@ protected:
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UArrowComponent* CannonSetupPoint;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed{ 100.f };
@@ -62,6 +67,8 @@ public:
 	// Sets default values for this pawn's properties
 	ATankPawn();
 
+	virtual void TakeDamage(const FDamageData& DamageData) override;
+
 	UFUNCTION()
 	void MoveForward(float AxisValue);
 
@@ -76,6 +83,12 @@ public:
 
 	UFUNCTION()
 	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass);
+
+	UFUNCTION()
+	void Die();
+
+	UFUNCTION()
+	void DamageTaken(float InDamage);
 
 	void ChangeWeapon();
 
