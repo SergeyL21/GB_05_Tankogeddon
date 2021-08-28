@@ -102,6 +102,7 @@ void ACannon::SingleShot()
 		auto Projectile{ Cast<AProjectile>(Pool->RetreiveActor(ProjectileClass, SpawnTransform)) };
 		if (Projectile)
 		{
+			Projectile->SetInstigator(GetInstigator());
 			Projectile->Start();
 			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 		}

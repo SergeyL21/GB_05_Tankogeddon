@@ -40,6 +40,13 @@ ATurret::ATurret()
 }
 
 // --------------------------------------------------------------------------------------
+void ATurret::TakeDamage(const FDamageData& DamageData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s has taken damage: %f"), *GetName(), DamageData.DamageValue);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void ATurret::BeginPlay()
 {
 	Super::BeginPlay();

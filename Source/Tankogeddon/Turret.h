@@ -2,6 +2,7 @@
 
 #include <CoreMinimal.h>
 #include <GameFramework/Actor.h>
+#include "DamageTaker.h"
 #include "Turret.generated.h"
 
 class UStaticMeshComponent;
@@ -10,7 +11,7 @@ class UBoxComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATurret : public AActor
+class TANKOGEDDON_API ATurret : public AActor, public IDamageTaker
 {
     GENERATED_BODY()
 
@@ -46,6 +47,8 @@ protected:
 
 public:
     ATurret();
+
+    virtual void TakeDamage(const FDamageData& DamageData) override;
 
 protected:
     virtual void BeginPlay() override;
