@@ -8,6 +8,7 @@
 #include <Kismet/KismetMathLibrary.h>
 
 #include "Cannon.h"
+#include "HealthComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -27,6 +28,10 @@ ATurret::ATurret()
 	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
 	HitCollider->SetupAttachment(TurretMesh);
 
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+	HealthComponent->OnDie.AddDynamic(this, &ATurret::Die);
+	HealthComponent->OnDamaged.AddDynamic(this, &ATurret::DamageTaken);
+
 	auto TurretMeshTemp{ LoadObject<UStaticMesh>(this, *TurretMeshPath) };
 	if (TurretMeshTemp)
 	{
@@ -42,7 +47,7 @@ ATurret::ATurret()
 // --------------------------------------------------------------------------------------
 void ATurret::TakeDamage(const FDamageData& DamageData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Turret %s has taken damage: %f"), *GetName(), DamageData.DamageValue);
+	HealthComponent->TakeDamage(DamageData);
 	return;
 }
 
@@ -60,6 +65,7 @@ void ATurret::BeginPlay()
 
 	FTimerHandle TargetingTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(OUT TargetingTimerHandle, this, &ATurret::Targeting, TargetingRate, true, TargetingRate);
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -69,6 +75,7 @@ void ATurret::Destroyed()
 	{
 		Cannon->Destroy();
 	}
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -83,6 +90,7 @@ void ATurret::Targeting()
 	{
 		Fire();
 	}
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -93,6 +101,7 @@ void ATurret::RotateToPlayer()
 	targetRotation.Pitch = currRotation.Pitch;
 	targetRotation.Roll = currRotation.Roll;
 	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(currRotation, targetRotation, GetWorld()->GetDeltaSeconds(), TargetingSpeed));
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -118,6 +127,21 @@ void ATurret::Fire()
 	{
 		Cannon->Fire();
 	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATurret::Die()
+{
+	Destroy();
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATurret::DamageTaken(float InDamage)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Turret %s taken damage: %f"), *GetName(), InDamage);
+	return;
 }
 
 

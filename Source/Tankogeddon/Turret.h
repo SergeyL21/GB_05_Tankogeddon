@@ -8,6 +8,7 @@
 class UStaticMeshComponent;
 class UArrowComponent;
 class UBoxComponent;
+class UHealthComponent;
 class ACannon;
 
 UCLASS()
@@ -24,6 +25,8 @@ protected:
     UArrowComponent* CannonSetupPoint;
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     UBoxComponent* HitCollider;
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+    UHealthComponent* HealthComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
     TSubclassOf<ACannon> CannonClass;
@@ -59,5 +62,11 @@ protected:
     bool IsPlayerInRange();
     bool CanFire();
     void Fire();
+
+    UFUNCTION()
+    void Die();
+
+    UFUNCTION()
+    void DamageTaken(float InDamage);
 };
 
