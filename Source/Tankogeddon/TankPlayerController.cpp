@@ -58,35 +58,50 @@ void ATankPlayerController::BeginPlay()
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::MoveForward(float AxisValue)
 {
-	TankPawn->MoveForward(AxisValue);
+	if (TankPawn)
+	{
+		TankPawn->MoveForward(AxisValue);
+	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::RotateRight(float AxisValue)
 {
-	TankPawn->RotateRight(AxisValue);
+	if (TankPawn)
+	{
+		TankPawn->RotateRight(AxisValue);
+	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::Fire()
 {
-	TankPawn->Fire();
+	if (TankPawn)
+	{
+		TankPawn->Fire();
+	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::FireSpecial()
 {
-	TankPawn->FireSpecial();
+	if (TankPawn)
+	{
+		TankPawn->FireSpecial();
+	}
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::ChangeWeapon() 
 {
-	TankPawn->ChangeWeapon();
+	if (TankPawn)
+	{
+		TankPawn->ChangeWeapon();
+	}
 	return;
 }
 
