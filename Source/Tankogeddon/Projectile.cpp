@@ -6,6 +6,7 @@
 #include <Components/StaticMeshComponent.h>
 
 #include "DamageTaker.h"
+#include "Cannon.h"
 #include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
@@ -24,14 +25,21 @@ AProjectile::AProjectile()
 }
 
 // --------------------------------------------------------------------------------------
-void AProjectile::Start() 
+void AProjectile::Start(ACannon *InOwner) 
 {
+	if (IsValid(InOwner))
+	{
+		CannonOwner = InOwner;
+		OnActorKilled.AddDynamic(CannonOwner, &ACannon::KillingNotification);
+	}
+
 	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
 	StartLocation = GetActorLocation();
 	Mesh->SetHiddenInGame(false);
 	return;
 }
 
+// --------------------------------------------------------------------------------------
 void AProjectile::Stop()
 {
 	GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
@@ -40,12 +48,19 @@ void AProjectile::Stop()
 	auto Pool{ GetWorld()->GetSubsystem<UActorPoolSubsystem>() };
 	if (Pool && Pool->IsActorInPool(this))
 	{
+		if (IsValid(CannonOwner))
+		{
+			OnActorKilled.RemoveDynamic(CannonOwner, &ACannon::KillingNotification);
+		}
 		Pool->ReturnActor(this);
+		CannonOwner = nullptr;
 	}
 	else
 	{
 		Destroy();
 	}
+
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -56,6 +71,12 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 									bool bFromSweep, 
 									const FHitResult& SweepResult)
 {
+	// TODO: simple fix to avoid overlapping projectiles
+	if (Cast<AProjectile>(OtherActor))
+	{
+		return;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
 	if (OtherComp && OtherComp->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
 	{
@@ -70,7 +91,12 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 			DamageData.DamageValue = Damage;
 			DamageData.DamageMaker = this;
 			DamageData.Instigator = CurrentInstigator;
-			DamageTaker->TakeDamage(MoveTemp(DamageData));
+			DamageTaker->TakeDamage(OUT DamageData);
+			
+			if (DamageData.bOutIsFatalDamage && OnActorKilled.IsBound())
+			{
+				OnActorKilled.Broadcast(OtherActor);
+			}
 		}
 	}
 	Stop();

@@ -39,11 +39,13 @@ protected:
 	UPROPERTY()
 	ACannon* InactiveCannon {nullptr};
 
+	int32 ScorePoints{ 0 };
+
 public:
 	// Sets default values for this pawn's properties
 	ABaseShootingPawn();
 
-	virtual void TakeDamage(const FDamageData& DamageData) override;
+	virtual void TakeDamage(FDamageData& DamageData) override;
 
 	UFUNCTION()
 	virtual bool CanFire() const;
@@ -55,7 +57,7 @@ public:
 	virtual void FireSpecial();
 
 	UFUNCTION()
-	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass, bool bForceInactive = false);
+	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass);
 
 	UFUNCTION()
 	virtual void Die();
@@ -65,6 +67,9 @@ public:
 
 	UFUNCTION()
 	void ChangeWeapon();
+
+	UFUNCTION()
+	void AddScorePoints(int32 Points);
 
 protected:
 	// Called when the game starts or when spawned

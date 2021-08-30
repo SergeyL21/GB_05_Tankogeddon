@@ -2,6 +2,7 @@
 
 #include <CoreMinimal.h>
 #include "BaseShootingPawn.h"
+#include "Scorable.h"
 #include "Turret.generated.h"
 
 class UStaticMeshComponent;
@@ -11,7 +12,7 @@ class UHealthComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATurret : public ABaseShootingPawn
+class TANKOGEDDON_API ATurret : public ABaseShootingPawn, public IScorable
 {
     GENERATED_BODY()
 
@@ -41,8 +42,10 @@ protected:
     void Targeting();
     void RotateToPlayer();
     bool IsPlayerInRange();
+
+    virtual int32 GetScorePoints() const override;
     
-    virtual bool CanFire() const;
+    virtual bool CanFire() const override;
 
     void Die() override;
 

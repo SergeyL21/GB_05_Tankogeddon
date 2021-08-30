@@ -20,8 +20,11 @@ struct FDamageData
     float DamageValue{ 0.f };
 
     UPROPERTY()
-    AActor* Instigator;
+    AActor* Instigator {nullptr};
 
     UPROPERTY()
-    AActor* DamageMaker;
+    AActor* DamageMaker {nullptr};
+
+    UPROPERTY()
+    bool bOutIsFatalDamage{ false };
 };

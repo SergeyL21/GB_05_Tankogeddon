@@ -7,11 +7,14 @@
 #include "Projectile.generated.h"
 
 class UStaticMeshComponent;
+class ACannon;
 
 UCLASS()
 class TANKOGEDDON_API AProjectile : public AActor
 {
 	GENERATED_BODY()
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActorKilled, AActor*, Actor);
 	
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
@@ -28,12 +31,17 @@ protected:
 
 	FTimerHandle MovementTimerHandle;
 	FVector StartLocation;
+	ACannon* CannonOwner{ nullptr };
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnActorKilled OnActorKilled;
 
 public:	
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	void Start();
+	void Start(ACannon* InOwner = nullptr);
 	void Stop();
 
 protected:

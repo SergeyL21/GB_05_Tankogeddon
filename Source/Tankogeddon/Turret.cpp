@@ -84,6 +84,12 @@ bool ATurret::IsPlayerInRange()
 }
 
 // --------------------------------------------------------------------------------------
+int32 ATurret::GetScorePoints() const
+{
+	return 1;
+}
+
+// --------------------------------------------------------------------------------------
 bool ATurret::CanFire() const
 {
 	auto TargetingDirection{ TurretMesh->GetForwardVector() };
@@ -96,7 +102,6 @@ bool ATurret::CanFire() const
 // --------------------------------------------------------------------------------------
 void ATurret::Die()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Destroy turret %s"), *GetName());
 	Destroy();
 	return;
 }

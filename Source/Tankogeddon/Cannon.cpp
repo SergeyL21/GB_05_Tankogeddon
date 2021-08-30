@@ -9,6 +9,8 @@
 #include "Tankogeddon.h"
 #include "Projectile.h"
 #include "DamageTaker.h"
+#include "Scorable.h"
+#include "BaseShootingPawn.h"
 #include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
@@ -76,6 +78,20 @@ bool ACannon::IsReadyToFire() const
 }
 
 // --------------------------------------------------------------------------------------
+void ACannon::KillingNotification(AActor *Actor)
+{
+	auto BaseShootingPawn{ Cast<ABaseShootingPawn>(GetOwner()) };
+	auto ScorableObject{ Cast<IScorable>(Actor) };
+	if (BaseShootingPawn && ScorableObject)
+	{
+		BaseShootingPawn->AddScorePoints(ScorableObject->GetScorePoints());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor %s is destroyed by cannon %s"), *Actor->GetName(), *GetName());
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void ACannon::Reload()
 {
 	if (CurrentShot >= NumShotsInSeries) 
@@ -104,7 +120,7 @@ void ACannon::SingleShot()
 		if (Projectile)
 		{
 			Projectile->SetInstigator(GetInstigator());
-			Projectile->Start();
+			Projectile->Start(this);
 			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 		}
 	}
@@ -136,7 +152,7 @@ void ACannon::SingleShot()
 						DamageData.DamageValue = FireDamage;
 						DamageData.DamageMaker = this;
 						DamageData.Instigator = CurrentInstigator;
-						DamageTaker->TakeDamage(MoveTemp(DamageData));
+						DamageTaker->TakeDamage(OUT DamageData);
 					}
 				}
 			}

@@ -19,7 +19,7 @@ void UHealthComponent::BeginPlay()
 }
 
 // --------------------------------------------------------------------------------------
-void UHealthComponent::TakeDamage(const FDamageData& DamageData)
+void UHealthComponent::TakeDamage(FDamageData& DamageData)
 {
 	float TakenDamageValue{ DamageData.DamageValue };
 	CurrentHealth -= TakenDamageValue;
@@ -28,6 +28,7 @@ void UHealthComponent::TakeDamage(const FDamageData& DamageData)
 	{
 		if (OnDie.IsBound())
 		{
+			DamageData.bOutIsFatalDamage = true;
 			OnDie.Broadcast();
 		}
 	}
@@ -35,6 +36,7 @@ void UHealthComponent::TakeDamage(const FDamageData& DamageData)
 	{
 		if (OnDamaged.IsBound())
 		{
+			DamageData.bOutIsFatalDamage = false;
 			OnDamaged.Broadcast(TakenDamageValue);
 		}
 	}

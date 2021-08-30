@@ -4,13 +4,11 @@
 
 #include <CoreMinimal.h>
 #include <UObject/Interface.h>
-#include "GameStructs.h"
-#include "DamageTaker.generated.h"
+#include "Scorable.generated.h"
 
-// ----------------- !!! ------------------
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UDamageTaker : public UInterface
+class UScorable : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -18,12 +16,12 @@ class UDamageTaker : public UInterface
 /**
  * 
  */
-class TANKOGEDDON_API IDamageTaker
+class TANKOGEDDON_API IScorable
 {
 	GENERATED_BODY()
 
 public:
-	//virtual ~IDamageTaker() = default;
+	//virtual ~IScorable() = default;
 
-	virtual void TakeDamage(FDamageData &DamageData) = 0;
+	virtual int32 GetScorePoints() const = 0;
 };

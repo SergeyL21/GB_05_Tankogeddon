@@ -29,9 +29,9 @@ ABaseShootingPawn::ABaseShootingPawn()
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::TakeDamage(const FDamageData& DamageData)
+void ABaseShootingPawn::TakeDamage(FDamageData& DamageData)
 {
-	HealthComponent->TakeDamage(DamageData);
+	HealthComponent->TakeDamage(OUT DamageData);
 	return;
 }
 
@@ -62,25 +62,24 @@ void ABaseShootingPawn::FireSpecial()
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass, bool bForceInactive)
+void ABaseShootingPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 {
 	if (!InCannonClass)
 	{
 		return;
 	}
 
-	auto& LocalCannon{ bForceInactive ? InactiveCannon : ActiveCannon };
-	if (LocalCannon)
+	if (ActiveCannon)
 	{
-		LocalCannon->Destroy();
-		LocalCannon = nullptr;
+		ActiveCannon->Destroy();
+		ActiveCannon = nullptr;
 	}
 
 	FActorSpawnParameters Params;
 	Params.Instigator = this;
 	Params.Owner = this;
-	LocalCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
-	LocalCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
+	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	return;
 }
 
@@ -115,6 +114,13 @@ void ABaseShootingPawn::ChangeWeapon()
 }
 
 // --------------------------------------------------------------------------------------
+void ABaseShootingPawn::AddScorePoints(int32 Points)
+{
+	ScorePoints += Points;
+	UE_LOG(LogTemp, Warning, TEXT("Current score points: %i"), ScorePoints)
+}
+
+// --------------------------------------------------------------------------------------
 // Called when the game starts or when spawned
 void ABaseShootingPawn::BeginPlay()
 {
@@ -122,8 +128,9 @@ void ABaseShootingPawn::BeginPlay()
 	
 	if (ensure(MainCannonClass))
 	{
-		SetupCurrentCannon(MainCannonClass, false);
-		SetupCurrentCannon(SecondaryCannonClass, true);
+		SetupCurrentCannon(SecondaryCannonClass);
+		ChangeWeapon();
+		SetupCurrentCannon(MainCannonClass);
 	}
 	return;
 }
