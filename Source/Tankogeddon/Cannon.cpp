@@ -77,19 +77,7 @@ bool ACannon::IsReadyToFire() const
 	return bReadyToFire;
 }
 
-// --------------------------------------------------------------------------------------
-void ACannon::KillingNotification(AActor *Actor)
-{
-	auto BasePawn{ Cast<ABasePawn>(GetOwner()) };
-	auto ScorableObject{ Cast<IScorable>(Actor) };
-	if (BasePawn && ScorableObject)
-	{
-		//BasePawn->AddScorePoints(ScorableObject->GetScorePoints());
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Actor %s is destroyed by cannon %s"), *Actor->GetName(), *GetName());
-	return;
-}
+//UE_LOG(LogTemp, Warning, TEXT("Actor %s is destroyed by cannon %s"), *Actor->GetName(), *GetName());
 
 // --------------------------------------------------------------------------------------
 void ACannon::Reload()
@@ -120,6 +108,7 @@ void ACannon::SingleShot()
 		if (Projectile)
 		{
 			Projectile->SetInstigator(GetInstigator());
+			Projectile->OnDestroyedTarget.AddUObject(this, &ACannon::NotifyTargetDestroyed);
 			Projectile->Start(this);
 			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 		}
@@ -136,12 +125,14 @@ void ACannon::SingleShot()
 		if (GetWorld()->LineTraceSingleByChannel(OUT HitResult, Start, End, ECollisionChannel::ECC_Visibility, TraceParams))
 		{
 			DrawDebugLine(GetWorld(), Start, HitResult.Location, FColor::Red, false, 0.5f, 0, 5);
+			bool bWasTargetDestroyed{ false };
 			if (HitResult.Component.IsValid())
 			{
 				auto HitActor{ HitResult.Actor.Get() };
 				if (HitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
 				{
 					HitActor->Destroy();
+					bWasTargetDestroyed = true;
 				}
 				else if (IDamageTaker* DamageTaker = Cast<IDamageTaker>(HitActor))
 				{
@@ -153,7 +144,13 @@ void ACannon::SingleShot()
 						DamageData.DamageMaker = this;
 						DamageData.Instigator = CurrentInstigator;
 						DamageTaker->TakeDamage(OUT DamageData);
+						bWasTargetDestroyed = DamageData.bOutIsFatalDamage;
 					}
+				}
+
+				if (bWasTargetDestroyed)
+				{
+					NotifyTargetDestroyed(HitResult.Actor.Get());
 				}
 			}
 		}
@@ -165,6 +162,16 @@ void ACannon::SingleShot()
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, Delay, false);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ACannon::NotifyTargetDestroyed(AActor* Target)
+{
+	if (OnDestroyedTarget.IsBound())
+	{
+		OnDestroyedTarget.Broadcast(Target);
+	}
 	return;
 }
 

@@ -23,5 +23,5 @@ class TANKOGEDDON_API IScorable
 public:
 	//virtual ~IScorable() = default;
 
-	virtual int32 GetScorePoints() const = 0;
+	virtual int32 GetScorePoints() const;
 };
