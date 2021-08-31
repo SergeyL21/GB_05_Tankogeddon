@@ -5,15 +5,16 @@
 #include <CoreMinimal.h>
 #include <GameFramework/Pawn.h>
 #include "DamageTaker.h"
-#include "BaseShootingPawn.generated.h"
+#include "BasePawn.generated.h"
 
 class UStaticMeshComponent;
 class UArrowComponent;
 class UHealthComponent;
+class UBoxComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ABaseShootingPawn : public APawn, public IDamageTaker
+class TANKOGEDDON_API ABasePawn : public APawn, public IDamageTaker
 {
 	GENERATED_BODY()
 	
@@ -26,9 +27,9 @@ protected:
 	UArrowComponent* CannonSetupPoint;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UHealthComponent* HealthComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UBoxComponent* HitCollider;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
-	float TurretRotationSpeed{ 0.5f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
@@ -43,12 +44,9 @@ protected:
 
 public:
 	// Sets default values for this pawn's properties
-	ABaseShootingPawn();
+	ABasePawn();
 
 	virtual void TakeDamage(FDamageData& DamageData) override;
-
-	UFUNCTION()
-	virtual bool CanFire() const;
 
 	UFUNCTION()
 	virtual void Fire();
@@ -60,19 +58,20 @@ public:
 	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass);
 
 	UFUNCTION()
-	virtual void Die();
-
-	UFUNCTION()
-	virtual void DamageTaken(float InDamage);
+	ACannon* GetActiveCannon() const;
 
 	UFUNCTION()
 	void ChangeWeapon();
-
-	UFUNCTION()
-	void AddScorePoints(int32 Points);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
+
+private:
+	UFUNCTION()
+	void Die();
+
+	UFUNCTION()
+	void DamageTaken(float InDamage);
 };
