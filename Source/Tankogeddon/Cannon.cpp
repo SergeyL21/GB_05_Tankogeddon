@@ -10,7 +10,7 @@
 #include "Projectile.h"
 #include "DamageTaker.h"
 #include "Scorable.h"
-#include "BaseShootingPawn.h"
+#include "BasePawn.h"
 #include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
@@ -80,11 +80,11 @@ bool ACannon::IsReadyToFire() const
 // --------------------------------------------------------------------------------------
 void ACannon::KillingNotification(AActor *Actor)
 {
-	auto BaseShootingPawn{ Cast<ABaseShootingPawn>(GetOwner()) };
+	auto BasePawn{ Cast<ABasePawn>(GetOwner()) };
 	auto ScorableObject{ Cast<IScorable>(Actor) };
-	if (BaseShootingPawn && ScorableObject)
+	if (BasePawn && ScorableObject)
 	{
-		BaseShootingPawn->AddScorePoints(ScorableObject->GetScorePoints());
+		//BasePawn->AddScorePoints(ScorableObject->GetScorePoints());
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Actor %s is destroyed by cannon %s"), *Actor->GetName(), *GetName());

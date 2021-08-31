@@ -29,9 +29,6 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
-
-	HealthComponent->OnDie.AddDynamic(this, &ATankPawn::Die);
-	HealthComponent->OnDamaged.AddDynamic(this, &ATankPawn::DamageTaken);
 }
 
 // --------------------------------------------------------------------------------------
@@ -55,20 +52,6 @@ void ATankPawn::BeginPlay()
 	Super::BeginPlay();
 
 	TankController = Cast<ATankPlayerController>(GetController());
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::Die()
-{
-	Destroy();
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::DamageTaken(float InDamage)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s taken damage: %f. HP left: %f"), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
 

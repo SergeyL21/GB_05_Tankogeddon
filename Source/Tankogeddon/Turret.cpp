@@ -16,12 +16,6 @@ ATurret::ATurret()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
-	HitCollider->SetupAttachment(TurretMesh);
-
-	HealthComponent->OnDie.AddDynamic(this, &ATurret::Die);
-	HealthComponent->OnDamaged.AddDynamic(this, &ATurret::DamageTaken);
-
 	auto TurretMeshTemp{ LoadObject<UStaticMesh>(this, *TurretMeshPath) };
 	if (TurretMeshTemp)
 	{
@@ -39,11 +33,6 @@ void ATurret::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//FActorSpawnParameters Params;
-	//Params.Owner = this;
-	//Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, OUT Params);
-	//Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-
 	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
 	FTimerHandle TargetingTimerHandle;
@@ -59,7 +48,8 @@ void ATurret::Targeting()
 		RotateToPlayer();
 	}
 
-	if (CanFire() && ActiveCannon && ActiveCannon->IsReadyToFire())
+	const auto Cannon{ GetActiveCannon() };
+	if (CanFire() && Cannon && Cannon->IsReadyToFire())
 	{
 		Fire();
 	}
@@ -73,7 +63,7 @@ void ATurret::RotateToPlayer()
 	auto currRotation{ TurretMesh->GetComponentRotation() };
 	targetRotation.Pitch = currRotation.Pitch;
 	targetRotation.Roll = currRotation.Roll;
-	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(currRotation, targetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
+	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(currRotation, targetRotation, GetWorld()->GetDeltaSeconds(), TargetingSpeed));
 	return;
 }
 
@@ -97,20 +87,6 @@ bool ATurret::CanFire() const
 	DirectionToPlayer.Normalize();
 	float AimAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(TargetingDirection, DirectionToPlayer))) };
 	return AimAngle <= Accurency;
-}
-
-// --------------------------------------------------------------------------------------
-void ATurret::Die()
-{
-	Destroy();
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATurret::DamageTaken(float InDamage)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Turret %s taken damage: %f. HP left: %f"), *GetName(), InDamage, HealthComponent->GetHealth());
-	return;
 }
 
 

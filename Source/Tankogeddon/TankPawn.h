@@ -3,7 +3,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "BaseShootingPawn.h"
+#include "BasePawn.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
@@ -15,7 +15,7 @@ class UHealthComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public ABaseShootingPawn
+class TANKOGEDDON_API ATankPawn : public ABasePawn
 {
 	GENERATED_BODY()
 
@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSmootheness{ 0.1f };
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
+	float TurretRotationSpeed{ 0.5f };
+
 	UPROPERTY()
 	ATankPlayerController* TankController;
 
@@ -51,10 +54,6 @@ public:
 
 	UFUNCTION()
 	void RotateRight(float AxisValue);
-
-	virtual void Die() override;
-
-	virtual void DamageTaken(float InDamage) override;
 
 	UFUNCTION()
 	void AddAmmoToWeapon(int32 Count = 0);

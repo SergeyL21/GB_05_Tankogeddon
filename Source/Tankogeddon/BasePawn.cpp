@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "BaseShootingPawn.h"
+#include "BasePawn.h"
 
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Components/ArrowComponent.h>
+#include <Components/BoxComponent.h>
 
 #include "Tankogeddon.h"
 #include "Cannon.h"
@@ -12,37 +13,41 @@
 
 // --------------------------------------------------------------------------------------
 // Sets default values
-ABaseShootingPawn::ABaseShootingPawn()
+ABasePawn::ABasePawn()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank body"));
+	BodyMesh->bEditableWhenInherited = true;
 	RootComponent = BodyMesh;
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank turret"));
 	TurretMesh->SetupAttachment(BodyMesh);
+	TurretMesh->bEditableWhenInherited = true;
 
 	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
 	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);
+	CannonSetupPoint->bEditableWhenInherited = true;
+
+	HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
+	HitCollider->SetupAttachment(BodyMesh);
+	HitCollider->bEditableWhenInherited = true;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
+	HealthComponent->OnDie.AddDynamic(this, &ABasePawn::Die);
+	HealthComponent->OnDamaged.AddDynamic(this, &ABasePawn::DamageTaken);
+	HealthComponent->bEditableWhenInherited = true;
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::TakeDamage(FDamageData& DamageData)
+void ABasePawn::TakeDamage(FDamageData& DamageData)
 {
 	HealthComponent->TakeDamage(OUT DamageData);
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-bool ABaseShootingPawn::CanFire() const
-{
-	return true;
-}
-
-// --------------------------------------------------------------------------------------
-void ABaseShootingPawn::Fire()
+void ABasePawn::Fire()
 {
 	if (ActiveCannon)
 	{
@@ -52,7 +57,7 @@ void ABaseShootingPawn::Fire()
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::FireSpecial()
+void ABasePawn::FireSpecial()
 {
 	if (ActiveCannon)
 	{
@@ -62,7 +67,13 @@ void ABaseShootingPawn::FireSpecial()
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
+ACannon* ABasePawn::GetActiveCannon() const
+{
+	return ActiveCannon;
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 {
 	if (!InCannonClass)
 	{
@@ -84,19 +95,21 @@ void ABaseShootingPawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::Die()
+void ABasePawn::Die()
 {
+	Destroy();
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::DamageTaken(float InDamage)
+void ABasePawn::DamageTaken(float InDamage)
 {
+	UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::ChangeWeapon()
+void ABasePawn::ChangeWeapon()
 {
 	Swap(ActiveCannon, InactiveCannon);
 
@@ -109,20 +122,12 @@ void ABaseShootingPawn::ChangeWeapon()
 	{
 		InactiveCannon->SetVisibility(false);
 	}
-
 	return;
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::AddScorePoints(int32 Points)
-{
-	ScorePoints += Points;
-	UE_LOG(LogTemp, Warning, TEXT("Current score points: %i"), ScorePoints)
-}
-
-// --------------------------------------------------------------------------------------
 // Called when the game starts or when spawned
-void ABaseShootingPawn::BeginPlay()
+void ABasePawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
@@ -136,7 +141,7 @@ void ABaseShootingPawn::BeginPlay()
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseShootingPawn::Destroyed()
+void ABasePawn::Destroyed()
 {
 	if (ActiveCannon)
 	{
