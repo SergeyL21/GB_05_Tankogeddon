@@ -13,8 +13,6 @@ UCLASS()
 class TANKOGEDDON_API AProjectile : public AActor
 {
 	GENERATED_BODY()
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActorKilled, AActor*, Actor);
 	
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
@@ -31,11 +29,10 @@ protected:
 
 	FTimerHandle MovementTimerHandle;
 	FVector StartLocation;
-	ACannon* CannonOwner{ nullptr };
 
 public:
-	UPROPERTY(BlueprintAssignable)
-	FOnActorKilled OnActorKilled;
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnDestoyedTarget, AActor*);
+	FOnDestoyedTarget OnDestroyedTarget;
 
 public:	
 	// Sets default values for this actor's properties

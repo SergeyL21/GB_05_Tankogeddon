@@ -40,6 +40,8 @@ protected:
 	UPROPERTY()
 	ATankPlayerController* TankController;
 
+	int32 AccumulatedScores{ 0 };
+
 	float TargetForwardAxisValue{ 0.f };
 	float TargetRightAxisValue{ 0.f };
 	float CurrentForwardAxisValue{ 0.f };
@@ -61,6 +63,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void TargetDestroyed(AActor* Target) override;
 
 public:	
 	// Called every frame

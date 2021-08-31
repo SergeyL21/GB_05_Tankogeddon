@@ -10,6 +10,7 @@
 
 #include "Tankogeddon.h"
 #include "Cannon.h"
+#include "Scorable.h"
 #include "TankPlayerController.h"
 #include "HealthComponent.h"
 
@@ -53,6 +54,16 @@ void ATankPawn::BeginPlay()
 
 	TankController = Cast<ATankPlayerController>(GetController());
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::TargetDestroyed(AActor* Target)
+{
+	if (IScorable* Scorable = Cast<IScorable>(Target))
+	{
+		AccumulatedScores += Scorable->GetScorePoints();
+		UE_LOG(LogTemp, Log, TEXT("Destroyed target %s. Current scores: %d"), *Target->GetName(), AccumulatedScores);
+	}
 }
 
 // --------------------------------------------------------------------------------------

@@ -91,6 +91,7 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 	Params.Owner = this;
 	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
 	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ActiveCannon->OnDestroyedTarget.AddUObject(this, &ABasePawn::TargetDestroyed);
 	return;
 }
 
@@ -151,6 +152,12 @@ void ABasePawn::Destroyed()
 	{
 		InactiveCannon->Destroy();
 	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::TargetDestroyed(AActor* Target)
+{
 	return;
 }
 

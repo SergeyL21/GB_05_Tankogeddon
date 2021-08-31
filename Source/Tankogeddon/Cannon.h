@@ -53,14 +53,16 @@ public:
 
 	bool IsReadyToFire() const;
 
-	UFUNCTION()
-	void KillingNotification(AActor *Actor);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnDestoyedTarget, AActor*);
+	FOnDestoyedTarget OnDestroyedTarget;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 	void Reload();
+
+	void NotifyTargetDestroyed(AActor* Target);
 
 private:
 	void SingleShot();

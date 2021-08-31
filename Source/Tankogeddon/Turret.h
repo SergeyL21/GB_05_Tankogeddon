@@ -29,6 +29,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
     float Accurency{ 10.f };
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Scorable")
+    int32 DestructionScores{ 3 };
+
     const FString BodyMeshPath{ "StaticMesh'/Game/CSC/Meshes/SM_CSC_Tower1.SM_CSC_Tower1'" };
     const FString TurretMeshPath{ "StaticMesh'/Game/CSC/Meshes/SM_CSC_Gun1.SM_CSC_Gun1'" };
 
@@ -38,11 +41,11 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    virtual int32 GetScorePoints() const override;
+
     void Targeting();
     void RotateToPlayer();
     bool IsPlayerInRange();
-
-    virtual int32 GetScorePoints() const override;
     
     bool CanFire() const;
 };
