@@ -2,15 +2,24 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 
-#define DEBUG_MESSAGE(Id, Text, ...) \
+#define DEBUG_MESSAGE(Id, Color, Text, ...) \
 	if (GEngine) { \
 		GEngine->AddOnScreenDebugMessage( \
 			Id, \
-			0.f, \
-			FColor::Yellow, \
+			3.f, \
+			Color, \
 			FString::Printf(TEXT(Text), __VA_ARGS__) \
 		); \
 	}
 
+#define DEBUG_MESSAGE_EX(Id, Color, Text, ...) \
+	if (GEngine) { \
+		GEngine->AddOnScreenDebugMessage( \
+			Id, \
+			3.f, \
+			Color, \
+			FString::Printf(TEXT(Text), __VA_ARGS__) \
+		); \
+	}

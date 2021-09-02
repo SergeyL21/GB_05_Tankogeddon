@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include <CoreMinimal.h>
+#include <GameFramework/PlayerController.h>
 #include "TankPlayerController.generated.h"
 
 class ATankPawn;
@@ -19,13 +19,22 @@ class TANKOGEDDON_API ATankPlayerController : public APlayerController
 protected:
 	UPROPERTY()
 	ATankPawn* TankPawn;
+	UPROPERTY()
+	FVector MousePos;
 
 public:
-	ATankPlayerController() = default;
+	ATankPlayerController();
+
 	virtual void SetupInputComponent() override;
+	virtual void Tick(float DeltaTime) override;
+
+	inline auto GetMousePos() { return MousePos; };
 
 protected:
 	virtual void BeginPlay() override;
+
 	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
+	void RotateRight(float AxisValue);
+	void Fire();
+	void FireSpecial();
 };
