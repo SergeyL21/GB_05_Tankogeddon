@@ -8,6 +8,10 @@
 class UArrowComponent;
 class UObjectPoolComponent;
 class AProjectile;
+class UParticleSystemComponent;
+class UAudioComponent;
+class UForceFeedbackEffect;
+class UMatineeCameraShake;
 
 UCLASS()
 class TANKOGEDDON_API ACannon : public AActor
@@ -36,6 +40,15 @@ protected:
 	float FireShotDelay{ 1.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 	bool bHasSpecialFire{ true };
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UParticleSystemComponent* ShootEffect;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UAudioComponent* AudioEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UForceFeedbackEffect* ShootForceEffect;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UMatineeCameraShake> ShootShake;
 
 	FTimerHandle ReloadTimerHandle;
 

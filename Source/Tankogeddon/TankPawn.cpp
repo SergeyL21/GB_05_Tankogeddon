@@ -35,7 +35,7 @@ ATankPawn::ATankPawn()
 // --------------------------------------------------------------------------------------
 void ATankPawn::MoveForward(float AxisValue)
 {
-	TargetForwardAxisValue = AxisValue;
+    TargetForwardAxisValue = AxisValue;
 	return;
 }
 
@@ -96,7 +96,7 @@ void ATankPawn::Tick(float DeltaTime)
 	{
 		CurrentForwardAxisValue = 0.f;
 	}
-	DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *MovePosition.ToString())
+	//DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *MovePosition.ToString())
 
 	// Tank rotation
 	CurrentRightAxisValue = FMath::FInterpTo(CurrentRightAxisValue, TargetRightAxisValue, DeltaTime, RotationSmootheness);
@@ -105,19 +105,13 @@ void ATankPawn::Tick(float DeltaTime)
 	YawRotation += CurrentRotation.Yaw;
 	const auto NewRotation{ FRotator{0.f, YawRotation, 0.f} };
 	SetActorRotation(NewRotation);
-	DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
+	//DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
 
 	// Turret rotation
 	if (TankController)
 	{
 		const auto MousePos{ TankController->GetMousePos() };
-		auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), MousePos) };
-		const auto CurrentTurretRotation{ TurretMesh->GetComponentRotation() };
-		TargetRotation.Pitch = CurrentTurretRotation.Pitch;
-		TargetRotation.Roll = CurrentTurretRotation.Roll;
-		const auto NewTurretRotation{ FMath::RInterpConstantTo(CurrentTurretRotation, TargetRotation, DeltaTime, TurretRotationSpeed) };
-		TurretMesh->SetWorldRotation(NewTurretRotation);
-		DEBUG_MESSAGE(2, FColor::Yellow, "Turret Rotation: %f", NewTurretRotation.Yaw)
+		RotateTurretTo(MousePos);
 	}
 	return;
 }
@@ -130,3 +124,25 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	return;
 }
 
+// --------------------------------------------------------------------------------------
+FVector ATankPawn::GetTurretForwardVector() const
+{
+	return TurretMesh->GetForwardVector();
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::RotateTurretTo(const FVector &TargetPosition)
+{
+	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition) };
+	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
+	TargetRotation.Pitch = CurrentRotation.Pitch;
+	TargetRotation.Roll = CurrentRotation.Roll;
+	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+FVector ATankPawn::GetEyesPosition() const
+{
+	return CannonSetupPoint->GetComponentLocation();
+}
