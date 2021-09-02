@@ -57,22 +57,6 @@ bool ACannon::Fire()
 	bReadyToFire = false;
 	SingleShot();
 
-	if (GetOwner() && GetOwner() == GetWorld()->GetFirstPlayerController()->GetPawn())
-	{
-		if (ShootForceEffect)
-		{
-			FForceFeedbackParameters ShootForceEffectParams;
-			ShootForceEffectParams.bLooping = false;
-			ShootForceEffectParams.Tag = "ShootForceEffectParams";
-			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(ShootForceEffect, ShootForceEffectParams);
-		}
-
-		if (ShootShake)
-		{
-			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(ShootShake);
-		}
-	}
-
 	return true;
 }
 
@@ -132,13 +116,15 @@ void ACannon::SingleShot()
 		auto Projectile{ Cast<AProjectile>(Pool->RetreiveActor(ProjectileClass, SpawnTransform)) };
 		if (Projectile)
 		{
+			ShootEffect->ActivateSystem();
+			AudioEffect->Play();
+
 			Projectile->SetInstigator(GetInstigator());
 			Projectile->OnDestroyedTarget.AddUObject(this, &ACannon::NotifyTargetDestroyed);
 			Projectile->Start(this);
 			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 
-			ShootEffect->ActivateSystem();
-			AudioEffect->Play();
+
 		}
 	}
 	else

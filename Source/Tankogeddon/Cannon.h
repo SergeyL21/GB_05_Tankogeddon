@@ -45,10 +45,6 @@ protected:
 	UParticleSystemComponent* ShootEffect;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UAudioComponent* AudioEffect;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	UForceFeedbackEffect* ShootForceEffect;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UMatineeCameraShake> ShootShake;
 
 	FTimerHandle ReloadTimerHandle;
 

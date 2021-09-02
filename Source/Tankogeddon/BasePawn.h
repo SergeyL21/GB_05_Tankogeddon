@@ -11,6 +11,8 @@ class UStaticMeshComponent;
 class UArrowComponent;
 class UHealthComponent;
 class UBoxComponent;
+class UParticleSystemComponent;
+class UAudioComponent;
 class ACannon;
 
 UCLASS()
@@ -29,11 +31,19 @@ protected:
 	UHealthComponent* HealthComponent;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* HitCollider;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UParticleSystemComponent* DeathParticleEffect;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UAudioComponent* DeathAudioEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> SecondaryCannonClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UForceFeedbackEffect* DamageForceEffect;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UMatineeCameraShake> DamageShake;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
@@ -44,6 +54,7 @@ protected:
 	ACannon* InactiveCannon {nullptr};
 
 	int32 ScorePoints{ 0 };
+	bool bIsActiveState{ true };
 
 public:
 	// Sets default values for this pawn's properties
@@ -74,6 +85,9 @@ public:
 
 	UFUNCTION()
 	FVector GetEyesPosition() const;
+
+	UFUNCTION()
+	bool IsPlayerPawn() const;
 
 protected:
 	// Called when the game starts or when spawned
