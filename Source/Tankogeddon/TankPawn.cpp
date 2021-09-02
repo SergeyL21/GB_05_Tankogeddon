@@ -123,26 +123,3 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	return;
 }
-
-// --------------------------------------------------------------------------------------
-FVector ATankPawn::GetTurretForwardVector() const
-{
-	return TurretMesh->GetForwardVector();
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::RotateTurretTo(const FVector &TargetPosition)
-{
-	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition) };
-	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
-	TargetRotation.Pitch = CurrentRotation.Pitch;
-	TargetRotation.Roll = CurrentRotation.Roll;
-	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-FVector ATankPawn::GetEyesPosition() const
-{
-	return CannonSetupPoint->GetComponentLocation();
-}

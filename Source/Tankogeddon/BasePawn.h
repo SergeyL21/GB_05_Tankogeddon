@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> SecondaryCannonClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
+	float TurretRotationSpeed{ 0.5f };
+
 	UPROPERTY()
 	ACannon* ActiveCannon {nullptr};
 	UPROPERTY()
@@ -62,6 +65,15 @@ public:
 
 	UFUNCTION()
 	void ChangeWeapon();
+
+	UFUNCTION()
+	FVector GetTurretForwardVector() const;
+
+	UFUNCTION()
+	void RotateTurretTo(const FVector& TargetPosition);
+
+	UFUNCTION()
+	FVector GetEyesPosition() const;
 
 protected:
 	// Called when the game starts or when spawned
