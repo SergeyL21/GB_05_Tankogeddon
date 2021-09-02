@@ -5,6 +5,10 @@
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include <TimerManager.h>
 #include <Engine/Engine.h>
+#include <Particles/ParticleSystemComponent.h>
+#include <Components/AudioComponent.h>
+#include <Camera/CameraShake.h>
+#include <GameFramework/ForceFeedbackEffect.h>
 
 #include "Tankogeddon.h"
 #include "Projectile.h"
@@ -26,6 +30,12 @@ ACannon::ACannon()
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Spawn point"));
 	ProjectileSpawnPoint->SetupAttachment(Mesh);
+
+	ShootEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Shoot effect"));
+	ShootEffect->SetupAttachment(ProjectileSpawnPoint);
+
+	AudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio effect"));
+	AudioEffect->SetupAttachment(ProjectileSpawnPoint);
 }
 
 // --------------------------------------------------------------------------------------
@@ -40,14 +50,29 @@ bool ACannon::Fire()
 	--CurrentAmmo;
 	if (CurrentAmmo < 1)
 	{
-		DEBUG_MESSAGE_EX(11, FColor::Green, "There are no ammo!");
 		bReadyToFire = true;
 		return false;
 	}
 
 	bReadyToFire = false;
-	DEBUG_MESSAGE_EX(11, FColor::Green, "Shooting process...");
 	SingleShot();
+
+	if (GetOwner() && GetOwner() == GetWorld()->GetFirstPlayerController()->GetPawn())
+	{
+		if (ShootForceEffect)
+		{
+			FForceFeedbackParameters ShootForceEffectParams;
+			ShootForceEffectParams.bLooping = false;
+			ShootForceEffectParams.Tag = "ShootForceEffectParams";
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(ShootForceEffect, ShootForceEffectParams);
+		}
+
+		if (ShootShake)
+		{
+			GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(ShootShake);
+		}
+	}
+
 	return true;
 }
 
@@ -111,6 +136,9 @@ void ACannon::SingleShot()
 			Projectile->OnDestroyedTarget.AddUObject(this, &ACannon::NotifyTargetDestroyed);
 			Projectile->Start(this);
 			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
+
+			ShootEffect->ActivateSystem();
+			AudioEffect->Play();
 		}
 	}
 	else

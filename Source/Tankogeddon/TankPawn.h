@@ -37,6 +37,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points", Meta = (MakeEditWidget = true))
+	TArray<FVector> PatrollingPoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
+	float MovementAccuracy{ 10.f };
+
 	UPROPERTY()
 	ATankPlayerController* TankController;
 
@@ -59,6 +65,21 @@ public:
 
 	UFUNCTION()
 	void AddAmmoToWeapon(int32 Count = 0);
+
+	UFUNCTION()
+	const TArray<FVector>& GetPatrollingPoints() const { return PatrollingPoints; }
+
+	UFUNCTION() 
+	float GetMovementAccurency() const { return MovementAccuracy; }
+
+	UFUNCTION()
+	FVector GetTurretForwardVector() const;
+
+	UFUNCTION()
+	void RotateTurretTo(const FVector &TargetPosition);
+
+	UFUNCTION()
+	FVector GetEyesPosition() const;
 
 protected:
 	// Called when the game starts or when spawned
