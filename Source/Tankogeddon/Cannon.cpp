@@ -2,10 +2,13 @@
 
 #include <Components/ArrowComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include <TimerManager.h>
 #include <Engine/Engine.h>
 
 #include "Tankogeddon.h"
+#include "Projectile.h"
+#include "ObjectPoolComponent.h"
 
 // --------------------------------------------------------------------------------------
 ACannon::ACannon()
@@ -19,6 +22,8 @@ ACannon::ACannon()
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Spawn point"));
 	ProjectileSpawnPoint->SetupAttachment(Mesh);
+
+	ProjectileObjectPool = CreateDefaultSubobject<UObjectPoolComponent>(TEXT("Projectile object pool"));
 }
 
 // --------------------------------------------------------------------------------------
@@ -52,7 +57,14 @@ bool ACannon::FireSpecial()
 }
 
 // --------------------------------------------------------------------------------------
-bool ACannon::IsReadyToFire()
+void ACannon::AddAmmo(int32 Count)
+{
+	CurrentAmmo = FMath::Clamp(CurrentAmmo + Count, 0, MaxAmmo);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+bool ACannon::IsReadyToFire() const
 {
 	return bReadyToFire;
 }
@@ -60,7 +72,7 @@ bool ACannon::IsReadyToFire()
 // --------------------------------------------------------------------------------------
 void ACannon::Reload()
 {
-	if (CurrentShot >= FireShotNums) 
+	if (CurrentShot >= NumShotsInSeries) 
 	{
 		Reset();
 	}
@@ -75,15 +87,44 @@ void ACannon::Reload()
 void ACannon::SingleShot()
 {
 	++CurrentShot;
-	auto Delay{ CurrentShot < FireShotNums ? FireShotDelay : 1.f / FireRate };
+	auto Delay{ CurrentShot < NumShotsInSeries ? FireShotDelay : 1.f / FireRate };
 	
 	if (Type == ECannonType::FireProjectile)
 	{
-		float Progress{ float(CurrentShot) / FireShotNums * 100 };
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, Progress);
+		float progress{ float(CurrentShot) / NumShotsInSeries * 100 };
+		auto PoolableActor{ ProjectileObjectPool->GetPooledObject() };
+		if (nullptr == PoolableActor) {
+			UE_LOG(LogTemp, Warning, TEXT("Cannot spawn projectile! The object pool is filled."));
+		}
+		else {
+			auto Projectile{ Cast<AProjectile>(PoolableActor) };
+			if (nullptr != Projectile) {
+				Projectile->Start(ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
+				DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
+			}	
+		}
 	}
 	else
 	{
+		FHitResult hitResult;
+		auto traceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
+		traceParams.bTraceComplex = true;
+		traceParams.bReturnPhysicalMaterial = false;
+
+		auto start{ ProjectileSpawnPoint->GetComponentLocation() };
+		auto end{ ProjectileSpawnPoint->GetForwardVector() * FireRange + start };
+		if (GetWorld()->LineTraceSingleByChannel(OUT hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
+		{
+			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Red, false, 0.5f, 0, 5);
+			if (hitResult.Actor.Get())
+			{
+				hitResult.Actor.Get()->Destroy();
+			}
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), start, end, FColor::Red, false, 0.5f, 0, 5);
+		}
 		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
 	}
 
@@ -104,6 +145,7 @@ void ACannon::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentAmmo = MaxAmmo;
 	Reset();
 	return;
 }

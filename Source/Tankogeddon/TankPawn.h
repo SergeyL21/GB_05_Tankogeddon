@@ -35,20 +35,29 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSpeed{ 100.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
-	float InterpolationKey{ 0.1f };
+	float MovementSmootheness{ 0.1f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+	float RotationSmootheness{ 0.1f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Speed")
-	float TurretRotationInterpolationKey{ 0.5f };
+	float TurretRotationSpeed{ 0.5f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
-	TSubclassOf<ACannon> CannonClass;
+	TSubclassOf<ACannon> MainCannonClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
+	TSubclassOf<ACannon> SecondaryCannonClass;
 
 	UPROPERTY()
 	ATankPlayerController* TankController;
 	UPROPERTY()
-	ACannon* Cannon;
+	ACannon* MainCannon {nullptr};
+	UPROPERTY()
+	ACannon* SecondaryCannon {nullptr};
 
+	ACannon* CurrentCannon {nullptr};
 	float TargetForwardAxisValue{ 0.f };
 	float TargetRightAxisValue{ 0.f };
+	float CurrentForwardAxisValue{ 0.f };
 	float CurrentRightAxisValue{ 0.f };
+	bool bIsMainCannonActive{ true };
 
 public:
 	// Sets default values for this pawn's properties
@@ -66,11 +75,18 @@ public:
 	UFUNCTION()
 	void FireSpecial();
 
+	UFUNCTION()
+	void SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass);
+
+	void ChangeWeapon();
+
+	void AddAmmoToWeapon(int32 Count = 0);
+
+	bool IsMainCannonActive() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	void SetupCannon();
 
 public:	
 	// Called every frame
@@ -78,5 +94,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };
