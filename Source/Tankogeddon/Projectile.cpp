@@ -4,33 +4,63 @@
 
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
-#include "ObjectPoolComponent.h"
+
+#include "DamageTaker.h"
+#include "Cannon.h"
+#include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
 AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	auto sceneComponent{ CreateDefaultSubobject<USceneComponent>(TEXT("Root")) };
-	RootComponent = sceneComponent;
+	auto SceneComponent{ CreateDefaultSubobject<USceneComponent>(TEXT("Root")) };
+	RootComponent = SceneComponent;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnMeshOverlapBegin);
 	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	Mesh->SetHiddenInGame(true);
 }
 
 // --------------------------------------------------------------------------------------
-void AProjectile::Start(const FVector &SpawnLocation, const FRotator &SpawnRotation) 
+void AProjectile::Start(ACannon *InOwner) 
 {
-	if (!IsActive()) 
+	if (IsValid(InOwner))
 	{
-		SetActorLocation(SpawnLocation);
-		SetActorRotation(SpawnRotation);
-		SetActive(true);
-		GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
-		SetLifeSpan(FlyRange / MoveSpeed);
+		CannonOwner = InOwner;
+		OnActorKilled.AddDynamic(CannonOwner, &ACannon::KillingNotification);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
+	StartLocation = GetActorLocation();
+	Mesh->SetHiddenInGame(false);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void AProjectile::Stop()
+{
+	GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
+	Mesh->SetHiddenInGame(true);
+
+	auto Pool{ GetWorld()->GetSubsystem<UActorPoolSubsystem>() };
+	if (Pool && Pool->IsActorInPool(this))
+	{
+		if (IsValid(CannonOwner))
+		{
+			OnActorKilled.RemoveDynamic(CannonOwner, &ACannon::KillingNotification);
+		}
+		Pool->ReturnActor(this);
+		CannonOwner = nullptr;
+	}
+	else
+	{
+		Destroy();
+	}
+
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -39,16 +69,48 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 									UPrimitiveComponent* OtherComp, 
 									int32 OtherBodyIndex,
 									bool bFromSweep, 
-									const FHitResult& SweepResult) 
+									const FHitResult& SweepResult)
 {
+	// TODO: simple fix to avoid overlapping projectiles
+	if (Cast<AProjectile>(OtherActor))
+	{
+		return;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
-	OtherActor->Destroy();
-	SetActive(false);
+	if (OtherComp && OtherComp->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
+	{
+		OtherActor->Destroy();
+	}
+	else if (IDamageTaker* DamageTaker = Cast<IDamageTaker>(OtherActor))
+	{
+		auto CurrentInstigator{ GetInstigator() };
+		if (OtherActor != CurrentInstigator)
+		{
+			FDamageData DamageData;
+			DamageData.DamageValue = Damage;
+			DamageData.DamageMaker = this;
+			DamageData.Instigator = CurrentInstigator;
+			DamageTaker->TakeDamage(OUT DamageData);
+			
+			if (DamageData.bOutIsFatalDamage && OnActorKilled.IsBound())
+			{
+				OnActorKilled.Broadcast(OtherActor);
+			}
+		}
+	}
+	Stop();
+	return;
 }
 
 // --------------------------------------------------------------------------------------
 void AProjectile::Move()
 {
-	auto nextPosition{ GetActorLocation() + GetActorForwardVector() * MoveSpeed * MoveRate };
-	SetActorLocation(nextPosition);
+	auto NextPosition{ GetActorLocation() + GetActorForwardVector() * MoveSpeed * MoveRate };
+	SetActorLocation(NextPosition);
+	if (FVector::Distance(NextPosition, StartLocation) > FlyRange)
+	{
+		Stop();
+	}
+	return;
 }

@@ -3,15 +3,18 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "PooledActor.h"
+#include <GameFramework/Actor.h>
 #include "Projectile.generated.h"
 
 class UStaticMeshComponent;
+class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API AProjectile : public APooledActor
+class TANKOGEDDON_API AProjectile : public AActor
 {
 	GENERATED_BODY()
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActorKilled, AActor*, Actor);
 	
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
@@ -27,12 +30,19 @@ protected:
 	float Damage{ 1.f };
 
 	FTimerHandle MovementTimerHandle;
+	FVector StartLocation;
+	ACannon* CannonOwner{ nullptr };
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnActorKilled OnActorKilled;
 
 public:	
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	void Start(const FVector &SpawnLocation, const FRotator &SpawnRotation);
+	void Start(ACannon* InOwner = nullptr);
+	void Stop();
 
 protected:
 	UFUNCTION()

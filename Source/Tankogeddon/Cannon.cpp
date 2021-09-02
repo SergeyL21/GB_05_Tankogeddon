@@ -8,7 +8,10 @@
 
 #include "Tankogeddon.h"
 #include "Projectile.h"
-#include "ObjectPoolComponent.h"
+#include "DamageTaker.h"
+#include "Scorable.h"
+#include "BaseShootingPawn.h"
+#include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
 ACannon::ACannon()
@@ -19,11 +22,10 @@ ACannon::ACannon()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cannon mesh"));
 	Mesh->SetupAttachment(RootComponent);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Spawn point"));
 	ProjectileSpawnPoint->SetupAttachment(Mesh);
-
-	ProjectileObjectPool = CreateDefaultSubobject<UObjectPoolComponent>(TEXT("Projectile object pool"));
 }
 
 // --------------------------------------------------------------------------------------
@@ -64,9 +66,29 @@ void ACannon::AddAmmo(int32 Count)
 }
 
 // --------------------------------------------------------------------------------------
+void ACannon::SetVisibility(bool bIsVisible)
+{
+	Mesh->SetHiddenInGame(!bIsVisible);
+}
+
+// --------------------------------------------------------------------------------------
 bool ACannon::IsReadyToFire() const
 {
 	return bReadyToFire;
+}
+
+// --------------------------------------------------------------------------------------
+void ACannon::KillingNotification(AActor *Actor)
+{
+	auto BaseShootingPawn{ Cast<ABaseShootingPawn>(GetOwner()) };
+	auto ScorableObject{ Cast<IScorable>(Actor) };
+	if (BaseShootingPawn && ScorableObject)
+	{
+		BaseShootingPawn->AddScorePoints(ScorableObject->GetScorePoints());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor %s is destroyed by cannon %s"), *Actor->GetName(), *GetName());
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -92,40 +114,54 @@ void ACannon::SingleShot()
 	if (Type == ECannonType::FireProjectile)
 	{
 		float progress{ float(CurrentShot) / NumShotsInSeries * 100 };
-		auto PoolableActor{ ProjectileObjectPool->GetPooledObject() };
-		if (nullptr == PoolableActor) {
-			UE_LOG(LogTemp, Warning, TEXT("Cannot spawn projectile! The object pool is filled."));
-		}
-		else {
-			auto Projectile{ Cast<AProjectile>(PoolableActor) };
-			if (nullptr != Projectile) {
-				Projectile->Start(ProjectileSpawnPoint->GetComponentLocation(), ProjectileSpawnPoint->GetComponentRotation());
-				DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [% i / % i] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
-			}	
+		auto Pool{ GetWorld()->GetSubsystem<UActorPoolSubsystem>() };
+		FTransform SpawnTransform{ ProjectileSpawnPoint->GetComponentRotation(), ProjectileSpawnPoint->GetComponentLocation(), FVector::OneVector };
+		auto Projectile{ Cast<AProjectile>(Pool->RetreiveActor(ProjectileClass, SpawnTransform)) };
+		if (Projectile)
+		{
+			Projectile->SetInstigator(GetInstigator());
+			Projectile->Start(this);
+			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 		}
 	}
 	else
 	{
-		FHitResult hitResult;
-		auto traceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
-		traceParams.bTraceComplex = true;
-		traceParams.bReturnPhysicalMaterial = false;
+		FHitResult HitResult;
+		auto TraceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
+		TraceParams.bTraceComplex = true;
+		TraceParams.bReturnPhysicalMaterial = false;
 
-		auto start{ ProjectileSpawnPoint->GetComponentLocation() };
-		auto end{ ProjectileSpawnPoint->GetForwardVector() * FireRange + start };
-		if (GetWorld()->LineTraceSingleByChannel(OUT hitResult, start, end, ECollisionChannel::ECC_Visibility, traceParams))
+		auto Start{ ProjectileSpawnPoint->GetComponentLocation() };
+		auto End{ ProjectileSpawnPoint->GetForwardVector() * FireRange + Start };
+		if (GetWorld()->LineTraceSingleByChannel(OUT HitResult, Start, End, ECollisionChannel::ECC_Visibility, TraceParams))
 		{
-			DrawDebugLine(GetWorld(), start, hitResult.Location, FColor::Red, false, 0.5f, 0, 5);
-			if (hitResult.Actor.Get())
+			DrawDebugLine(GetWorld(), Start, HitResult.Location, FColor::Red, false, 0.5f, 0, 5);
+			if (HitResult.Component.IsValid())
 			{
-				hitResult.Actor.Get()->Destroy();
+				auto HitActor{ HitResult.Actor.Get() };
+				if (HitResult.Component->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
+				{
+					HitActor->Destroy();
+				}
+				else if (IDamageTaker* DamageTaker = Cast<IDamageTaker>(HitActor))
+				{
+					auto CurrentInstigator{ GetInstigator() };
+					if (HitActor != CurrentInstigator)
+					{
+						FDamageData DamageData;
+						DamageData.DamageValue = FireDamage;
+						DamageData.DamageMaker = this;
+						DamageData.Instigator = CurrentInstigator;
+						DamageTaker->TakeDamage(OUT DamageData);
+					}
+				}
 			}
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), start, end, FColor::Red, false, 0.5f, 0, 5);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f, 0, 5);
 		}
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace")
+		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace [%d/%d]", CurrentAmmo, MaxAmmo);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, Delay, false);

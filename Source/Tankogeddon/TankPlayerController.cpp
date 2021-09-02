@@ -7,6 +7,7 @@
 
 #include "Tankogeddon.h"
 #include "TankPawn.h"
+#include "ActorPoolSubsystem.h"
 
 // --------------------------------------------------------------------------------------
 constexpr auto DEBUG_DIRECTION_LENGTH{ 1000.f };
@@ -34,14 +35,14 @@ void ATankPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector mouseDirection;
-	DeprojectMousePositionToWorld(OUT MousePos, OUT mouseDirection);
-	const auto pawnPos{ TankPawn->GetActorLocation() };
-	MousePos.Z = pawnPos.Z;
-	auto direction{ MousePos - pawnPos };
-	direction.Normalize();
-	MousePos = pawnPos + direction * DEBUG_DIRECTION_LENGTH;
-	DrawDebugLine(GetWorld(), pawnPos, MousePos, FColor::Red, false, 0.1f, 0, 5.f);
+	FVector MouseDirection;
+	DeprojectMousePositionToWorld(OUT MousePos, OUT MouseDirection);
+	const auto PawnPos{ TankPawn->GetActorLocation() };
+	MousePos.Z = PawnPos.Z;
+	auto Direction{ MousePos - PawnPos };
+	Direction.Normalize();
+	MousePos = PawnPos + Direction * DEBUG_DIRECTION_LENGTH;
+	DrawDebugLine(GetWorld(), PawnPos, MousePos, FColor::Green, false, 0.1f, 0, 5.f);
 	return;
 }
 
@@ -87,4 +88,10 @@ void ATankPlayerController::ChangeWeapon()
 {
 	TankPawn->ChangeWeapon();
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::DumpActorPoolSubsystemStats()
+{
+	GetWorld()->GetSubsystem<UActorPoolSubsystem>()->DumpPoolStats();
 }
