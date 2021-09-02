@@ -14,6 +14,7 @@ class UBoxComponent;
 class UParticleSystemComponent;
 class UAudioComponent;
 class ACannon;
+class ABaseBox;
 
 UCLASS()
 class TANKOGEDDON_API ABasePawn : public APawn, public IDamageTaker
@@ -44,6 +45,9 @@ protected:
 	UForceFeedbackEffect* DamageForceEffect;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UMatineeCameraShake> DamageShake;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Other")
+	TSubclassOf<ABaseBox> DropBoxClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
@@ -88,6 +92,9 @@ public:
 
 	UFUNCTION()
 	bool IsPlayerPawn() const;
+
+	UFUNCTION()
+	void DropLoot();
 
 protected:
 	// Called when the game starts or when spawned

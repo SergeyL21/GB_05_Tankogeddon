@@ -13,6 +13,7 @@
 #include "Cannon.h"
 #include "HealthComponent.h"
 #include "BaseAIController.h"
+#include "BaseBox.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -132,7 +133,12 @@ void ABasePawn::Die()
 			DeathAudioEffect->Play();
 
 			FTimerDelegate TimerCallback;
-			TimerCallback.BindLambda([this]() { Destroy(); });
+			TimerCallback.BindLambda([this]() 
+				{ 
+					DropLoot(); 
+					Destroy(); 
+				}
+			);
 			FTimerHandle DelayTimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(OUT DelayTimerHandle, TimerCallback, 10.f, false);
 			return;
@@ -218,6 +224,21 @@ FVector ABasePawn::GetEyesPosition() const
 bool ABasePawn::IsPlayerPawn() const
 {
 	return (Cast<APawn>(this) == GetWorld()->GetFirstPlayerController()->GetPawn());
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::DropLoot()
+{
+	if (DropBoxClass)
+	{
+		FActorSpawnParameters Params;
+		const auto Location{ GetActorLocation() };
+		const auto Rotation{ GetActorRotation() };
+		if (auto Box = GetWorld()->SpawnActor<ABaseBox>(DropBoxClass, Location, Rotation, OUT Params))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Box %s dropped"), *Box->GetName());
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------------
