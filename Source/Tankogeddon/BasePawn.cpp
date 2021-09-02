@@ -49,7 +49,7 @@ void ABasePawn::TakeDamage(FDamageData& DamageData)
 // --------------------------------------------------------------------------------------
 void ABasePawn::Fire()
 {
-	if (ActiveCannon)
+	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->Fire();
 	}
@@ -59,7 +59,7 @@ void ABasePawn::Fire()
 // --------------------------------------------------------------------------------------
 void ABasePawn::FireSpecial()
 {
-	if (ActiveCannon)
+	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->FireSpecial();
 	}
@@ -124,6 +124,29 @@ void ABasePawn::ChangeWeapon()
 		InactiveCannon->SetVisibility(false);
 	}
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+FVector ABasePawn::GetTurretForwardVector() const
+{
+	return TurretMesh->GetForwardVector();
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::RotateTurretTo(const FVector& TargetPosition)
+{
+	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition) };
+	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
+	TargetRotation.Pitch = CurrentRotation.Pitch;
+	TargetRotation.Roll = CurrentRotation.Roll;
+	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+FVector ABasePawn::GetEyesPosition() const
+{
+	return CannonSetupPoint->GetComponentLocation();
 }
 
 // --------------------------------------------------------------------------------------

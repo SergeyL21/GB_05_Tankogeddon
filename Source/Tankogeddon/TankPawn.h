@@ -34,9 +34,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSmootheness{ 0.1f };
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
-	float TurretRotationSpeed{ 0.5f };
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points", Meta = (MakeEditWidget = true))
 	TArray<FVector> PatrollingPoints;
 
@@ -71,15 +68,6 @@ public:
 
 	UFUNCTION() 
 	float GetMovementAccurency() const { return MovementAccuracy; }
-
-	UFUNCTION()
-	FVector GetTurretForwardVector() const;
-
-	UFUNCTION()
-	void RotateTurretTo(const FVector &TargetPosition);
-
-	UFUNCTION()
-	FVector GetEyesPosition() const;
 
 protected:
 	// Called when the game starts or when spawned
