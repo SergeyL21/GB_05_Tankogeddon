@@ -12,7 +12,7 @@ void ATankAIController::BeginPlay()
 {
     Super::BeginPlay();
 
-    TankPawn = Cast<ATankPawn>(BasePawn);
+    TankPawn = Cast<ATankPawn>(GetPawn());
     MovementAccuracy = TankPawn->GetMovementAccurency();
     const auto Points{ TankPawn->GetPatrollingPoints() };
 
@@ -31,6 +31,11 @@ void ATankAIController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    if (!TankPawn)
+    {
+        return;
+    }
+
     if (CurrentPatrolPointIndex == INDEX_NONE)
     {
         TankPawn->MoveForward(0.f);
@@ -41,7 +46,6 @@ void ATankAIController::Tick(float DeltaTime)
     //UE_LOG(LogTemp, Warning, TEXT("AI Rotation forwardAngle: %f rightAngle: %f rotationValue: %f"), forwardAngle, rightAngle, rotationValue);
     TankPawn->RotateRight(CalculateRotationValue());
 
-    Targeting();
     return;
 }
 

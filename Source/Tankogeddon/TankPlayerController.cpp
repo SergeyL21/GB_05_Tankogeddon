@@ -43,6 +43,11 @@ void ATankPlayerController::Tick(float DeltaTime)
 	Direction.Normalize();
 	MousePos = PawnPos + Direction * DEBUG_DIRECTION_LENGTH;
 	DrawDebugLine(GetWorld(), PawnPos, MousePos, FColor::Green, false, 0.1f, 0, 5.f);
+
+	if (TankPawn)
+	{
+		TankPawn->SetTurretTarget(MousePos);
+	}
 	return;
 }
 

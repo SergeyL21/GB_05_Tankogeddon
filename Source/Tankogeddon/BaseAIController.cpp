@@ -10,7 +10,7 @@ void ABaseAIController::BeginPlay()
 {
     Super::BeginPlay();
 
-    BasePawn = Cast<ABasePawn>(GetPawn());
+    MyPawn = Cast<ABasePawn>(GetPawn());
     PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 	return;
 }
@@ -20,12 +20,11 @@ void ABaseAIController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    return;
-}
+    if (!MyPawn)
+    {
+        return;
+    }
 
-// --------------------------------------------------------------------------------------
-void ABaseAIController::Targeting()
-{
     if (DetectCanFire())
     {
         Fire();
@@ -34,6 +33,7 @@ void ABaseAIController::Targeting()
     {
         RotateToPlayer();
     }
+
     return;
 }
 
@@ -42,7 +42,7 @@ void ABaseAIController::RotateToPlayer()
 {
     if (IsPlayerInRange())
     {
-        BasePawn->RotateTurretTo(PlayerPawn->GetActorLocation());
+        MyPawn->SetTurretTarget(PlayerPawn->GetActorLocation());
     }
     return;
 }
@@ -50,7 +50,7 @@ void ABaseAIController::RotateToPlayer()
 // --------------------------------------------------------------------------------------
 bool ABaseAIController::IsPlayerInRange() const
 {
-    const auto Distance{ FVector::Distance(BasePawn->GetActorLocation(), PlayerPawn->GetActorLocation()) };
+    const auto Distance{ FVector::Distance(MyPawn->GetActorLocation(), PlayerPawn->GetActorLocation()) };
     return Distance <= TargetingRange;
 }
 
@@ -62,8 +62,8 @@ bool ABaseAIController::DetectCanFire() const
         return false;
     }
 
-    const auto TargetingDirection{ BasePawn->GetTurretForwardVector() };
-    auto DirectionToPlayer{ PlayerPawn->GetActorLocation() - BasePawn->GetActorLocation() };
+    const auto TargetingDirection{ MyPawn->GetTurretForwardVector() };
+    auto DirectionToPlayer{ PlayerPawn->GetActorLocation() - MyPawn->GetActorLocation() };
     DirectionToPlayer.Normalize();
     const auto AimAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(TargetingDirection, DirectionToPlayer))) };
     return AimAngle <= Accuracy;
@@ -72,7 +72,7 @@ bool ABaseAIController::DetectCanFire() const
 // --------------------------------------------------------------------------------------
 void ABaseAIController::Fire()
 {
-    BasePawn->Fire();
+    MyPawn->Fire();
     return;
 }
 
@@ -80,12 +80,12 @@ void ABaseAIController::Fire()
 bool ABaseAIController::DetectPlayerVisibility() const
 {
     auto PlayerPos{ PlayerPawn->GetActorLocation() };
-    const auto EyesPos{ BasePawn->GetEyesPosition() };
+    const auto EyesPos{ MyPawn->GetEyesPosition() };
 
     FHitResult HitResult;
     auto TraceParams{ FCollisionQueryParams(FName(TEXT("FireTrace")), true, this) };
     TraceParams.bTraceComplex = true;
-    TraceParams.AddIgnoredActor(BasePawn);
+    TraceParams.AddIgnoredActor(MyPawn);
     TraceParams.bReturnPhysicalMaterial = false;
 
     if (GetWorld()->LineTraceSingleByChannel(HitResult, EyesPos, PlayerPos, ECollisionChannel::ECC_Visibility, TraceParams))

@@ -52,14 +52,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
 
-	UPROPERTY()
-	ACannon* ActiveCannon {nullptr};
-	UPROPERTY()
-	ACannon* InactiveCannon {nullptr};
-
-	int32 ScorePoints{ 0 };
-	bool bIsActiveState{ true };
-
 public:
 	// Sets default values for this pawn's properties
 	ABasePawn();
@@ -85,7 +77,7 @@ public:
 	FVector GetTurretForwardVector() const;
 
 	UFUNCTION()
-	void RotateTurretTo(const FVector& TargetPosition);
+	void SetTurretTarget(const FVector& TargetPosition);
 
 	UFUNCTION()
 	FVector GetEyesPosition() const;
@@ -103,7 +95,19 @@ protected:
 
 	virtual void TargetDestroyed(AActor* Target);
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 private:
+	UPROPERTY()
+	ACannon* ActiveCannon {nullptr};
+
+	UPROPERTY()
+	ACannon* InactiveCannon { nullptr };
+
+	UPROPERTY()
+	FVector TurretTarget;
+
 	UFUNCTION()
 	void Die();
 

@@ -18,7 +18,7 @@ class TANKOGEDDON_API ATurretAIController : public ABaseAIController
 
 protected:
     UPROPERTY()
-    ATurret* Turret;
+    ATurret* TurretPawn;
 
 protected:
     virtual void BeginPlay() override;

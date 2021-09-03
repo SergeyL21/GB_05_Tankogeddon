@@ -52,7 +52,6 @@ void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TankController = Cast<ATankPlayerController>(GetController());
 	return;
 }
 
@@ -69,10 +68,11 @@ void ATankPawn::TargetDestroyed(AActor* Target)
 // --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
-	if (ActiveCannon) 
+	auto Cannon{ GetActiveCannon() };
+	if (Cannon) 
 	{
 		// TODO: check type weapon
-		ActiveCannon->AddAmmo(Count);
+		Cannon->AddAmmo(Count);
 	}
 
 	return;
@@ -107,12 +107,6 @@ void ATankPawn::Tick(float DeltaTime)
 	SetActorRotation(NewRotation);
 	//DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
 
-	// Turret rotation
-	if (TankController)
-	{
-		const auto MousePos{ TankController->GetMousePos() };
-		RotateTurretTo(MousePos);
-	}
 	return;
 }
 

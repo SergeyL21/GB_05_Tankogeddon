@@ -40,9 +40,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
 	float MovementAccuracy{ 10.f };
 
-	UPROPERTY()
-	ATankPlayerController* TankController;
-
 	int32 AccumulatedScores{ 0 };
 
 	float TargetForwardAxisValue{ 0.f };

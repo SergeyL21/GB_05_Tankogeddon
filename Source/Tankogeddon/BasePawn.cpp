@@ -19,7 +19,7 @@
 // Sets default values
 ABasePawn::ABasePawn()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank body"));
 	BodyMesh->bEditableWhenInherited = true;
@@ -55,17 +55,27 @@ ABasePawn::ABasePawn()
 // --------------------------------------------------------------------------------------
 void ABasePawn::TakeDamage(FDamageData& DamageData)
 {
-	if (bIsActiveState)
-	{
-		HealthComponent->TakeDamage(OUT DamageData);
-	}
+	HealthComponent->TakeDamage(OUT DamageData);
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+// Called every frame
+void ABasePawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TurretTarget) };
+	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
+	TargetRotation.Pitch = CurrentRotation.Pitch;
+	TargetRotation.Roll = CurrentRotation.Roll;
+	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
 }
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::Fire()
 {
-	if (bIsActiveState && ActiveCannon && ActiveCannon->IsReadyToFire())
+	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->Fire();
 	}
@@ -75,7 +85,7 @@ void ABasePawn::Fire()
 // --------------------------------------------------------------------------------------
 void ABasePawn::FireSpecial()
 {
-	if (bIsActiveState && ActiveCannon && ActiveCannon->IsReadyToFire())
+	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->FireSpecial();
 	}
@@ -91,7 +101,7 @@ ACannon* ABasePawn::GetActiveCannon() const
 // --------------------------------------------------------------------------------------
 void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 {
-	if (!InCannonClass || !bIsActiveState)
+	if (!InCannonClass)
 	{
 		return;
 	}
@@ -124,7 +134,6 @@ void ABasePawn::Die()
 		{
 			//ActiveCannon->SetActorHiddenInGame(true);
 		}
-		bIsActiveState = false;
 
 		if (auto AIController = Cast<ABaseAIController>(GetController())) {
 			SetActorTickEnabled(false);
@@ -152,37 +161,29 @@ void ABasePawn::Die()
 // --------------------------------------------------------------------------------------
 void ABasePawn::DamageTaken(float InDamage)
 {
-	if (bIsActiveState)
+	if (IsPlayerPawn())
 	{
-		if (IsPlayerPawn())
+		if (DamageForceEffect)
 		{
-			if (DamageForceEffect)
-			{
-				FForceFeedbackParameters ShootForceEffectParams;
-				ShootForceEffectParams.bLooping = false;
-				ShootForceEffectParams.Tag = "ShootForceEffectParams";
-				GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(DamageForceEffect, ShootForceEffectParams);
-			}
-
-			if (DamageShake)
-			{
-				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamageShake);
-			}
+			FForceFeedbackParameters ShootForceEffectParams;
+			ShootForceEffectParams.bLooping = false;
+			ShootForceEffectParams.Tag = "ShootForceEffectParams";
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(DamageForceEffect, ShootForceEffectParams);
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
+		if (DamageShake)
+		{
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamageShake);
+		}
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::ChangeWeapon()
 {
-	if (!bIsActiveState)
-	{
-		return;
-	}
-
 	Swap(ActiveCannon, InactiveCannon);
 
 	if (ActiveCannon)
@@ -204,13 +205,9 @@ FVector ABasePawn::GetTurretForwardVector() const
 }
 
 // --------------------------------------------------------------------------------------
-void ABasePawn::RotateTurretTo(const FVector& TargetPosition)
+void ABasePawn::SetTurretTarget(const FVector& TargetPosition)
 {
-	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition) };
-	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
-	TargetRotation.Pitch = CurrentRotation.Pitch;
-	TargetRotation.Roll = CurrentRotation.Roll;
-	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
+	TurretTarget = TargetPosition;
 	return;
 }
 
