@@ -6,12 +6,10 @@
 #include "BasePawn.h"
 #include "TankPawn.generated.h"
 
-class UStaticMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class ATankPlayerController;
-class UArrowComponent;
-class UHealthComponent;
+class UForceFeedbackEffect;
 class ACannon;
 
 UCLASS()
@@ -39,6 +37,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
 	float MovementAccuracy{ 10.f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UForceFeedbackEffect* HitForceEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	TSubclassOf<UMatineeCameraShake> HitShake;
 
 	int32 AccumulatedScores{ 0 };
 
@@ -69,6 +72,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void DamageTaken(float DamageValue) override;
 
 	virtual void TargetDestroyed(AActor* Target) override;
 

@@ -4,6 +4,7 @@
 
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Kismet/GameplayStatics.h>
 #include <Components/ArrowComponent.h>
 #include <Components/BoxComponent.h>
 #include <Particles/ParticleSystemComponent.h>
@@ -41,15 +42,6 @@ ABasePawn::ABasePawn()
 	HealthComponent->OnDie.AddDynamic(this, &ABasePawn::Die);
 	HealthComponent->OnDamaged.AddDynamic(this, &ABasePawn::DamageTaken);
 	HealthComponent->bEditableWhenInherited = true;
-
-	DeathParticleEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Shoot effect"));
-	DeathParticleEffect->SetupAttachment(RootComponent);
-	DeathParticleEffect->bEditableWhenInherited = true;
-	DeathParticleEffect->bAutoActivate = false;
-
-	DeathAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio effect"));
-	DeathAudioEffect->SetupAttachment(RootComponent);
-	DeathParticleEffect->bEditableWhenInherited = true;
 }
 
 // --------------------------------------------------------------------------------------
@@ -124,36 +116,6 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 // --------------------------------------------------------------------------------------
 void ABasePawn::Die()
 {
-	if (!IsPlayerPawn()) 
-	{		
-		//RootComponent->SetHiddenInGame(true);
-		//TurretMesh->SetHiddenInGame(true);
-		//CannonSetupPoint->SetHiddenInGame(true);
-
-		if (ActiveCannon)
-		{
-			//ActiveCannon->SetActorHiddenInGame(true);
-		}
-
-		if (auto AIController = Cast<ABaseAIController>(GetController())) {
-			SetActorTickEnabled(false);
-			AIController->SetActorTickEnabled(false);
-			DeathParticleEffect->ActivateSystem();
-			DeathAudioEffect->Play();
-
-			FTimerDelegate TimerCallback;
-			TimerCallback.BindLambda([this]() 
-				{ 
-					DropLoot(); 
-					Destroy(); 
-				}
-			);
-			FTimerHandle DelayTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(OUT DelayTimerHandle, TimerCallback, 10.f, false);
-			return;
-		}
-	}
-
 	Destroy();
 	return;
 }
@@ -161,22 +123,6 @@ void ABasePawn::Die()
 // --------------------------------------------------------------------------------------
 void ABasePawn::DamageTaken(float InDamage)
 {
-	if (IsPlayerPawn())
-	{
-		if (DamageForceEffect)
-		{
-			FForceFeedbackParameters ShootForceEffectParams;
-			ShootForceEffectParams.bLooping = false;
-			ShootForceEffectParams.Tag = "ShootForceEffectParams";
-			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(DamageForceEffect, ShootForceEffectParams);
-		}
-
-		if (DamageShake)
-		{
-			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamageShake);
-		}
-	}
-
 	UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
@@ -256,6 +202,9 @@ void ABasePawn::BeginPlay()
 // --------------------------------------------------------------------------------------
 void ABasePawn::Destroyed()
 {
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionParticleSystem, GetActorTransform());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestructionSound, GetActorLocation());
+
 	if (ActiveCannon)
 	{
 		ActiveCannon->Destroy();

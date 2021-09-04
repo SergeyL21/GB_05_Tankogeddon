@@ -26,5 +26,8 @@ struct FDamageData
     AActor* DamageMaker {nullptr};
 
     UPROPERTY()
+    FVector HitLocation;
+
+    UPROPERTY()
     bool bOutIsFatalDamage{ false };
 };

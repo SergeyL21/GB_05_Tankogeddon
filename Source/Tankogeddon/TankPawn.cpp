@@ -56,6 +56,29 @@ void ATankPawn::BeginPlay()
 }
 
 // --------------------------------------------------------------------------------------
+void ATankPawn::DamageTaken(float DamageValue)
+{
+	Super::DamageTaken(DamageValue);
+
+	if (IsPlayerPawn())
+	{
+		if (HitForceEffect)
+		{
+			FForceFeedbackParameters ShootForceEffectParams;
+			ShootForceEffectParams.bLooping = false;
+			ShootForceEffectParams.Tag = "ShootForceEffectParams";
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(HitForceEffect, ShootForceEffectParams);
+		}
+
+		if (HitShake)
+		{
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitShake);
+		}
+	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void ATankPawn::TargetDestroyed(AActor* Target)
 {
 	if (IScorable* Scorable = Cast<IScorable>(Target))
