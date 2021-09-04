@@ -43,7 +43,7 @@ protected:
 	USoundBase* DestructionSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Other")
-	TSubclassOf<ABaseBox> DropBoxClass;
+	TSubclassOf<ABaseBox>  DestructionBonusBox;;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
@@ -90,9 +90,6 @@ public:
 
 	UFUNCTION()
 	bool IsPlayerPawn() const;
-
-	UFUNCTION()
-	void DropLoot();
 
 protected:
 	// Called when the game starts or when spawned

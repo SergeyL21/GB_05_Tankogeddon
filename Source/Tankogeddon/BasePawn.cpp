@@ -116,6 +116,16 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 // --------------------------------------------------------------------------------------
 void ABasePawn::Die()
 {
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionParticleSystem, GetActorTransform());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestructionSound, GetActorLocation());
+
+	if (DestructionBonusBox)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.bNoFail = true;
+		GetWorld()->SpawnActor<ABaseBox>(DestructionBonusBox, GetActorTransform(), SpawnParams);
+	}
+
 	Destroy();
 	return;
 }
@@ -170,21 +180,6 @@ bool ABasePawn::IsPlayerPawn() const
 }
 
 // --------------------------------------------------------------------------------------
-void ABasePawn::DropLoot()
-{
-	if (DropBoxClass)
-	{
-		FActorSpawnParameters Params;
-		const auto Location{ GetActorLocation() };
-		const auto Rotation{ GetActorRotation() };
-		if (auto Box = GetWorld()->SpawnActor<ABaseBox>(DropBoxClass, Location, Rotation, OUT Params))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Box %s dropped"), *Box->GetName());
-		}
-	}
-}
-
-// --------------------------------------------------------------------------------------
 // Called when the game starts or when spawned
 void ABasePawn::BeginPlay()
 {
@@ -202,9 +197,6 @@ void ABasePawn::BeginPlay()
 // --------------------------------------------------------------------------------------
 void ABasePawn::Destroyed()
 {
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionParticleSystem, GetActorTransform());
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestructionSound, GetActorLocation());
-
 	if (ActiveCannon)
 	{
 		ActiveCannon->Destroy();
