@@ -10,6 +10,7 @@
 
 #include "Tankogeddon.h"
 #include "Cannon.h"
+#include "Scorable.h"
 #include "TankPlayerController.h"
 #include "HealthComponent.h"
 
@@ -29,15 +30,12 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
-
-	HealthComponent->OnDie.AddDynamic(this, &ATankPawn::Die);
-	HealthComponent->OnDamaged.AddDynamic(this, &ATankPawn::DamageTaken);
 }
 
 // --------------------------------------------------------------------------------------
 void ATankPawn::MoveForward(float AxisValue)
 {
-	TargetForwardAxisValue = AxisValue;
+    TargetForwardAxisValue = AxisValue;
 	return;
 }
 
@@ -59,17 +57,13 @@ void ATankPawn::BeginPlay()
 }
 
 // --------------------------------------------------------------------------------------
-void ATankPawn::Die()
+void ATankPawn::TargetDestroyed(AActor* Target)
 {
-	Destroy();
-	return;
-}
-
-// --------------------------------------------------------------------------------------
-void ATankPawn::DamageTaken(float InDamage)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s taken damage: %f. HP left: %f"), *GetName(), InDamage, HealthComponent->GetHealth());
-	return;
+	if (IScorable* Scorable = Cast<IScorable>(Target))
+	{
+		AccumulatedScores += Scorable->GetScorePoints();
+		UE_LOG(LogTemp, Log, TEXT("Destroyed target %s. Current scores: %d"), *Target->GetName(), AccumulatedScores);
+	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -102,7 +96,7 @@ void ATankPawn::Tick(float DeltaTime)
 	{
 		CurrentForwardAxisValue = 0.f;
 	}
-	DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *MovePosition.ToString())
+	//DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *MovePosition.ToString())
 
 	// Tank rotation
 	CurrentRightAxisValue = FMath::FInterpTo(CurrentRightAxisValue, TargetRightAxisValue, DeltaTime, RotationSmootheness);
@@ -111,19 +105,13 @@ void ATankPawn::Tick(float DeltaTime)
 	YawRotation += CurrentRotation.Yaw;
 	const auto NewRotation{ FRotator{0.f, YawRotation, 0.f} };
 	SetActorRotation(NewRotation);
-	DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
+	//DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
 
 	// Turret rotation
 	if (TankController)
 	{
 		const auto MousePos{ TankController->GetMousePos() };
-		auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), MousePos) };
-		const auto CurrentTurretRotation{ TurretMesh->GetComponentRotation() };
-		TargetRotation.Pitch = CurrentTurretRotation.Pitch;
-		TargetRotation.Roll = CurrentTurretRotation.Roll;
-		const auto NewTurretRotation{ FMath::RInterpConstantTo(CurrentTurretRotation, TargetRotation, DeltaTime, TurretRotationSpeed) };
-		TurretMesh->SetWorldRotation(NewTurretRotation);
-		DEBUG_MESSAGE(2, FColor::Yellow, "Turret Rotation: %f", NewTurretRotation.Yaw)
+		RotateTurretTo(MousePos);
 	}
 	return;
 }
@@ -135,4 +123,3 @@ void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	return;
 }
-

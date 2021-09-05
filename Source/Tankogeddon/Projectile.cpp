@@ -27,33 +27,25 @@ AProjectile::AProjectile()
 // --------------------------------------------------------------------------------------
 void AProjectile::Start(ACannon *InOwner) 
 {
-	if (IsValid(InOwner))
-	{
-		CannonOwner = InOwner;
-		OnActorKilled.AddDynamic(CannonOwner, &ACannon::KillingNotification);
-	}
-
 	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
 	StartLocation = GetActorLocation();
 	Mesh->SetHiddenInGame(false);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void AProjectile::Stop()
 {
+	OnDestroyedTarget.Clear();
 	GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
 	Mesh->SetHiddenInGame(true);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	auto Pool{ GetWorld()->GetSubsystem<UActorPoolSubsystem>() };
 	if (Pool && Pool->IsActorInPool(this))
 	{
-		if (IsValid(CannonOwner))
-		{
-			OnActorKilled.RemoveDynamic(CannonOwner, &ACannon::KillingNotification);
-		}
 		Pool->ReturnActor(this);
-		CannonOwner = nullptr;
 	}
 	else
 	{
@@ -78,9 +70,11 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Projectile %s collided with %s. "), *GetName(), *OtherActor->GetName());
+	auto bWasTargetDestroyed{ false };
 	if (OtherComp && OtherComp->GetCollisionObjectType() == ECollisionChannel::ECC_Destructible)
 	{
 		OtherActor->Destroy();
+		bWasTargetDestroyed = true;
 	}
 	else if (IDamageTaker* DamageTaker = Cast<IDamageTaker>(OtherActor))
 	{
@@ -92,11 +86,12 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 			DamageData.DamageMaker = this;
 			DamageData.Instigator = CurrentInstigator;
 			DamageTaker->TakeDamage(OUT DamageData);
-			
-			if (DamageData.bOutIsFatalDamage && OnActorKilled.IsBound())
-			{
-				OnActorKilled.Broadcast(OtherActor);
-			}
+			bWasTargetDestroyed = DamageData.bOutIsFatalDamage;
+		}
+
+		if (bWasTargetDestroyed && OnDestroyedTarget.IsBound())
+		{
+			OnDestroyedTarget.Broadcast(OtherActor);
 		}
 	}
 	Stop();

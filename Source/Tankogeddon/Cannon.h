@@ -8,6 +8,10 @@
 class UArrowComponent;
 class UObjectPoolComponent;
 class AProjectile;
+class UParticleSystemComponent;
+class UAudioComponent;
+class UForceFeedbackEffect;
+class UMatineeCameraShake;
 
 UCLASS()
 class TANKOGEDDON_API ACannon : public AActor
@@ -37,6 +41,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 	bool bHasSpecialFire{ true };
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UParticleSystemComponent* ShootEffect;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UAudioComponent* AudioEffect;
+
 	FTimerHandle ReloadTimerHandle;
 
 	bool bReadyToFire{ false };
@@ -53,14 +62,16 @@ public:
 
 	bool IsReadyToFire() const;
 
-	UFUNCTION()
-	void KillingNotification(AActor *Actor);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnDestoyedTarget, AActor*);
+	FOnDestoyedTarget OnDestroyedTarget;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 	void Reload();
+
+	void NotifyTargetDestroyed(AActor* Target);
 
 private:
 	void SingleShot();

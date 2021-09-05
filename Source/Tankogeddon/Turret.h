@@ -1,7 +1,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "BaseShootingPawn.h"
+#include "BasePawn.h"
 #include "Scorable.h"
 #include "Turret.generated.h"
 
@@ -12,23 +12,13 @@ class UHealthComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATurret : public ABaseShootingPawn, public IScorable
+class TANKOGEDDON_API ATurret : public ABasePawn, public IScorable
 {
     GENERATED_BODY()
 
 protected:
-    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UBoxComponent* HitCollider;
-
-    UPROPERTY()
-    APawn* PlayerPawn;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-    float TargetingRange{ 1000.f };
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-    float TargetingRate{ 0.005f };
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-    float Accurency{ 10.f };
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Scorable")
+    int32 DestructionScores{ 3 };
 
     const FString BodyMeshPath{ "StaticMesh'/Game/CSC/Meshes/SM_CSC_Tower1.SM_CSC_Tower1'" };
     const FString TurretMeshPath{ "StaticMesh'/Game/CSC/Meshes/SM_CSC_Gun1.SM_CSC_Gun1'" };
@@ -39,16 +29,6 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-    void Targeting();
-    void RotateToPlayer();
-    bool IsPlayerInRange();
-
     virtual int32 GetScorePoints() const override;
-    
-    virtual bool CanFire() const override;
-
-    void Die() override;
-
-    void DamageTaken(float InDamage) override;
 };
 

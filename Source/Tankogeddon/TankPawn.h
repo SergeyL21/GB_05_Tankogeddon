@@ -3,7 +3,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "BaseShootingPawn.h"
+#include "BasePawn.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
@@ -15,7 +15,7 @@ class UHealthComponent;
 class ACannon;
 
 UCLASS()
-class TANKOGEDDON_API ATankPawn : public ABaseShootingPawn
+class TANKOGEDDON_API ATankPawn : public ABasePawn
 {
 	GENERATED_BODY()
 
@@ -34,8 +34,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float RotationSmootheness{ 0.1f };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points", Meta = (MakeEditWidget = true))
+	TArray<FVector> PatrollingPoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
+	float MovementAccuracy{ 10.f };
+
 	UPROPERTY()
 	ATankPlayerController* TankController;
+
+	int32 AccumulatedScores{ 0 };
 
 	float TargetForwardAxisValue{ 0.f };
 	float TargetRightAxisValue{ 0.f };
@@ -52,16 +60,20 @@ public:
 	UFUNCTION()
 	void RotateRight(float AxisValue);
 
-	virtual void Die() override;
-
-	virtual void DamageTaken(float InDamage) override;
-
 	UFUNCTION()
 	void AddAmmoToWeapon(int32 Count = 0);
+
+	UFUNCTION()
+	const TArray<FVector>& GetPatrollingPoints() const { return PatrollingPoints; }
+
+	UFUNCTION() 
+	float GetMovementAccurency() const { return MovementAccuracy; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void TargetDestroyed(AActor* Target) override;
 
 public:	
 	// Called every frame
