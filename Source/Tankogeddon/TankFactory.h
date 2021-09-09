@@ -26,6 +26,9 @@ protected:
     UStaticMeshComponent* BuildingMesh;
 
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+    UStaticMeshComponent* DestroyedMesh;
+
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     UArrowComponent* TankSpawnPoint;
 
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
