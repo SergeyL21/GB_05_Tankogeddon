@@ -20,9 +20,14 @@ void ABaseAIController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (!MyPawn)
+    if (!MyPawn || !PlayerPawn)
     {
-        return;
+        MyPawn = Cast<ABasePawn>(GetPawn());
+        PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+        if (!MyPawn || !PlayerPawn)
+        {
+            return;
+        }
     }
 
     if (DetectCanFire())

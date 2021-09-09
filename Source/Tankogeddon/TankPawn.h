@@ -11,6 +11,7 @@ class USpringArmComponent;
 class ATankPlayerController;
 class UForceFeedbackEffect;
 class ACannon;
+class ATargetPoint;
 
 UCLASS()
 class TANKOGEDDON_API ATankPawn : public ABasePawn
@@ -33,7 +34,7 @@ protected:
 	float RotationSmootheness{ 0.1f };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Patrol points", Meta = (MakeEditWidget = true))
-	TArray<FVector> PatrollingPoints;
+	TArray<ATargetPoint*> PatrollingPoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Move params|Accurency")
 	float MovementAccuracy{ 10.f };
@@ -64,7 +65,10 @@ public:
 	void AddAmmoToWeapon(int32 Count = 0);
 
 	UFUNCTION()
-	const TArray<FVector>& GetPatrollingPoints() const { return PatrollingPoints; }
+	TArray<FVector> GetPatrollingPoints() const;
+
+	UFUNCTION()
+	void SetPatrollingPoints(const TArray<ATargetPoint*>& NewPatrollingPoints);
 
 	UFUNCTION() 
 	float GetMovementAccurency() const { return MovementAccuracy; }

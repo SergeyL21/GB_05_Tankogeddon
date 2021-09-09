@@ -7,6 +7,7 @@
 #include <Camera/CameraComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Components/ArrowComponent.h>
+#include <Engine/TargetPoint.h>
 
 #include "Tankogeddon.h"
 #include "Cannon.h"
@@ -99,6 +100,24 @@ void ATankPawn::AddAmmoToWeapon(int32 Count)
 	}
 
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+TArray<FVector> ATankPawn::GetPatrollingPoints() const
+{
+	TArray<FVector> Result;
+	for (ATargetPoint* Point : PatrollingPoints)
+	{
+		Result.Add(Point->GetActorLocation());
+	}
+
+	return Result;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::SetPatrollingPoints(const TArray<ATargetPoint*>& NewPatrollingPoints)
+{
+	PatrollingPoints = NewPatrollingPoints;
 }
 
 // --------------------------------------------------------------------------------------

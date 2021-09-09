@@ -12,17 +12,20 @@ void ATankAIController::BeginPlay()
 {
     Super::BeginPlay();
 
+    Initialize();
+    return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankAIController::Initialize()
+{
     TankPawn = Cast<ATankPawn>(GetPawn());
-    MovementAccuracy = TankPawn->GetMovementAccurency();
-    const auto Points{ TankPawn->GetPatrollingPoints() };
-
-    const auto PawnLocation{ TankPawn->GetActorLocation() };
-    for (const FVector &Point : Points)
+    if (TankPawn)
     {
-        PatrollingPoints.Add(Point + PawnLocation);
+        MovementAccuracy = TankPawn->GetMovementAccurency();
+        PatrollingPoints = TankPawn->GetPatrollingPoints();
+        CurrentPatrolPointIndex = PatrollingPoints.Num() == 0 ? INDEX_NONE : 0;
     }
-
-    CurrentPatrolPointIndex = PatrollingPoints.Num() == 0 ? INDEX_NONE : 0;
     return;
 }
 
@@ -33,7 +36,11 @@ void ATankAIController::Tick(float DeltaTime)
 
     if (!TankPawn)
     {
-        return;
+        Initialize();
+        if (!TankPawn) 
+        {
+            return;
+        }
     }
 
     if (CurrentPatrolPointIndex == INDEX_NONE)

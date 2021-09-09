@@ -31,6 +31,8 @@ protected:
 protected:
     virtual void BeginPlay() override;
 
+    void Initialize();
+
     virtual void Tick(float DeltaTime) override;
 
     float CalculateRotationValue();
