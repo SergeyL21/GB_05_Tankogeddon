@@ -6,7 +6,10 @@
 #include <Components/StaticMeshComponent.h>
 #include <Components/ArrowComponent.h>
 #include <Components/BoxComponent.h>
+#include <Particles/ParticleSystemComponent.h>
+#include <Components/AudioComponent.h>
 #include <Kismet/GameplayStatics.h>
+#include <Engine/World.h>
 
 #include "Tankogeddon.h"
 #include "HealthComponent.h"
@@ -28,6 +31,14 @@ ATankFactory::ATankFactory()
 
     TankSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Cannon setup point"));
     TankSpawnPoint->AttachToComponent(SceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+    TankSpawnEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Tank spawn effect"));
+    TankSpawnEffect->SetupAttachment(TankSpawnPoint);
+    TankSpawnEffect->bAutoActivate = false;
+
+    TankSpawnSound = CreateDefaultSubobject<UAudioComponent>(TEXT("Tank spawn sound"));
+    TankSpawnSound->SetupAttachment(TankSpawnPoint);
+    TankSpawnSound->bAutoActivate = false;
 
     HitCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Hit collider"));
     HitCollider->SetupAttachment(SceneComponent);
@@ -67,12 +78,18 @@ void ATankFactory::SpawnNewTank()
     auto NewTank{ GetWorld()->SpawnActorDeferred<ATankPawn>(SpawnTankClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn) };
     NewTank->SetPatrollingPoints(TankWayPoints);
     UGameplayStatics::FinishSpawningActor(NewTank, SpawnTransform);
+
+    TankSpawnEffect->ActivateSystem();
+    TankSpawnSound->Play();
     return;
 }
 
 // --------------------------------------------------------------------------------------
 void ATankFactory::Die()
 {
+    UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionEffect, GetActorTransform());
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestructionSound, GetActorLocation());
+
     if (LinkedMapLoader)
     {
         LinkedMapLoader->SetIsActivated(true);

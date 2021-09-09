@@ -8,6 +8,7 @@
 #include "TankFactory.generated.h"
 
 class UStaticMeshComponent;
+class UParticleSystemComponent;
 class UArrowComponent;
 class UBoxComponent;
 class UHealthComponent;
@@ -32,6 +33,18 @@ protected:
 
     UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
     UHealthComponent* HealthComponent;
+
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+    UParticleSystemComponent* TankSpawnEffect;
+
+    UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+    UAudioComponent* TankSpawnSound;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+    UParticleSystem* DestructionEffect;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    USoundBase* DestructionSound;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn tanks params")
     TSubclassOf<ATankPawn> SpawnTankClass;
