@@ -4,6 +4,7 @@
 
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <Components/PrimitiveComponent.h>
 
 #include "DamageTaker.h"
 #include "Cannon.h"
@@ -25,7 +26,7 @@ AProjectile::AProjectile()
 }
 
 // --------------------------------------------------------------------------------------
-void AProjectile::Start(ACannon *InOwner) 
+void AProjectile::Start() 
 {
 	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AProjectile::Move, MoveRate, true, MoveRate);
 	StartLocation = GetActorLocation();
@@ -63,7 +64,8 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 									bool bFromSweep, 
 									const FHitResult& SweepResult)
 {
-	if (OtherActor == GetInstigator())
+	if (Cast<AProjectile>(OtherActor))
+	//if (OtherActor == GetInstigator())
 	{
 		return;
 	}
@@ -89,6 +91,15 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 			OnDestroyedTarget.Broadcast(OtherActor);
 		}
 	}
+	else if (UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(OtherComp)) 
+	{
+		if (PrimComp->IsSimulatingPhysics())
+		{
+			auto ForceVector{ GetActorForwardVector() };
+			OtherComp->AddImpulseAtLocation(ForceVector * PushForce, SweepResult.ImpactPoint);
+		}
+	}
+
 	Stop();
 	return;
 }

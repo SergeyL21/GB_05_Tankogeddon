@@ -64,8 +64,8 @@ void ATankFactory::BeginPlay()
 {
     Super::BeginPlay();
 
-    BuildingMesh->SetHiddenInGame(false);
-    DestroyedMesh->SetHiddenInGame(true);
+    BuildingMesh->SetVisibility(true);
+    DestroyedMesh->SetVisibility(false);
 
     if (LinkedMapLoader)
     {
@@ -101,8 +101,8 @@ void ATankFactory::Die()
         LinkedMapLoader->SetIsActivated(true);
     }
 
-    BuildingMesh->SetHiddenInGame(true);
-    DestroyedMesh->SetHiddenInGame(false);
+    BuildingMesh->SetVisibility(false);
+    DestroyedMesh->SetVisibility(true);
     //Destroy();
     return;
 }

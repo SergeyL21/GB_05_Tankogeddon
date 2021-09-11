@@ -26,6 +26,8 @@ protected:
 	float FlyRange{ 1000.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	float Damage{ 1.f };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+	float PushForce{ 1000.f };
 
 	FTimerHandle MovementTimerHandle;
 	FVector StartLocation;
@@ -38,7 +40,7 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	void Start(ACannon* InOwner = nullptr);
+	virtual void Start();
 	void Stop();
 
 protected:
@@ -51,5 +53,5 @@ protected:
 							const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void Move();
+	virtual void Move();
 };
