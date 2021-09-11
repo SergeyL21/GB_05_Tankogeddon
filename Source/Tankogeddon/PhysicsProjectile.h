@@ -37,9 +37,6 @@ protected:
 	float TrajectorySimulationSpeed{ 20.f };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Trajectory")
-	float ExplodeRadius{ 100.f };
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Trajectory")
 	bool bShowTrajectory{ false };
 
 	UPROPERTY(BlueprintReadWrite, Category = "Movement params")
@@ -54,7 +51,6 @@ protected:
 public:
 	APhysicsProjectile();
 	virtual void Start() override;
-	virtual void Explode();
 
 protected:
 	virtual void Move() override;
