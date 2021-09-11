@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	float PushForce{ 1000.f };
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	bool bSingleImpact{ true };
+
 	FTimerHandle MovementTimerHandle;
 	FVector StartLocation;
 

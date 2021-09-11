@@ -96,7 +96,14 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 		if (PrimComp->IsSimulatingPhysics())
 		{
 			auto ForceVector{ GetActorForwardVector() };
-			OtherComp->AddImpulseAtLocation(ForceVector * PushForce, SweepResult.ImpactPoint);
+			if (bSingleImpact)
+			{
+				OtherComp->AddImpulseAtLocation(ForceVector * PushForce, SweepResult.ImpactPoint);
+			}
+			else
+			{
+				OtherComp->AddForceAtLocation(ForceVector * PushForce, SweepResult.ImpactPoint);
+			}
 		}
 	}
 
