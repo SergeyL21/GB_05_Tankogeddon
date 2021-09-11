@@ -38,6 +38,11 @@ void AProjectile::Start()
 // --------------------------------------------------------------------------------------
 void AProjectile::Explode()
 {
+	if (!bHasDamageRadius)
+	{
+		return;
+	}
+
 	auto StartPos{ GetActorLocation() };
 	auto EndPos{ StartPos + FVector{0.1f} };
 

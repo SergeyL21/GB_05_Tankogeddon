@@ -28,11 +28,11 @@ protected:
 	float Damage{ 1.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	float PushForce{ 1000.f };
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	bool bSingleImpact{ true };
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+	bool bHasDamageRadius{ false };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (EditCondition = "bHasDamageRadius == true", EditConditionHides), Category = "Damage")
 	float ExplodeRadius{ 100.f };
 
 	FTimerHandle MovementTimerHandle;
