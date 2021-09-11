@@ -27,7 +27,7 @@ public:
     ATurret();
 
 protected:
-    virtual void BeginPlay() override;
+    virtual void PostInitializeComponents() override;
 
     virtual int32 GetScorePoints() const override;
 };

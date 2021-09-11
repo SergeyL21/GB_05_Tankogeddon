@@ -12,8 +12,16 @@
 
 // --------------------------------------------------------------------------------------
 // Sets default values
-ATurret::ATurret()
+ATurret::ATurret() 
 {
+
+}
+
+// --------------------------------------------------------------------------------------
+void ATurret::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
 	auto TurretMeshTemp{ LoadObject<UStaticMesh>(this, *TurretMeshPath) };
 	if (TurretMeshTemp)
 	{
@@ -24,12 +32,6 @@ ATurret::ATurret()
 	{
 		BodyMesh->SetStaticMesh(BodyMeshTemp);
 	}
-}
-
-// --------------------------------------------------------------------------------------
-void ATurret::BeginPlay()
-{
-	Super::BeginPlay();
 
 	return;
 }
