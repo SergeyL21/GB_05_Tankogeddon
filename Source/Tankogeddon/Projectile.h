@@ -61,4 +61,9 @@ protected:
 
 	UFUNCTION()
 	virtual void Move();
+
+private:
+	bool CheckDamageForActor(AActor* DamageTakerActor, bool *bOutIsFatal = nullptr);
+	void CheckPhysicsForComponent(UPrimitiveComponent* PrimComp, const FHitResult& SweepResult, const FVector &ForceVector);
+	void CheckPhysicsForComponent(UPrimitiveComponent* PrimComp, const FVector& ForceVector);
 };
