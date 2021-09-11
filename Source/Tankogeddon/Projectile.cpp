@@ -36,6 +36,72 @@ void AProjectile::Start()
 }
 
 // --------------------------------------------------------------------------------------
+void AProjectile::Explode()
+{
+	auto StartPos{ GetActorLocation() };
+	auto EndPos{ StartPos + FVector{0.1f} };
+
+	auto Shape{ FCollisionShape::MakeSphere(ExplodeRadius) };
+	auto Params{ FCollisionQueryParams::DefaultQueryParam };
+	Params.AddIgnoredActor(this);
+	Params.bTraceComplex = true;
+	Params.TraceTag = "Explode Trace";
+	TArray<FHitResult> AttackHit;
+
+	auto Rotation{ FQuat::Identity };
+
+	bool bSweepResult = GetWorld()->SweepMultiByChannel
+	(
+		OUT AttackHit,
+		StartPos,
+		EndPos,
+		Rotation,
+		ECollisionChannel::ECC_Visibility,
+		Shape,
+		Params
+	);
+
+	GetWorld()->DebugDrawTraceTag = "Explode Trace";
+
+	if (bSweepResult)
+	{
+		for (const auto& HitResult : AttackHit)
+		{
+			auto OtherActor{ HitResult.GetActor() };
+			if (OtherActor == nullptr) continue;
+
+			if (auto DamageTakerActor = Cast<IDamageTaker>(OtherActor))
+			{
+				FDamageData DamageData;
+				DamageData.DamageValue = Damage;
+				DamageData.Instigator = GetOwner();
+				DamageData.DamageMaker = this;
+
+				DamageTakerActor->TakeDamage(OUT DamageData);
+			}
+			else if (auto PrimMesh = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent()))
+			{
+				if (PrimMesh->IsSimulatingPhysics())
+				{
+					auto ForceVector{ OtherActor->GetActorLocation() - GetActorLocation() };
+					ForceVector.Normalize();
+					if (bSingleImpact)
+					{
+						PrimMesh->AddImpulse(ForceVector * PushForce, NAME_None, true);
+					}
+					else
+					{
+						PrimMesh->AddForce(ForceVector * PushForce, NAME_None, true);
+					}
+				}
+			}
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void AProjectile::Stop()
 {
 	OnDestroyedTarget.Clear();
@@ -118,6 +184,7 @@ void AProjectile::Move()
 	SetActorLocation(NextPosition);
 	if (FVector::Distance(NextPosition, StartLocation) > FlyRange)
 	{
+		Explode();
 		Stop();
 	}
 	return;

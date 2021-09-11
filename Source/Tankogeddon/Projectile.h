@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	bool bSingleImpact{ true };
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
+	float ExplodeRadius{ 100.f };
+
 	FTimerHandle MovementTimerHandle;
 	FVector StartLocation;
 
@@ -44,6 +47,7 @@ public:
 	AProjectile();
 
 	virtual void Start();
+	virtual void Explode();
 	void Stop();
 
 protected:
