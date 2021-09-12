@@ -63,8 +63,7 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 									bool bFromSweep, 
 									const FHitResult& SweepResult)
 {
-	// TODO: simple fix to avoid overlapping projectiles
-	if (Cast<AProjectile>(OtherActor))
+	if (OtherActor == GetInstigator())
 	{
 		return;
 	}
@@ -78,16 +77,12 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	}
 	else if (IDamageTaker* DamageTaker = Cast<IDamageTaker>(OtherActor))
 	{
-		auto CurrentInstigator{ GetInstigator() };
-		if (OtherActor != CurrentInstigator)
-		{
-			FDamageData DamageData;
-			DamageData.DamageValue = Damage;
-			DamageData.DamageMaker = this;
-			DamageData.Instigator = CurrentInstigator;
-			DamageTaker->TakeDamage(OUT DamageData);
-			bWasTargetDestroyed = DamageData.bOutIsFatalDamage;
-		}
+		FDamageData DamageData;
+		DamageData.DamageValue = Damage;
+		DamageData.DamageMaker = this;
+		DamageData.Instigator = GetInstigator();
+		DamageTaker->TakeDamage(OUT DamageData);
+		bWasTargetDestroyed = DamageData.bOutIsFatalDamage;
 
 		if (bWasTargetDestroyed && OnDestroyedTarget.IsBound())
 		{

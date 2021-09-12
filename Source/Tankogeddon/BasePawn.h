@@ -11,8 +11,8 @@ class UStaticMeshComponent;
 class UArrowComponent;
 class UHealthComponent;
 class UBoxComponent;
-class UParticleSystemComponent;
-class UAudioComponent;
+class UParticleSystem;
+class USoundBase;
 class ACannon;
 class ABaseBox;
 
@@ -32,33 +32,31 @@ protected:
 	UHealthComponent* HealthComponent;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* HitCollider;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	UParticleSystemComponent* DeathParticleEffect;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	UAudioComponent* DeathAudioEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> SecondaryCannonClass;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* DestructionParticleSystem;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	UForceFeedbackEffect* DamageForceEffect;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UMatineeCameraShake> DamageShake;
+	USoundBase* DestructionSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Other")
-	TSubclassOf<ABaseBox> DropBoxClass;
+	TSubclassOf<ABaseBox>  DestructionBonusBox;;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
 
+private:
 	UPROPERTY()
 	ACannon* ActiveCannon {nullptr};
-	UPROPERTY()
-	ACannon* InactiveCannon {nullptr};
 
-	int32 ScorePoints{ 0 };
-	bool bIsActiveState{ true };
+	UPROPERTY()
+	ACannon* InactiveCannon { nullptr };
+
+	UPROPERTY()
+	FVector TurretTarget;
 
 public:
 	// Sets default values for this pawn's properties
@@ -85,16 +83,13 @@ public:
 	FVector GetTurretForwardVector() const;
 
 	UFUNCTION()
-	void RotateTurretTo(const FVector& TargetPosition);
+	void SetTurretTarget(const FVector& TargetPosition);
 
 	UFUNCTION()
 	FVector GetEyesPosition() const;
 
 	UFUNCTION()
 	bool IsPlayerPawn() const;
-
-	UFUNCTION()
-	void DropLoot();
 
 protected:
 	// Called when the game starts or when spawned
@@ -103,10 +98,13 @@ protected:
 
 	virtual void TargetDestroyed(AActor* Target);
 
-private:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 	UFUNCTION()
 	void Die();
 
 	UFUNCTION()
-	void DamageTaken(float InDamage);
+	virtual void DamageTaken(float InDamage);
+
 };

@@ -8,7 +8,7 @@ void ATurretAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Turret = Cast<ATurret>(BasePawn);
+	TurretPawn = Cast<ATurret>(GetPawn());
 	return;
 }
 
@@ -17,6 +17,5 @@ void ATurretAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Targeting();
 	return;
 }

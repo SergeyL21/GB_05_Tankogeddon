@@ -4,6 +4,7 @@
 
 #include <Components/StaticMeshComponent.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Kismet/GameplayStatics.h>
 #include <Components/ArrowComponent.h>
 #include <Components/BoxComponent.h>
 #include <Particles/ParticleSystemComponent.h>
@@ -19,7 +20,7 @@
 // Sets default values
 ABasePawn::ABasePawn()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank body"));
 	BodyMesh->bEditableWhenInherited = true;
@@ -41,31 +42,32 @@ ABasePawn::ABasePawn()
 	HealthComponent->OnDie.AddDynamic(this, &ABasePawn::Die);
 	HealthComponent->OnDamaged.AddDynamic(this, &ABasePawn::DamageTaken);
 	HealthComponent->bEditableWhenInherited = true;
-
-	DeathParticleEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Shoot effect"));
-	DeathParticleEffect->SetupAttachment(RootComponent);
-	DeathParticleEffect->bEditableWhenInherited = true;
-	DeathParticleEffect->bAutoActivate = false;
-
-	DeathAudioEffect = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio effect"));
-	DeathAudioEffect->SetupAttachment(RootComponent);
-	DeathParticleEffect->bEditableWhenInherited = true;
 }
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::TakeDamage(FDamageData& DamageData)
 {
-	if (bIsActiveState)
-	{
-		HealthComponent->TakeDamage(OUT DamageData);
-	}
+	HealthComponent->TakeDamage(OUT DamageData);
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+// Called every frame
+void ABasePawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TurretTarget) };
+	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
+	TargetRotation.Pitch = CurrentRotation.Pitch;
+	TargetRotation.Roll = CurrentRotation.Roll;
+	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
 }
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::Fire()
 {
-	if (bIsActiveState && ActiveCannon && ActiveCannon->IsReadyToFire())
+	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->Fire();
 	}
@@ -75,7 +77,7 @@ void ABasePawn::Fire()
 // --------------------------------------------------------------------------------------
 void ABasePawn::FireSpecial()
 {
-	if (bIsActiveState && ActiveCannon && ActiveCannon->IsReadyToFire())
+	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->FireSpecial();
 	}
@@ -91,7 +93,7 @@ ACannon* ABasePawn::GetActiveCannon() const
 // --------------------------------------------------------------------------------------
 void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 {
-	if (!InCannonClass || !bIsActiveState)
+	if (!InCannonClass)
 	{
 		return;
 	}
@@ -114,35 +116,14 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 // --------------------------------------------------------------------------------------
 void ABasePawn::Die()
 {
-	if (!IsPlayerPawn()) 
-	{		
-		//RootComponent->SetHiddenInGame(true);
-		//TurretMesh->SetHiddenInGame(true);
-		//CannonSetupPoint->SetHiddenInGame(true);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionParticleSystem, GetActorTransform());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DestructionSound, GetActorLocation());
 
-		if (ActiveCannon)
-		{
-			//ActiveCannon->SetActorHiddenInGame(true);
-		}
-		bIsActiveState = false;
-
-		if (auto AIController = Cast<ABaseAIController>(GetController())) {
-			SetActorTickEnabled(false);
-			AIController->SetActorTickEnabled(false);
-			DeathParticleEffect->ActivateSystem();
-			DeathAudioEffect->Play();
-
-			FTimerDelegate TimerCallback;
-			TimerCallback.BindLambda([this]() 
-				{ 
-					DropLoot(); 
-					Destroy(); 
-				}
-			);
-			FTimerHandle DelayTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(OUT DelayTimerHandle, TimerCallback, 10.f, false);
-			return;
-		}
+	if (DestructionBonusBox)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.bNoFail = true;
+		GetWorld()->SpawnActor<ABaseBox>(DestructionBonusBox, GetActorTransform(), SpawnParams);
 	}
 
 	Destroy();
@@ -152,37 +133,13 @@ void ABasePawn::Die()
 // --------------------------------------------------------------------------------------
 void ABasePawn::DamageTaken(float InDamage)
 {
-	if (bIsActiveState)
-	{
-		if (IsPlayerPawn())
-		{
-			if (DamageForceEffect)
-			{
-				FForceFeedbackParameters ShootForceEffectParams;
-				ShootForceEffectParams.bLooping = false;
-				ShootForceEffectParams.Tag = "ShootForceEffectParams";
-				GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(DamageForceEffect, ShootForceEffectParams);
-			}
-
-			if (DamageShake)
-			{
-				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamageShake);
-			}
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
-	}
+	UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
 }
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::ChangeWeapon()
 {
-	if (!bIsActiveState)
-	{
-		return;
-	}
-
 	Swap(ActiveCannon, InactiveCannon);
 
 	if (ActiveCannon)
@@ -204,13 +161,9 @@ FVector ABasePawn::GetTurretForwardVector() const
 }
 
 // --------------------------------------------------------------------------------------
-void ABasePawn::RotateTurretTo(const FVector& TargetPosition)
+void ABasePawn::SetTurretTarget(const FVector& TargetPosition)
 {
-	auto TargetRotation{ UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetPosition) };
-	auto CurrentRotation{ TurretMesh->GetComponentRotation() };
-	TargetRotation.Pitch = CurrentRotation.Pitch;
-	TargetRotation.Roll = CurrentRotation.Roll;
-	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
+	TurretTarget = TargetPosition;
 	return;
 }
 
@@ -224,21 +177,6 @@ FVector ABasePawn::GetEyesPosition() const
 bool ABasePawn::IsPlayerPawn() const
 {
 	return (Cast<APawn>(this) == GetWorld()->GetFirstPlayerController()->GetPawn());
-}
-
-// --------------------------------------------------------------------------------------
-void ABasePawn::DropLoot()
-{
-	if (DropBoxClass)
-	{
-		FActorSpawnParameters Params;
-		const auto Location{ GetActorLocation() };
-		const auto Rotation{ GetActorRotation() };
-		if (auto Box = GetWorld()->SpawnActor<ABaseBox>(DropBoxClass, Location, Rotation, OUT Params))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Box %s dropped"), *Box->GetName());
-		}
-	}
 }
 
 // --------------------------------------------------------------------------------------

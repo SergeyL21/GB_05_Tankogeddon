@@ -12,17 +12,20 @@ void ATankAIController::BeginPlay()
 {
     Super::BeginPlay();
 
-    TankPawn = Cast<ATankPawn>(BasePawn);
-    MovementAccuracy = TankPawn->GetMovementAccurency();
-    const auto Points{ TankPawn->GetPatrollingPoints() };
+    Initialize();
+    return;
+}
 
-    const auto PawnLocation{ TankPawn->GetActorLocation() };
-    for (const FVector &Point : Points)
+// --------------------------------------------------------------------------------------
+void ATankAIController::Initialize()
+{
+    TankPawn = Cast<ATankPawn>(GetPawn());
+    if (TankPawn)
     {
-        PatrollingPoints.Add(Point + PawnLocation);
+        MovementAccuracy = TankPawn->GetMovementAccurency();
+        PatrollingPoints = TankPawn->GetPatrollingPoints();
+        CurrentPatrolPointIndex = PatrollingPoints.Num() == 0 ? INDEX_NONE : 0;
     }
-
-    CurrentPatrolPointIndex = PatrollingPoints.Num() == 0 ? INDEX_NONE : 0;
     return;
 }
 
@@ -30,6 +33,15 @@ void ATankAIController::BeginPlay()
 void ATankAIController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    if (!TankPawn)
+    {
+        Initialize();
+        if (!TankPawn) 
+        {
+            return;
+        }
+    }
 
     if (CurrentPatrolPointIndex == INDEX_NONE)
     {
@@ -41,7 +53,6 @@ void ATankAIController::Tick(float DeltaTime)
     //UE_LOG(LogTemp, Warning, TEXT("AI Rotation forwardAngle: %f rightAngle: %f rotationValue: %f"), forwardAngle, rightAngle, rotationValue);
     TankPawn->RotateRight(CalculateRotationValue());
 
-    Targeting();
     return;
 }
 

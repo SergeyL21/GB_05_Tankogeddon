@@ -123,8 +123,6 @@ void ACannon::SingleShot()
 			Projectile->OnDestroyedTarget.AddUObject(this, &ACannon::NotifyTargetDestroyed);
 			Projectile->Start(this);
 			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
-
-
 		}
 	}
 	else

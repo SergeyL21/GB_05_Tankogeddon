@@ -19,7 +19,7 @@ class TANKOGEDDON_API ABaseAIController : public AAIController
 
 protected:
     UPROPERTY()
-    ABasePawn* BasePawn;
+    ABasePawn* MyPawn;
 
     UPROPERTY()
     APawn* PlayerPawn;
@@ -28,17 +28,12 @@ protected:
     float TargetingRange{ 1000.f };
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
-    float TargetingSpeed{ 0.25f };
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Targeting")
     float Accuracy = { 10.f };
 
 protected:
     virtual void BeginPlay() override;
-
     virtual void Tick(float DeltaTime) override;
 
-    virtual void Targeting();
     virtual void RotateToPlayer();
     virtual bool IsPlayerInRange() const;
     virtual bool DetectCanFire() const;

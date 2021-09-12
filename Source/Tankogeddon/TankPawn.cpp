@@ -7,6 +7,7 @@
 #include <Camera/CameraComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Components/ArrowComponent.h>
+#include <Engine/TargetPoint.h>
 
 #include "Tankogeddon.h"
 #include "Cannon.h"
@@ -52,7 +53,29 @@ void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TankController = Cast<ATankPlayerController>(GetController());
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::DamageTaken(float DamageValue)
+{
+	Super::DamageTaken(DamageValue);
+
+	if (IsPlayerPawn())
+	{
+		if (HitForceEffect)
+		{
+			FForceFeedbackParameters ShootForceEffectParams;
+			ShootForceEffectParams.bLooping = false;
+			ShootForceEffectParams.Tag = "ShootForceEffectParams";
+			GetWorld()->GetFirstPlayerController()->ClientPlayForceFeedback(HitForceEffect, ShootForceEffectParams);
+		}
+
+		if (HitShake)
+		{
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitShake);
+		}
+	}
 	return;
 }
 
@@ -69,13 +92,32 @@ void ATankPawn::TargetDestroyed(AActor* Target)
 // --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
-	if (ActiveCannon) 
+	auto Cannon{ GetActiveCannon() };
+	if (Cannon) 
 	{
 		// TODO: check type weapon
-		ActiveCannon->AddAmmo(Count);
+		Cannon->AddAmmo(Count);
 	}
 
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+TArray<FVector> ATankPawn::GetPatrollingPoints() const
+{
+	TArray<FVector> Result;
+	for (ATargetPoint* Point : PatrollingPoints)
+	{
+		Result.Add(Point->GetActorLocation());
+	}
+
+	return Result;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::SetPatrollingPoints(const TArray<ATargetPoint*>& NewPatrollingPoints)
+{
+	PatrollingPoints = NewPatrollingPoints;
 }
 
 // --------------------------------------------------------------------------------------
@@ -107,12 +149,6 @@ void ATankPawn::Tick(float DeltaTime)
 	SetActorRotation(NewRotation);
 	//DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
 
-	// Turret rotation
-	if (TankController)
-	{
-		const auto MousePos{ TankController->GetMousePos() };
-		RotateTurretTo(MousePos);
-	}
 	return;
 }
 

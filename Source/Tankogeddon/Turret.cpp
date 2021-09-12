@@ -14,8 +14,6 @@
 // Sets default values
 ATurret::ATurret()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
 	auto TurretMeshTemp{ LoadObject<UStaticMesh>(this, *TurretMeshPath) };
 	if (TurretMeshTemp)
 	{
