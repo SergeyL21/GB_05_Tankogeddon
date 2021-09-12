@@ -8,7 +8,7 @@
 	if (GEngine) { \
 		GEngine->AddOnScreenDebugMessage( \
 			Id, \
-			3.f, \
+			999.f, \
 			Color, \
 			FString::Printf(TEXT(Text), __VA_ARGS__) \
 		); \

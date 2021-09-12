@@ -39,6 +39,12 @@ ACannon::ACannon()
 }
 
 // --------------------------------------------------------------------------------------
+FString ACannon::GetCannonName() const
+{
+	return CannonName;
+}
+
+// --------------------------------------------------------------------------------------
 bool ACannon::Fire()
 {
 	if (!bReadyToFire)
@@ -72,6 +78,18 @@ void ACannon::AddAmmo(int32 Count)
 {
 	CurrentAmmo = FMath::Clamp(CurrentAmmo + Count, 0, MaxAmmo);
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+int32 ACannon::GetCurrentAmmo() const
+{
+	return CurrentAmmo;
+}
+
+// --------------------------------------------------------------------------------------
+int32 ACannon::GetMaxAmmo() const
+{
+	return MaxAmmo;
 }
 
 // --------------------------------------------------------------------------------------
@@ -122,7 +140,6 @@ void ACannon::SingleShot()
 			Projectile->SetInstigator(GetInstigator());
 			Projectile->OnDestroyedTarget.AddUObject(this, &ACannon::NotifyTargetDestroyed);
 			Projectile->Start();
-			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
 		}
 	}
 	else
@@ -170,7 +187,6 @@ void ACannon::SingleShot()
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f, 0, 5);
 		}
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace [%d/%d]", CurrentAmmo, MaxAmmo);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, Delay, false);
