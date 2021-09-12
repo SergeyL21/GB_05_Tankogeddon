@@ -49,21 +49,19 @@ bool ACannon::Fire()
 {
 	if (!bReadyToFire)
 	{
-		DEBUG_MESSAGE_EX(11, FColor::Green, "The cannon isn't ready to fire!");
+		DEBUG_MESSAGE_EX(11, FColor::Red, "The cannon isn't ready to fire!");
 		return false;
 	}
 
-	--CurrentAmmo;
-	if (CurrentAmmo < 1)
+	if (CurrentAmmo > 0) 
 	{
-		bReadyToFire = true;
-		return false;
+		--CurrentAmmo;
+		bReadyToFire = false;
+		SingleShot();
+		return true;
 	}
 
-	bReadyToFire = false;
-	SingleShot();
-
-	return true;
+	return false;
 }
 
 // --------------------------------------------------------------------------------------
