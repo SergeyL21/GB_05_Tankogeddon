@@ -7,6 +7,7 @@
 #include "Projectile.generated.h"
 
 class UStaticMeshComponent;
+class UParticleSystemComponent;
 class ACannon;
 
 UCLASS()
@@ -17,6 +18,8 @@ class TANKOGEDDON_API AProjectile : public AActor
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* Mesh;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UParticleSystemComponent* TrailEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed{ 100.f };
