@@ -72,8 +72,7 @@ void ATankFactory::BeginPlay()
         LinkedMapLoader->SetIsActivated(false);
     }
 
-    FTimerHandle TargetingTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(TargetingTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true);
+    GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true);
     return;
 }
 
@@ -103,7 +102,8 @@ void ATankFactory::Die()
 
     BuildingMesh->SetVisibility(false);
     DestroyedMesh->SetVisibility(true);
-    //Destroy();
+    
+    GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
     return;
 }
 
