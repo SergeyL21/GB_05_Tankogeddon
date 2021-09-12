@@ -3,7 +3,6 @@
 #include "PhysicsProjectile.h"
 
 #include "ProjectileMovement.h"
-#include <Particles/ParticleSystemComponent.h>
 #include <DrawDebugHelpers.h>
 #include <Kismet/KismetMathLibrary.h>
 
@@ -13,9 +12,6 @@
 APhysicsProjectile::APhysicsProjectile()
 {
 	PhysicsComponent = CreateDefaultSubobject<UProjectileMovement>(TEXT("PhysicsComponent"));
-
-	TrailEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Trail effect"));
-	TrailEffect->SetupAttachment(RootComponent);
 }
 
 // --------------------------------------------------------------------------------------
@@ -47,7 +43,6 @@ void APhysicsProjectile::Move()
 	{
 		if (++TrajectoryPointIndex >= CurrentTrajectory.Num())
 		{
-			Explode();
 			Stop();
 		}
 		else

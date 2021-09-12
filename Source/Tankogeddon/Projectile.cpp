@@ -5,10 +5,14 @@
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Components/PrimitiveComponent.h>
+#include <Particles/ParticleSystemComponent.h>
 
 #include "DamageTaker.h"
 #include "Cannon.h"
 #include "ActorPoolSubsystem.h"
+
+// --------------------------------------------------------------------------------------
+const static auto EXPLODE_TRACE_TAG{ "Explode Trace" };
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -23,6 +27,10 @@ AProjectile::AProjectile()
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnMeshOverlapBegin);
 	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	Mesh->SetHiddenInGame(true);
+
+	TrailEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Trail effect"));
+	TrailEffect->SetupAttachment(RootComponent);
+	TrailEffect->SetAutoActivate(false);
 }
 
 // --------------------------------------------------------------------------------------
@@ -32,6 +40,7 @@ void AProjectile::Start()
 	StartLocation = GetActorLocation();
 	Mesh->SetHiddenInGame(false);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	TrailEffect->ActivateSystem();
 	return;
 }
 
@@ -50,7 +59,7 @@ void AProjectile::Explode()
 	auto Params{ FCollisionQueryParams::DefaultQueryParam };
 	Params.AddIgnoredActor(this);
 	Params.bTraceComplex = true;
-	Params.TraceTag = "Explode Trace";
+	Params.TraceTag = EXPLODE_TRACE_TAG;
 	TArray<FHitResult> AttackHit;
 
 	auto Rotation{ FQuat::Identity };
@@ -66,7 +75,7 @@ void AProjectile::Explode()
 		Params
 	);
 
-	GetWorld()->DebugDrawTraceTag = "Explode Trace";
+	GetWorld()->DebugDrawTraceTag = EXPLODE_TRACE_TAG;
 
 	if (bSweepResult)
 	{
@@ -91,10 +100,13 @@ void AProjectile::Explode()
 // --------------------------------------------------------------------------------------
 void AProjectile::Stop()
 {
+	Explode();
+
 	OnDestroyedTarget.Clear();
 	GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
 	Mesh->SetHiddenInGame(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TrailEffect->DeactivateSystem();
 
 	auto Pool{ GetWorld()->GetSubsystem<UActorPoolSubsystem>() };
 	if (Pool && Pool->IsActorInPool(this))
@@ -117,8 +129,7 @@ void AProjectile::OnMeshOverlapBegin(UPrimitiveComponent* OverlappedComp,
 									bool bFromSweep, 
 									const FHitResult& SweepResult)
 {
-	if (Cast<AProjectile>(OtherActor))
-	//if (OtherActor == GetInstigator())
+	if (Cast<AProjectile>(OtherActor) /* || OtherActor == GetInstigator()*/)
 	{
 		return;
 	}
@@ -156,7 +167,6 @@ void AProjectile::Move()
 	SetActorLocation(NextPosition);
 	if (FVector::Distance(NextPosition, StartLocation) > FlyRange)
 	{
-		Explode();
 		Stop();
 	}
 	return;
@@ -191,7 +201,7 @@ bool AProjectile::CheckDamageForActor(AActor* DamageTakerActor, bool *bOutIsFata
 // --------------------------------------------------------------------------------------
 void AProjectile::CheckPhysicsForComponent(UPrimitiveComponent* PrimComp, const FHitResult& SweepResult, const FVector& ForceVector)
 {
-	if (PrimComp->IsSimulatingPhysics())
+	if (PrimComp && PrimComp->IsSimulatingPhysics())
 	{
 		if (bSingleImpact)
 		{
@@ -209,7 +219,7 @@ void AProjectile::CheckPhysicsForComponent(UPrimitiveComponent* PrimComp, const 
 // --------------------------------------------------------------------------------------
 void AProjectile::CheckPhysicsForComponent(UPrimitiveComponent* PrimComp, const FVector& ForceVector)
 {
-	if (PrimComp->IsSimulatingPhysics())
+	if (PrimComp && PrimComp->IsSimulatingPhysics())
 	{
 		if (bSingleImpact)
 		{

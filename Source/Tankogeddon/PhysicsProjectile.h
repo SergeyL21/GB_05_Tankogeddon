@@ -7,7 +7,6 @@
 #include "PhysicsProjectile.generated.h"
 
 class UProjectileMovement;
-class UParticleSystemComponent;
 
 /**
  * 
@@ -20,9 +19,6 @@ class TANKOGEDDON_API APhysicsProjectile : public AProjectile
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UProjectileMovement* PhysicsComponent;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	UParticleSystemComponent* TrailEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float MoveAccurency{ 10.f };
