@@ -64,16 +64,15 @@ void ATankFactory::BeginPlay()
 {
     Super::BeginPlay();
 
-    BuildingMesh->SetHiddenInGame(false);
-    DestroyedMesh->SetHiddenInGame(true);
+    BuildingMesh->SetVisibility(true);
+    DestroyedMesh->SetVisibility(false);
 
     if (LinkedMapLoader)
     {
         LinkedMapLoader->SetIsActivated(false);
     }
 
-    FTimerHandle TargetingTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(TargetingTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true);
+    GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ATankFactory::SpawnNewTank, SpawnTankRate, true);
     return;
 }
 
@@ -101,9 +100,10 @@ void ATankFactory::Die()
         LinkedMapLoader->SetIsActivated(true);
     }
 
-    BuildingMesh->SetHiddenInGame(true);
-    DestroyedMesh->SetHiddenInGame(false);
-    //Destroy();
+    BuildingMesh->SetVisibility(false);
+    DestroyedMesh->SetVisibility(true);
+    
+    GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
     return;
 }
 

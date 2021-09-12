@@ -138,7 +138,6 @@ void ATankPawn::Tick(float DeltaTime)
 	{
 		CurrentForwardAxisValue = 0.f;
 	}
-	//DEBUG_MESSAGE(0, FColor::Yellow, "Location: %s", *MovePosition.ToString())
 
 	// Tank rotation
 	CurrentRightAxisValue = FMath::FInterpTo(CurrentRightAxisValue, TargetRightAxisValue, DeltaTime, RotationSmootheness);
@@ -147,7 +146,6 @@ void ATankPawn::Tick(float DeltaTime)
 	YawRotation += CurrentRotation.Yaw;
 	const auto NewRotation{ FRotator{0.f, YawRotation, 0.f} };
 	SetActorRotation(NewRotation);
-	//DEBUG_MESSAGE(1, FColor::Yellow, "Body Rotation: %f", NewRotation.Yaw)
 
 	return;
 }

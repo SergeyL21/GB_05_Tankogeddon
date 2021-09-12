@@ -62,6 +62,12 @@ void ABasePawn::Tick(float DeltaTime)
 	TargetRotation.Pitch = CurrentRotation.Pitch;
 	TargetRotation.Roll = CurrentRotation.Roll;
 	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
+
+	if (IsPlayerPawn())
+	{
+		DEBUG_MESSAGE(0, FColor::Yellow, "Health: [%1f/%1f]", HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+	}
+	return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -70,6 +76,10 @@ void ABasePawn::Fire()
 	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->Fire();
+		if (IsPlayerPawn())
+		{
+			DEBUG_MESSAGE(1, FColor::Yellow, "Ammo: [%d/%d] (%s)", ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo(), *ActiveCannon->GetCannonName());
+		}
 	}
 	return;
 }
@@ -110,6 +120,11 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 	ActiveCannon = GetWorld()->SpawnActor<ACannon>(InCannonClass, Params);
 	ActiveCannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	ActiveCannon->OnDestroyedTarget.AddUObject(this, &ABasePawn::TargetDestroyed);
+
+	if (IsPlayerPawn())
+	{
+		DEBUG_MESSAGE(1, FColor::Yellow, "Ammo: [%d/%d] (%s)", ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo(), *ActiveCannon->GetCannonName());
+	}
 	return;
 }
 
@@ -123,7 +138,7 @@ void ABasePawn::Die()
 	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.bNoFail = true;
-		GetWorld()->SpawnActor<ABaseBox>(DestructionBonusBox, GetActorTransform(), SpawnParams);
+		GetWorld()->SpawnActor<ABaseBox>(DestructionBonusBox, GetActorLocation(), FRotator::ZeroRotator, SpawnParams);
 	}
 
 	Destroy();

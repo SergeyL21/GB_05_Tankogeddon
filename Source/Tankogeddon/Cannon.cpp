@@ -39,25 +39,29 @@ ACannon::ACannon()
 }
 
 // --------------------------------------------------------------------------------------
+FString ACannon::GetCannonName() const
+{
+	return CannonName;
+}
+
+// --------------------------------------------------------------------------------------
 bool ACannon::Fire()
 {
 	if (!bReadyToFire)
 	{
-		DEBUG_MESSAGE_EX(11, FColor::Green, "The cannon isn't ready to fire!");
+		DEBUG_MESSAGE_EX(11, FColor::Red, "The cannon isn't ready to fire!");
 		return false;
 	}
 
-	--CurrentAmmo;
-	if (CurrentAmmo < 1)
+	if (CurrentAmmo > 0) 
 	{
-		bReadyToFire = true;
-		return false;
+		--CurrentAmmo;
+		bReadyToFire = false;
+		SingleShot();
+		return true;
 	}
 
-	bReadyToFire = false;
-	SingleShot();
-
-	return true;
+	return false;
 }
 
 // --------------------------------------------------------------------------------------
@@ -72,6 +76,18 @@ void ACannon::AddAmmo(int32 Count)
 {
 	CurrentAmmo = FMath::Clamp(CurrentAmmo + Count, 0, MaxAmmo);
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+int32 ACannon::GetCurrentAmmo() const
+{
+	return CurrentAmmo;
+}
+
+// --------------------------------------------------------------------------------------
+int32 ACannon::GetMaxAmmo() const
+{
+	return MaxAmmo;
 }
 
 // --------------------------------------------------------------------------------------
@@ -121,8 +137,7 @@ void ACannon::SingleShot()
 
 			Projectile->SetInstigator(GetInstigator());
 			Projectile->OnDestroyedTarget.AddUObject(this, &ACannon::NotifyTargetDestroyed);
-			Projectile->Start(this);
-			DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - projectile [%d/%d] (progress %2.f%%)", CurrentAmmo, MaxAmmo, progress);
+			Projectile->Start();
 		}
 	}
 	else
@@ -170,7 +185,6 @@ void ACannon::SingleShot()
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f, 0, 5);
 		}
-		DEBUG_MESSAGE_EX(10, FColor::Green, "Fire - trace [%d/%d]", CurrentAmmo, MaxAmmo);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(OUT ReloadTimerHandle, this, &ACannon::Reload, Delay, false);

@@ -33,9 +33,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* HitCollider;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> SecondaryCannonClass;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* DestructionParticleSystem;

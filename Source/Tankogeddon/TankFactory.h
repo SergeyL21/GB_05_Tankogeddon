@@ -61,6 +61,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn tanks params")
     AMapLoader* LinkedMapLoader;
 
+private:
+    FTimerHandle SpawnTimerHandle;
+
 public:
     // Sets default values for this actor's properties
     ATankFactory();

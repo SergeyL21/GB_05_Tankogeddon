@@ -23,6 +23,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UArrowComponent* ProjectileSpawnPoint;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
+	FString CannonName;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 	TSubclassOf<AProjectile> ProjectileClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 	ECannonType Type {ECannonType::FireProjectile};
@@ -55,9 +57,15 @@ protected:
 public:
 	ACannon();
 
+	FString GetCannonName() const;
+
 	bool Fire();
 	bool FireSpecial();
+
 	void AddAmmo(int32 Count);
+	int32 GetCurrentAmmo() const;
+	int32 GetMaxAmmo() const;
+
 	void SetVisibility(bool bIsVisible);
 
 	bool IsReadyToFire() const;
