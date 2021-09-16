@@ -6,13 +6,14 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Kismet/GameplayStatics.h>
 #include <Components/ArrowComponent.h>
 #include <Engine/TargetPoint.h>
 
 #include "Tankogeddon.h"
 #include "Cannon.h"
 #include "Scorable.h"
-#include "TankPlayerController.h"
+#include "TankogeddonGameModeBase.h"
 #include "HealthComponent.h"
 
 // --------------------------------------------------------------------------------------
@@ -87,6 +88,20 @@ void ATankPawn::TargetDestroyed(AActor* Target)
 		AccumulatedScores += Scorable->GetScorePoints();
 		UE_LOG(LogTemp, Log, TEXT("Destroyed target %s. Current scores: %d"), *Target->GetName(), AccumulatedScores);
 	}
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::Die()
+{
+	// generate event
+	if (IsPlayerPawn())
+	{
+		auto CurrentGameMode{ Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())) };
+		CurrentGameMode->OnPlayerDie();
+	}
+
+	Super::Die();
+	return;
 }
 
 // --------------------------------------------------------------------------------------

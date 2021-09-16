@@ -8,7 +8,6 @@
 
 class UCameraComponent;
 class USpringArmComponent;
-class ATankPlayerController;
 class UForceFeedbackEffect;
 class ACannon;
 class ATargetPoint;
@@ -80,6 +79,8 @@ protected:
 	virtual void DamageTaken(float DamageValue) override;
 
 	virtual void TargetDestroyed(AActor* Target) override;
+
+	virtual void Die();
 
 public:	
 	// Called every frame

@@ -13,5 +13,9 @@ UCLASS()
 class TANKOGEDDON_API ATankogeddonGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerDie();
 	
 };
