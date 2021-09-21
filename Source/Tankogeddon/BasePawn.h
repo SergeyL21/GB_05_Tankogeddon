@@ -102,7 +102,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void Die();
+	virtual void Die();
 
 	UFUNCTION()
 	virtual void DamageTaken(float InDamage);
