@@ -16,6 +16,8 @@
 #include "TankogeddonGameModeBase.h"
 #include "HealthComponent.h"
 
+#define CURRENT_GAME_MODE (Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+
 // --------------------------------------------------------------------------------------
 // Sets default values
 ATankPawn::ATankPawn()
@@ -54,6 +56,40 @@ void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (IsPlayerPawn())
+	{
+		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+		if (auto Cannon = GetActiveCannon())
+		{
+			CURRENT_GAME_MODE->PlayerChangeCannon(Cannon->GetCannonName());
+			CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::Fire()
+{
+	Super::Fire();
+
+	if (auto Cannon = GetActiveCannon())
+	{
+		CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::ChangeWeapon()
+{
+	Super::ChangeWeapon();
+	
+	if (auto Cannon = GetActiveCannon())
+	{
+		CURRENT_GAME_MODE->PlayerChangeCannon(Cannon->GetCannonName());
+	}
 	return;
 }
 
@@ -76,6 +112,8 @@ void ATankPawn::DamageTaken(float DamageValue)
 		{
 			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitShake);
 		}
+
+		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
 	}
 	return;
 }
@@ -96,8 +134,7 @@ void ATankPawn::Die()
 	// generate event
 	if (IsPlayerPawn())
 	{
-		auto CurrentGameMode{ Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())) };
-		CurrentGameMode->OnPlayerDie();
+		CURRENT_GAME_MODE->OnPlayerDie();
 	}
 
 	Super::Die();
@@ -112,6 +149,8 @@ void ATankPawn::AddAmmoToWeapon(int32 Count)
 	{
 		// TODO: check type weapon
 		Cannon->AddAmmo(Count);
+
+		CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
 	}
 
 	return;

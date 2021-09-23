@@ -77,7 +77,7 @@ public:
 	ACannon* GetActiveCannon() const;
 
 	UFUNCTION()
-	void ChangeWeapon();
+	virtual void ChangeWeapon();
 
 	UFUNCTION()
 	FVector GetTurretForwardVector() const;

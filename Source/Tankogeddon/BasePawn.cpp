@@ -63,10 +63,6 @@ void ABasePawn::Tick(float DeltaTime)
 	TargetRotation.Roll = CurrentRotation.Roll;
 	TurretMesh->SetWorldRotation(FMath::RInterpConstantTo(CurrentRotation, TargetRotation, GetWorld()->GetDeltaSeconds(), TurretRotationSpeed));
 
-	if (IsPlayerPawn())
-	{
-		DEBUG_MESSAGE(0, FColor::Yellow, "Health: [%1f/%1f]", HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
-	}
 	return;
 }
 
@@ -76,10 +72,6 @@ void ABasePawn::Fire()
 	if (ActiveCannon && ActiveCannon->IsReadyToFire())
 	{
 		ActiveCannon->Fire();
-		if (IsPlayerPawn())
-		{
-			DEBUG_MESSAGE(1, FColor::Yellow, "Ammo: [%d/%d] (%s)", ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo(), *ActiveCannon->GetCannonName());
-		}
 	}
 	return;
 }
@@ -123,7 +115,7 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 
 	if (IsPlayerPawn())
 	{
-		DEBUG_MESSAGE(1, FColor::Yellow, "Ammo: [%d/%d] (%s)", ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo(), *ActiveCannon->GetCannonName());
+		//DEBUG_MESSAGE(1, FColor::Yellow, "Ammo: [%d/%d] (%s)", ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo(), *ActiveCannon->GetCannonName());
 	}
 	return;
 }
