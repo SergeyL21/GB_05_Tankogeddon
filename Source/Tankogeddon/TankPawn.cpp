@@ -8,6 +8,7 @@
 #include <Kismet/KismetMathLibrary.h>
 #include <Kismet/GameplayStatics.h>
 #include <Components/ArrowComponent.h>
+#include <Components/WidgetComponent.h>
 #include <Engine/TargetPoint.h>
 
 #include "Tankogeddon.h"
@@ -15,8 +16,7 @@
 #include "Scorable.h"
 #include "TankogeddonGameModeBase.h"
 #include "HealthComponent.h"
-
-#define CURRENT_GAME_MODE (Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+#include "UI/BarHPWidget.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -34,6 +34,8 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	HealthWidgetComponent->SetupAttachment(SpringArm);
 }
 
 // --------------------------------------------------------------------------------------
@@ -115,6 +117,10 @@ void ATankPawn::DamageTaken(float DamageValue)
 
 		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
 	}
+	else if (auto HPWidget = GetBarHPWidget())
+	{
+		HPWidget->SetHP(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+	}
 	return;
 }
 
@@ -144,8 +150,7 @@ void ATankPawn::Die()
 // --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
-	auto Cannon{ GetActiveCannon() };
-	if (Cannon) 
+	if (auto Cannon = GetActiveCannon())
 	{
 		// TODO: check type weapon
 		Cannon->AddAmmo(Count);

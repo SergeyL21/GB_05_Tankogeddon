@@ -38,8 +38,6 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly)
 	UTextBlock* PlayerAmmoText;
 
-protected:
-
 public:
     virtual void NativeConstruct() override;
 

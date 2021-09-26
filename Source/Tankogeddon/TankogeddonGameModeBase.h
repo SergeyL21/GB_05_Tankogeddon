@@ -6,7 +6,6 @@
 #include <GameFramework/GameModeBase.h>
 #include "TankogeddonGameModeBase.generated.h"
 
-
 class UPlayerTankWidget;
 /**
  * 
@@ -30,3 +29,5 @@ public:
 
 	void PlayerUpdateAmmoBar(float CurrentAmmo, float MaxAmmo);
 };
+
+#define CURRENT_GAME_MODE (Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))

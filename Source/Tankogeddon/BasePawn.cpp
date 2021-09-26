@@ -9,12 +9,16 @@
 #include <Components/BoxComponent.h>
 #include <Particles/ParticleSystemComponent.h>
 #include <Components/AudioComponent.h>
+#include <Components/WidgetComponent.h>
 
 #include "Tankogeddon.h"
+#include "TankogeddonGameModeBase.h"
 #include "Cannon.h"
 #include "HealthComponent.h"
 #include "BaseAIController.h"
 #include "BaseBox.h"
+
+#include "UI/BarHPWidget.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -42,12 +46,21 @@ ABasePawn::ABasePawn()
 	HealthComponent->OnDie.AddDynamic(this, &ABasePawn::Die);
 	HealthComponent->OnDamaged.AddDynamic(this, &ABasePawn::DamageTaken);
 	HealthComponent->bEditableWhenInherited = true;
+
+	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("BarHP");
+	HealthWidgetComponent->SetupAttachment(BodyMesh);
+	HealthWidgetComponent->SetWidgetClass(UBarHPWidget::StaticClass());
 }
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::TakeDamage(FDamageData& DamageData)
 {
 	HealthComponent->TakeDamage(OUT DamageData);
+
+	if (!IsPlayerPawn())
+	{
+		BarHPWidget->SetHP(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+	}
 	return;
 }
 
@@ -115,7 +128,7 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 
 	if (IsPlayerPawn())
 	{
-		//DEBUG_MESSAGE(1, FColor::Yellow, "Ammo: [%d/%d] (%s)", ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo(), *ActiveCannon->GetCannonName());
+		CURRENT_GAME_MODE->PlayerChangeCannon(ActiveCannon->GetCannonName());
 	}
 	return;
 }
@@ -197,6 +210,15 @@ void ABasePawn::BeginPlay()
 		SetupCurrentCannon(SecondaryCannonClass);
 		ChangeWeapon();
 		SetupCurrentCannon(MainCannonClass);
+	}
+
+	if (!IsPlayerPawn())
+	{
+		BarHPWidget = Cast<UBarHPWidget>(HealthWidgetComponent->GetUserWidgetObject());
+		if (BarHPWidget)
+		{
+			BarHPWidget->SetHP(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+		}
 	}
 	return;
 }
