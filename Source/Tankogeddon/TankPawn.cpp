@@ -140,7 +140,7 @@ void ATankPawn::Die()
 	// generate event
 	if (IsPlayerPawn())
 	{
-		CURRENT_GAME_MODE->OnPlayerDie();
+		CURRENT_GAME_MODE->OnPlayerDied();
 	}
 
 	Super::Die();

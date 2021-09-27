@@ -8,6 +8,7 @@
 #include "Tankogeddon.h"
 #include "TankPawn.h"
 #include "ActorPoolSubsystem.h"
+#include "UI/GameHUD.h"
 
 // --------------------------------------------------------------------------------------
 constexpr auto DEBUG_DIRECTION_LENGTH{ 1000.f };
@@ -57,6 +58,12 @@ void ATankPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	TankPawn = Cast<ATankPawn>(GetPawn());
+
+	if (auto HUD = Cast<AGameHUD>(GetHUD()))
+	{
+		HUD->UseWidget(EWidgetID::PlayerStatus);
+	}
+
 	return;
 }
 

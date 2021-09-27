@@ -15,13 +15,12 @@ class TANKOGEDDON_API ATankogeddonGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(BlueprintReadWrite, Category = "Widgets")
-	UPlayerTankWidget* PlayerTankWidget;
-
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnPlayerDie();
+	// FIXME !!! move all player methods into the TankPlayerController class !!!
+	void OnGameStarted();
+
+	//UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerDied();
 
 	void PlayerUpdateHealthBar(float CurrentHealth, float MaxHealth);
 	
