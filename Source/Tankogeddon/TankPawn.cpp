@@ -8,6 +8,7 @@
 #include <Kismet/KismetMathLibrary.h>
 #include <Kismet/GameplayStatics.h>
 #include <Components/ArrowComponent.h>
+#include <Components/WidgetComponent.h>
 #include <Engine/TargetPoint.h>
 
 #include "Tankogeddon.h"
@@ -15,6 +16,7 @@
 #include "Scorable.h"
 #include "TankogeddonGameModeBase.h"
 #include "HealthComponent.h"
+#include "UI/BarHPWidget.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -32,6 +34,8 @@ ATankPawn::ATankPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	HealthWidgetComponent->SetupAttachment(SpringArm);
 }
 
 // --------------------------------------------------------------------------------------
@@ -54,6 +58,40 @@ void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (IsPlayerPawn())
+	{
+		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+		if (auto Cannon = GetActiveCannon())
+		{
+			CURRENT_GAME_MODE->PlayerChangeCannon(Cannon->GetCannonName());
+			CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::Fire()
+{
+	Super::Fire();
+
+	if (auto Cannon = GetActiveCannon())
+	{
+		CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::ChangeWeapon()
+{
+	Super::ChangeWeapon();
+	
+	if (auto Cannon = GetActiveCannon())
+	{
+		CURRENT_GAME_MODE->PlayerChangeCannon(Cannon->GetCannonName());
+	}
 	return;
 }
 
@@ -76,6 +114,12 @@ void ATankPawn::DamageTaken(float DamageValue)
 		{
 			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitShake);
 		}
+
+		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+	}
+	else if (auto HPWidget = GetBarHPWidget())
+	{
+		HPWidget->SetHP(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
 	}
 	return;
 }
@@ -96,8 +140,7 @@ void ATankPawn::Die()
 	// generate event
 	if (IsPlayerPawn())
 	{
-		auto CurrentGameMode{ Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())) };
-		CurrentGameMode->OnPlayerDie();
+		CURRENT_GAME_MODE->OnPlayerDied();
 	}
 
 	Super::Die();
@@ -107,11 +150,12 @@ void ATankPawn::Die()
 // --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
-	auto Cannon{ GetActiveCannon() };
-	if (Cannon) 
+	if (auto Cannon = GetActiveCannon())
 	{
 		// TODO: check type weapon
 		Cannon->AddAmmo(Count);
+
+		CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
 	}
 
 	return;
