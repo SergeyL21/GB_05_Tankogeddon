@@ -6,6 +6,7 @@
 #include <GameFramework/GameModeBase.h>
 #include "TankogeddonGameModeBase.generated.h"
 
+class UPlayerTankWidget;
 /**
  * 
  */
@@ -15,7 +16,8 @@ class TANKOGEDDON_API ATankogeddonGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnPlayerDie();
-	
+	//UFUNCTION(BlueprintImplementableEvent)
+	//void OnPlayerDied();
 };
+
+#define CURRENT_GAME_MODE (Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))

@@ -72,6 +72,10 @@ public:
 	UFUNCTION() 
 	float GetMovementAccurency() const { return MovementAccuracy; }
 
+	virtual void Fire() override;
+
+	virtual void ChangeWeapon() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

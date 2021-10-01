@@ -13,6 +13,8 @@ class UHealthComponent;
 class UBoxComponent;
 class UParticleSystem;
 class USoundBase;
+class UWidgetComponent;
+class UBarHPWidget;
 class ACannon;
 class ABaseBox;
 
@@ -32,6 +34,8 @@ protected:
 	UHealthComponent* HealthComponent;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* HitCollider;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UWidgetComponent* HealthWidgetComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
@@ -55,6 +59,8 @@ private:
 	UPROPERTY()
 	ACannon* InactiveCannon { nullptr };
 
+	UBarHPWidget* BarHPWidget { nullptr };
+
 	UPROPERTY()
 	FVector TurretTarget;
 
@@ -77,7 +83,7 @@ public:
 	ACannon* GetActiveCannon() const;
 
 	UFUNCTION()
-	void ChangeWeapon();
+	virtual void ChangeWeapon();
 
 	UFUNCTION()
 	FVector GetTurretForwardVector() const;
@@ -107,4 +113,5 @@ protected:
 	UFUNCTION()
 	virtual void DamageTaken(float InDamage);
 
+	UBarHPWidget* GetBarHPWidget() const { return BarHPWidget; }
 };
