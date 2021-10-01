@@ -30,6 +30,11 @@ public:
 
 	inline auto GetMousePos() { return MousePos; };
 
+	void Die();
+	void SetHealthWidgetValue(int32 CurrentHealth, int32 MaxHealth);
+	void SetCannonTextBlock(const FString& CannonName);
+	void SetAmmoWidgetValue(int32 CurrentAmmo, int32 MaxAmmo);
+
 protected:
 	virtual void BeginPlay() override;
 

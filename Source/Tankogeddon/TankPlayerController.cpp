@@ -8,7 +8,11 @@
 #include "Tankogeddon.h"
 #include "TankPawn.h"
 #include "ActorPoolSubsystem.h"
+
 #include "UI/GameHUD.h"
+#include "UI/PlayerTankWidget.h"
+
+#define GET_HUD Cast<AGameHUD>(GetHUD())
 
 // --------------------------------------------------------------------------------------
 constexpr auto DEBUG_DIRECTION_LENGTH{ 1000.f };
@@ -49,6 +53,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 	{
 		TankPawn->SetTurretTarget(MousePos);
 	}
+
 	return;
 }
 
@@ -59,7 +64,7 @@ void ATankPlayerController::BeginPlay()
 
 	TankPawn = Cast<ATankPawn>(GetPawn());
 
-	if (auto HUD = Cast<AGameHUD>(GetHUD()))
+	if (auto HUD = GET_HUD)
 	{
 		HUD->UseWidget(EWidgetID::PlayerStatus);
 	}
@@ -74,6 +79,7 @@ void ATankPlayerController::MoveForward(float AxisValue)
 	{
 		TankPawn->MoveForward(AxisValue);
 	}
+
 	return;
 }
 
@@ -84,6 +90,7 @@ void ATankPlayerController::RotateRight(float AxisValue)
 	{
 		TankPawn->RotateRight(AxisValue);
 	}
+
 	return;
 }
 
@@ -94,6 +101,7 @@ void ATankPlayerController::Fire()
 	{
 		TankPawn->Fire();
 	}
+
 	return;
 }
 
@@ -104,6 +112,7 @@ void ATankPlayerController::FireSpecial()
 	{
 		TankPawn->FireSpecial();
 	}
+
 	return;
 }
 
@@ -114,6 +123,67 @@ void ATankPlayerController::ChangeWeapon()
 	{
 		TankPawn->ChangeWeapon();
 	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::Die()
+{
+	if (auto HUD = GET_HUD)
+	{
+		HUD->UseWidget(EWidgetID::GameOver);
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::SetHealthWidgetValue(int32 CurrentHealth, int32 MaxHealth)
+{
+	if (auto HUD = GET_HUD)
+	{
+		if (HUD->GetCurrentWidgetID() == EWidgetID::PlayerStatus)
+		{
+			if (auto PlayerTankWidget = Cast<UPlayerTankWidget>(HUD->GetCurrentWidget()))
+			{
+				PlayerTankWidget->UpdateHealthBar(CurrentHealth, MaxHealth);
+			}
+		}
+	}
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::SetCannonTextBlock(const FString& CannonName)
+{
+	if (auto HUD = GET_HUD)
+	{
+		if (HUD->GetCurrentWidgetID() == EWidgetID::PlayerStatus)
+		{
+			if (auto PlayerTankWidget = Cast<UPlayerTankWidget>(HUD->GetCurrentWidget()))
+			{
+				PlayerTankWidget->UpdateCannonInfo(CannonName);
+			}
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::SetAmmoWidgetValue(int32 CurrentAmmo, int32 MaxAmmo)
+{
+	if (auto HUD = GET_HUD)
+	{
+		if (HUD->GetCurrentWidgetID() == EWidgetID::PlayerStatus)
+		{
+			if (auto PlayerTankWidget = Cast<UPlayerTankWidget>(HUD->GetCurrentWidget()))
+			{
+				PlayerTankWidget->UpdateAmmoInfo(CurrentAmmo, MaxAmmo);
+			}
+		}
+	}
+
 	return;
 }
 

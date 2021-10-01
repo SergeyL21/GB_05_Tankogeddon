@@ -14,9 +14,11 @@
 #include "Tankogeddon.h"
 #include "Cannon.h"
 #include "Scorable.h"
-#include "TankogeddonGameModeBase.h"
+#include "TankPlayerController.h"
 #include "HealthComponent.h"
 #include "UI/BarHPWidget.h"
+
+#define PLAYER_CONTROLLER Cast<ATankPlayerController>(GetWorld()->GetFirstPlayerController())
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -60,11 +62,11 @@ void ATankPawn::BeginPlay()
 
 	if (IsPlayerPawn())
 	{
-		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+		PLAYER_CONTROLLER->SetHealthWidgetValue(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
 		if (auto Cannon = GetActiveCannon())
 		{
-			CURRENT_GAME_MODE->PlayerChangeCannon(Cannon->GetCannonName());
-			CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+			PLAYER_CONTROLLER->SetCannonTextBlock(Cannon->GetCannonName());
+			PLAYER_CONTROLLER->SetAmmoWidgetValue(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
 		}
 	}
 
@@ -78,7 +80,7 @@ void ATankPawn::Fire()
 
 	if (auto Cannon = GetActiveCannon())
 	{
-		CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+		PLAYER_CONTROLLER->SetAmmoWidgetValue(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
 	}
 	return;
 }
@@ -90,7 +92,7 @@ void ATankPawn::ChangeWeapon()
 	
 	if (auto Cannon = GetActiveCannon())
 	{
-		CURRENT_GAME_MODE->PlayerChangeCannon(Cannon->GetCannonName());
+		PLAYER_CONTROLLER->SetCannonTextBlock(Cannon->GetCannonName());
 	}
 	return;
 }
@@ -115,7 +117,7 @@ void ATankPawn::DamageTaken(float DamageValue)
 			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitShake);
 		}
 
-		CURRENT_GAME_MODE->PlayerUpdateHealthBar(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+		PLAYER_CONTROLLER->SetHealthWidgetValue(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
 	}
 	else if (auto HPWidget = GetBarHPWidget())
 	{
@@ -140,7 +142,7 @@ void ATankPawn::Die()
 	// generate event
 	if (IsPlayerPawn())
 	{
-		CURRENT_GAME_MODE->OnPlayerDied();
+		PLAYER_CONTROLLER->Die();
 	}
 
 	Super::Die();
@@ -155,7 +157,7 @@ void ATankPawn::AddAmmoToWeapon(int32 Count)
 		// TODO: check type weapon
 		Cannon->AddAmmo(Count);
 
-		CURRENT_GAME_MODE->PlayerUpdateAmmoBar(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
+		PLAYER_CONTROLLER->SetAmmoWidgetValue(Cannon->GetCurrentAmmo(), Cannon->GetMaxAmmo());
 	}
 
 	return;

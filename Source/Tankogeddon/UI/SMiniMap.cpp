@@ -82,7 +82,7 @@ int32 SMiniMap::OnPaint(const FPaintArgs & Args,
 	// draw player icon
 	FSlateDrawElement::MakeBox(OutDrawElements,
 		LayerId,
-		AllottedGeometry.ToPaintGeometry(LocalSize * FVector2D(0.5f, 1.f) - PlayerBrush.ImageSize / 2.f, PlayerBrush.ImageSize),
+		AllottedGeometry.ToPaintGeometry(LocalSize * FVector2D(0.5f, 0.8f) - PlayerBrush.ImageSize / 2.f, PlayerBrush.ImageSize),
 		&PlayerBrush
 	);
 

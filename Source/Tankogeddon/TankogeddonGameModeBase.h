@@ -16,17 +16,8 @@ class TANKOGEDDON_API ATankogeddonGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	// FIXME !!! move all player methods into the TankPlayerController class !!!
-	void OnGameStarted();
-
 	//UFUNCTION(BlueprintImplementableEvent)
-	void OnPlayerDied();
-
-	void PlayerUpdateHealthBar(float CurrentHealth, float MaxHealth);
-	
-	void PlayerChangeCannon(const FString& CannonName);
-
-	void PlayerUpdateAmmoBar(float CurrentAmmo, float MaxAmmo);
+	//void OnPlayerDied();
 };
 
 #define CURRENT_GAME_MODE (Cast<ATankogeddonGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))

@@ -12,7 +12,7 @@
 #include <Components/WidgetComponent.h>
 
 #include "Tankogeddon.h"
-#include "TankogeddonGameModeBase.h"
+#include "TankPlayerController.h"
 #include "Cannon.h"
 #include "HealthComponent.h"
 #include "BaseAIController.h"
@@ -128,7 +128,8 @@ void ABasePawn::SetupCurrentCannon(TSubclassOf<ACannon> InCannonClass)
 
 	if (IsPlayerPawn())
 	{
-		CURRENT_GAME_MODE->PlayerChangeCannon(ActiveCannon->GetCannonName());
+		auto PlayerController{ Cast<ATankPlayerController>(GetWorld()->GetFirstPlayerController()) };
+		PlayerController->SetCannonTextBlock(ActiveCannon->GetCannonName());
 	}
 	return;
 }
