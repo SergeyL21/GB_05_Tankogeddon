@@ -14,7 +14,8 @@ void UMiniMap::ReleaseSlateResources(bool bReleaseChildren)
 // --------------------------------------------------------------------------------------
 TSharedRef<SWidget> UMiniMap::RebuildWidget()
 {
-    MyMiniMap = SNew(SMiniMap);
+    MyMiniMap = SNew(SMiniMap)
+        .PlayerImageArg(this->PlayerImage);
 
     return MyMiniMap.ToSharedRef();
 }

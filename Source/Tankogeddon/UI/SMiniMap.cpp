@@ -11,7 +11,7 @@
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SMiniMap::Construct(const FArguments& InArgs)
 {
-	PlayerImage = InArgs._PlayerImage;
+	PlayerImage = InArgs._PlayerImageArg;
 
 	/*ChildSlot
 	[
@@ -29,16 +29,16 @@ int32 SMiniMap::OnPaint(const FPaintArgs & Args,
 						bool bParentEnabled) const
 {
 	const auto LocalSize{ AllottedGeometry.GetLocalSize() };
-	FSlateBrush Brush;
-	Brush.ImageSize = LocalSize;
-	//FSlateBrush Brush;
-	//Brush.SetResourceObject(PlayerImage);
+	FSlateBrush BackgroundBrush;
+	BackgroundBrush.ImageSize = LocalSize;
+	FSlateBrush PlayerBrush;
+	PlayerBrush.SetResourceObject(PlayerImage);
 
 	// draw transparent background
 	FSlateDrawElement::MakeBox(OutDrawElements,
 		LayerId,
-		AllottedGeometry.ToPaintGeometry(FVector2D(0.5f, 0.5f), Brush.ImageSize),
-		&Brush,
+		AllottedGeometry.ToPaintGeometry(FVector2D(0.5f, 0.5f), BackgroundBrush.ImageSize),
+		&BackgroundBrush,
 		ESlateDrawEffect::None,
 		FLinearColor{ 0.1f, 0.1f, 0.1f, 0.5f }
 	);
@@ -78,6 +78,13 @@ int32 SMiniMap::OnPaint(const FPaintArgs & Args,
 
 		FSlateDrawElement::MakeLines(OutDrawElements, LayerId, AllottedGeometry.ToPaintGeometry(), Points);
 	}
+
+	// draw player icon
+	FSlateDrawElement::MakeBox(OutDrawElements,
+		LayerId,
+		AllottedGeometry.ToPaintGeometry(LocalSize * FVector2D(0.5f, 1.f) - PlayerBrush.ImageSize / 2.f, PlayerBrush.ImageSize),
+		&PlayerBrush
+	);
 
 	return 0;
 }

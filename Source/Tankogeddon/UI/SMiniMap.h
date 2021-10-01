@@ -14,7 +14,7 @@ public:
 	SLATE_BEGIN_ARGS(SMiniMap)
 	{}
 
-	SLATE_ARGUMENT(UTexture2D*, PlayerImage)
+	SLATE_ARGUMENT(UTexture2D*, PlayerImageArg)
 
 	SLATE_END_ARGS()
 

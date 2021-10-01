@@ -17,6 +17,10 @@ class TANKOGEDDON_API UMiniMap : public UWidget
 	GENERATED_BODY()
 	
 public:
+    UPROPERTY(EditAnywhere, Category = "Appearance"/*, meta = (MakeEditWidget = true)*/)
+    UTexture2D* PlayerImage;
+
+public:
     virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 
 protected:
