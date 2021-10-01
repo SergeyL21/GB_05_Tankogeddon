@@ -11,6 +11,7 @@
 
 #include "UI/GameHUD.h"
 #include "UI/PlayerTankWidget.h"
+#include "UI/MiniMap.h"
 
 #define GET_HUD Cast<AGameHUD>(GetHUD())
 
@@ -78,6 +79,9 @@ void ATankPlayerController::MoveForward(float AxisValue)
 	if (TankPawn)
 	{
 		TankPawn->MoveForward(AxisValue);
+
+		// TODO: implement correct way to get the level's size
+		SetMinimapPosition(TankPawn->GetActorLocation(), FVector2D{2800.f, 2800.f});
 	}
 
 	return;
@@ -180,6 +184,23 @@ void ATankPlayerController::SetAmmoWidgetValue(int32 CurrentAmmo, int32 MaxAmmo)
 			if (auto PlayerTankWidget = Cast<UPlayerTankWidget>(HUD->GetCurrentWidget()))
 			{
 				PlayerTankWidget->UpdateAmmoInfo(CurrentAmmo, MaxAmmo);
+			}
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::SetMinimapPosition(const FVector& WorldLocation, const FVector2D& WorldSize)
+{
+	if (auto HUD = GET_HUD)
+	{
+		if (HUD->GetCurrentWidgetID() == EWidgetID::PlayerStatus)
+		{
+			if (auto PlayerTankWidget = Cast<UPlayerTankWidget>(HUD->GetCurrentWidget()))
+			{
+				PlayerTankWidget->UpdateMiniMapPosition(WorldLocation, WorldSize);
 			}
 		}
 	}

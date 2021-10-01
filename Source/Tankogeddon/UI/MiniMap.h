@@ -23,9 +23,15 @@ public:
 public:
     virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 
+    void SetPlayerPercentPos(const FVector& WorldLocation, const FVector2D& WorldSize);
+    FVector2D GetPlayerPercentPos() const;
+
 protected:
     virtual TSharedRef<SWidget> RebuildWidget() override;
 
 protected:
     TSharedPtr<SMiniMap> MyMiniMap;
+
+private:
+    FVector2D PlayerPercentPos;
 };

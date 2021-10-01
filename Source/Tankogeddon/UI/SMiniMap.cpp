@@ -12,6 +12,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SMiniMap::Construct(const FArguments& InArgs)
 {
 	PlayerImage = InArgs._PlayerImageArg;
+	PlayerPercentPos = InArgs._PlayerPercentPosArg;
 
 	/*ChildSlot
 	[
@@ -82,7 +83,7 @@ int32 SMiniMap::OnPaint(const FPaintArgs & Args,
 	// draw player icon
 	FSlateDrawElement::MakeBox(OutDrawElements,
 		LayerId,
-		AllottedGeometry.ToPaintGeometry(LocalSize * FVector2D(0.5f, 0.8f) - PlayerBrush.ImageSize / 2.f, PlayerBrush.ImageSize),
+		AllottedGeometry.ToPaintGeometry(LocalSize * PlayerPercentPos.Get() - PlayerBrush.ImageSize / 2.f, PlayerBrush.ImageSize),
 		&PlayerBrush
 	);
 

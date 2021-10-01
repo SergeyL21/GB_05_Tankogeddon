@@ -34,6 +34,7 @@ public:
 	void SetHealthWidgetValue(int32 CurrentHealth, int32 MaxHealth);
 	void SetCannonTextBlock(const FString& CannonName);
 	void SetAmmoWidgetValue(int32 CurrentAmmo, int32 MaxAmmo);
+	void SetMinimapPosition(const FVector& WorldLocation, const FVector2D &WorldSize);
 
 protected:
 	virtual void BeginPlay() override;

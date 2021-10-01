@@ -6,6 +6,8 @@
 #include <Components/TextBlock.h>
 #include <Animation/WidgetAnimation.h>
 
+#include "MiniMap.h"
+
 // --------------------------------------------------------------------------------------
 void UPlayerTankWidget::NativeConstruct()
 {
@@ -50,6 +52,13 @@ void UPlayerTankWidget::UpdateAmmoInfo(float CurrentAmmo, float MaxAmmo)
 	{
 		PlayerAmmoText->SetText(FText::Format(FText::FromString("{0}/{1}"), CurrentAmmo, MaxAmmo));
 	}
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void UPlayerTankWidget::UpdateMiniMapPosition(const FVector& WorldLocation, const FVector2D& WorldSize)
+{
+	PlayerMiniMap->SetPlayerPercentPos(WorldLocation, WorldSize);
 	return;
 }
 

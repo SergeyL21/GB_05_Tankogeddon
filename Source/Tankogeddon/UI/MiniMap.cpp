@@ -12,10 +12,28 @@ void UMiniMap::ReleaseSlateResources(bool bReleaseChildren)
 }
 
 // --------------------------------------------------------------------------------------
+void UMiniMap::SetPlayerPercentPos(const FVector& WorldLocation, const FVector2D& WorldSize)
+{
+    PlayerPercentPos.X = 0.5f + (WorldLocation.Y / WorldSize.Y);
+    PlayerPercentPos.Y = 0.5f - (WorldLocation.X / WorldSize.X);
+
+    return;
+}
+
+// --------------------------------------------------------------------------------------
+FVector2D UMiniMap::GetPlayerPercentPos() const
+{
+    return PlayerPercentPos;
+}
+
+// --------------------------------------------------------------------------------------
 TSharedRef<SWidget> UMiniMap::RebuildWidget()
 {
     MyMiniMap = SNew(SMiniMap)
-        .PlayerImageArg(this->PlayerImage);
+        .PlayerImageArg(this->PlayerImage)
+        .PlayerPercentPosArg(
+            TAttribute<FVector2D>::Create(
+                TAttribute<FVector2D>::FGetter::CreateUObject(this, &UMiniMap::GetPlayerPercentPos)));
 
     return MyMiniMap.ToSharedRef();
 }

@@ -16,6 +16,8 @@ public:
 
 	SLATE_ARGUMENT(UTexture2D*, PlayerImageArg)
 
+	SLATE_ATTRIBUTE(FVector2D, PlayerPercentPosArg)
+
 	SLATE_END_ARGS()
 
 	/** Constructs this widget with InArgs */
@@ -31,4 +33,6 @@ public:
 
 protected:
 	UTexture2D* PlayerImage;
+	
+	TAttribute<FVector2D> PlayerPercentPos;
 };

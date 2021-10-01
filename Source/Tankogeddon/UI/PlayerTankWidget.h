@@ -10,6 +10,7 @@
 class UProgressBar;
 class UTextBlock;
 class UWidgetAnimation;
+class UMiniMap;
 
 /**
  * 
@@ -38,6 +39,9 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly)
 	UTextBlock* PlayerAmmoText;
 
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UMiniMap* PlayerMiniMap;
+
 public:
     virtual void NativeConstruct() override;
 
@@ -46,4 +50,9 @@ public:
 	void UpdateCannonInfo(const FString& CannonName);
 
 	void UpdateAmmoInfo(float CurrentAmmo, float MaxAmmo);
+
+	void UpdateMiniMapPosition(const FVector& WorldLocation, const FVector2D& WorldSize);
+
+private:
+	FVector2D MinimapPosition;
 };
