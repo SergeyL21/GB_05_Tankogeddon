@@ -7,6 +7,9 @@
 #include "MainMenuWidget.generated.h"
 
 class UButton;
+class URadioButtons;
+class UBorder;
+class UCanvasPanel;
 /**
  * 
  */
@@ -28,9 +31,34 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly)
     UButton* ExitBtn;
 
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+    URadioButtons* DifficultRadioButtons;
+
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+    UCanvasPanel* MainCanvasPanel;
+
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+    UCanvasPanel* NewGameCanvasPanel;
+
+    UPROPERTY(meta = (BindWidgetOptional), BlueprintReadOnly)
+    UBorder* MainScreenBorder;
+
+    // TODO: move into the another class (NewGameWidget?)
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+    UButton* NewGame_BackBtn;
+
+    UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+    UButton* NewGame_StartBtn;
+
 protected:
     UFUNCTION()
     void OnNewGameBtnClicked();
+
+    UFUNCTION()
+    void OnNewGame_StartBtnClicked();
+
+    UFUNCTION()
+    void OnNewGame_BackBtnClicked();
 
     UFUNCTION()
     void OnExitBtnClicked();
