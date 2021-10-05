@@ -9,8 +9,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SRadioButtons::Construct(const FArguments& InArgs)
 {
 	OnRadioButtonChanged = InArgs._OnRadioButtonChanged;
-	CheckBoxStyle = &InArgs._RadioButtonsStyleArg->CheckBoxStyle;
-	TextStyle = &InArgs._RadioButtonsStyleArg->TextStyle;
+	SetRadioButtonStyle(InArgs._RadioButtonsStyleArg);
 
 	ChildSlot
 	[
@@ -31,7 +30,17 @@ void SRadioButtons::Construct(const FArguments& InArgs)
 
 	return;
 }
+
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+
+// --------------------------------------------------------------------------------------
+void SRadioButtons::SetRadioButtonStyle(const FRadioButtonsStyle* InStyle)
+{
+	CheckBoxStyle = &InStyle->CheckBoxStyle;
+	TextStyle = &InStyle->TextStyle;
+
+	return;
+}
 
 // --------------------------------------------------------------------------------------
 ECheckBoxState SRadioButtons::IsChecked(ERadioButtonId ButtonId) const
@@ -52,7 +61,7 @@ void SRadioButtons::OnCheckBoxChanged(ECheckBoxState NewState, ERadioButtonId Bu
 }
 
 // --------------------------------------------------------------------------------------
-TSharedRef<SWidget> SRadioButtons::CreateRadioButton(ERadioButtonId ButtonId, const FString& Text) 
+TSharedRef<SWidget> SRadioButtons::CreateRadioButton(ERadioButtonId ButtonId, const FString& Text)
 {
 	return SNew(SCheckBox)
 		.IsChecked(MakeAttributeRaw(this, &SRadioButtons::IsChecked, ButtonId))
@@ -60,7 +69,7 @@ TSharedRef<SWidget> SRadioButtons::CreateRadioButton(ERadioButtonId ButtonId, co
 		.Style(CheckBoxStyle)
 		[
 			SNew(STextBlock)
-				.Text(FText::FromString(Text))
-				.TextStyle(TextStyle)
+			.TextStyle(TextStyle)
+			.Text(FText::FromString(Text))
 		];
 }

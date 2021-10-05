@@ -21,7 +21,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnRadioButtonChangedEvent OnRadioButtonChanged;
 
-	UPROPERTY(EditAnywhere, Category = "Appearance")
+	UPROPERTY(EditAnywhere, Category = "Appearance", meta = (DisplayName = "Style"))
 	FRadioButtonsStyle WidgetStyle;
 
 public:

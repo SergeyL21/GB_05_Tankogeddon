@@ -15,14 +15,16 @@ void URadioButtons::ReleaseSlateResources(bool bRelealeseChildren)
 void URadioButtons::OnRadioButtonChangedFunc(ERadioButtonId ButtonId)
 {
     OnRadioButtonChanged.Broadcast(ButtonId);
+
+    return;
 }
 
 // --------------------------------------------------------------------------------------
 TSharedRef<SWidget> URadioButtons::RebuildWidget()
 {
     RadioButtonsHolder = SNew(SRadioButtons)
-        .OnRadioButtonChanged_UObject(this, &URadioButtons::OnRadioButtonChangedFunc)
-        .RadioButtonsStyleArg(&WidgetStyle);
+        .RadioButtonsStyleArg(&WidgetStyle)
+        .OnRadioButtonChanged_UObject(this, &URadioButtons::OnRadioButtonChangedFunc);
 
     return RadioButtonsHolder.ToSharedRef();
 }

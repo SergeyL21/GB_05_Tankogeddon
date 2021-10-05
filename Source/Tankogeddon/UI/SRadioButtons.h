@@ -36,12 +36,14 @@ public:
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 
+	void SetRadioButtonStyle(const FRadioButtonsStyle* InStyle);
+
 protected:
 	const FCheckBoxStyle* CheckBoxStyle;
 
 	const FTextBlockStyle* TextStyle;
 
-	ERadioButtonId CurrentRadioButton{ ERadioButtonId::Radio_1 };
+	ERadioButtonId CurrentRadioButton{ ERadioButtonId::Radio_2 };
 
 	ECheckBoxState IsChecked(ERadioButtonId ButtonId) const;
 
