@@ -4,6 +4,7 @@
 #include <GameFramework/Pawn.h>
 #include "BasePawn.h"
 #include <DrawDebugHelpers.h>
+#include <Kismet/GameplayStatics.h>
 
 // --------------------------------------------------------------------------------------
 void ABaseAIController::BeginPlay()
@@ -11,8 +12,27 @@ void ABaseAIController::BeginPlay()
     Super::BeginPlay();
 
     MyPawn = Cast<ABasePawn>(GetPawn());
-    PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+ABasePawn* ABaseAIController::GetCurrentEnemy() const
+{
+    return EnemyPawn;
+}
+
+// --------------------------------------------------------------------------------------
+void ABaseAIController::SetCurrentEnemy(ABasePawn* CurrentEnemy)
+{
+    EnemyPawn = CurrentEnemy;
+    return;
+}
+
+void ABaseAIController::ResetCurrentEnemy()
+{
+    EnemyPawn = nullptr;
+    return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -20,11 +40,10 @@ void ABaseAIController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (!MyPawn || !PlayerPawn)
+    if (!MyPawn)
     {
         MyPawn = Cast<ABasePawn>(GetPawn());
-        PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-        if (!MyPawn || !PlayerPawn)
+        if (!MyPawn)
         {
             return;
         }
@@ -36,39 +55,32 @@ void ABaseAIController::Tick(float DeltaTime)
     }
     else
     {
-        RotateToPlayer();
+        RotateToEnemy();
     }
 
     return;
 }
 
 // --------------------------------------------------------------------------------------
-void ABaseAIController::RotateToPlayer()
+void ABaseAIController::RotateToEnemy()
 {
-    if (IsPlayerInRange())
+    if (EnemyPawn)
     {
-        MyPawn->SetTurretTarget(PlayerPawn->GetActorLocation());
+        MyPawn->SetTurretTarget(EnemyPawn->GetActorLocation());
     }
     return;
-}
-
-// --------------------------------------------------------------------------------------
-bool ABaseAIController::IsPlayerInRange() const
-{
-    const auto Distance{ FVector::Distance(MyPawn->GetActorLocation(), PlayerPawn->GetActorLocation()) };
-    return Distance <= TargetingRange;
 }
 
 // --------------------------------------------------------------------------------------
 bool ABaseAIController::DetectCanFire() const
 {
-    if (!DetectPlayerVisibility())
+    if (!DetectEnemyVisibility())
     {
         return false;
     }
 
     const auto TargetingDirection{ MyPawn->GetTurretForwardVector() };
-    auto DirectionToPlayer{ PlayerPawn->GetActorLocation() - MyPawn->GetActorLocation() };
+    auto DirectionToPlayer{ EnemyPawn->GetActorLocation() - MyPawn->GetActorLocation() };
     DirectionToPlayer.Normalize();
     const auto AimAngle{ FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(TargetingDirection, DirectionToPlayer))) };
     return AimAngle <= Accuracy;
@@ -82,9 +94,14 @@ void ABaseAIController::Fire()
 }
 
 // --------------------------------------------------------------------------------------
-bool ABaseAIController::DetectPlayerVisibility() const
+bool ABaseAIController::DetectEnemyVisibility() const
 {
-    auto PlayerPos{ PlayerPawn->GetActorLocation() };
+    if (!EnemyPawn)
+    {
+        return false;
+    }
+
+    auto PlayerPos{ EnemyPawn->GetActorLocation() };
     const auto EyesPos{ MyPawn->GetEyesPosition() };
 
     FHitResult HitResult;
@@ -105,7 +122,7 @@ bool ABaseAIController::DetectPlayerVisibility() const
             {
                 DrawDebugLine(GetWorld(), EyesPos, PlayerPos, FColor::Cyan, false, 0.5f, 0, 10);
             }*/
-            return HitResult.Actor.Get() == PlayerPawn;
+            return HitResult.Actor.Get() == EnemyPawn;
         }
     }
     //DrawDebugLine(GetWorld(), EyesPos, PlayerPos, FColor::Cyan, false, 0.5f, 0, 10);

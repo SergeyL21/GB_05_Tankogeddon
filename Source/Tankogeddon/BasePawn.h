@@ -11,6 +11,7 @@ class UStaticMeshComponent;
 class UArrowComponent;
 class UHealthComponent;
 class UBoxComponent;
+class USphereComponent;
 class UParticleSystem;
 class USoundBase;
 class UWidgetComponent;
@@ -18,11 +19,18 @@ class UBarHPWidget;
 class ACannon;
 class ABaseBox;
 
+UENUM()
+enum class EPlayerGroupID {
+	None,
+	Group_01,
+	Group_02
+};
+
 UCLASS()
 class TANKOGEDDON_API ABasePawn : public APawn, public IDamageTaker
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* BodyMesh;
@@ -36,6 +44,8 @@ protected:
 	UBoxComponent* HitCollider;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UWidgetComponent* HealthWidgetComponent;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	USphereComponent* TargetingCollider;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
@@ -51,6 +61,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerGroup")
+	EPlayerGroupID PlayerGroupID {EPlayerGroupID::None};
 
 private:
 	UPROPERTY()
@@ -114,4 +127,18 @@ protected:
 	virtual void DamageTaken(float InDamage);
 
 	UBarHPWidget* GetBarHPWidget() const { return BarHPWidget; }
+
+	UFUNCTION()
+	void OnTargetingOverlapBegin(UPrimitiveComponent* OverlappedComp,
+								 AActor* OtherActor,
+								 UPrimitiveComponent* OtherComp,
+								 int32 OtherBodyIndex, bool bFromSweep,
+								 const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnTargetingOverlapEnd(UPrimitiveComponent* OverlappedComp, 
+							   AActor* OtherActor, 
+							   UPrimitiveComponent* OtherComp, 
+							   int32 OtherBodyIndex);
+
 };

@@ -7,6 +7,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <Components/ArrowComponent.h>
 #include <Components/BoxComponent.h>
+#include <Components/SphereComponent.h>
 #include <Particles/ParticleSystemComponent.h>
 #include <Components/AudioComponent.h>
 #include <Components/WidgetComponent.h>
@@ -42,12 +43,18 @@ ABasePawn::ABasePawn()
 	HitCollider->SetupAttachment(BodyMesh);
 	HitCollider->bEditableWhenInherited = true;
 
+	TargetingCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Vision collider"));
+	TargetingCollider->SetupAttachment(BodyMesh);
+	TargetingCollider->bEditableWhenInherited = true;
+	TargetingCollider->OnComponentBeginOverlap.AddDynamic(this, &ABasePawn::OnTargetingOverlapBegin);
+	TargetingCollider->OnComponentEndOverlap.AddDynamic(this, &ABasePawn::OnTargetingOverlapEnd);
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health component"));
 	HealthComponent->OnDie.AddDynamic(this, &ABasePawn::Die);
 	HealthComponent->OnDamaged.AddDynamic(this, &ABasePawn::DamageTaken);
 	HealthComponent->bEditableWhenInherited = true;
 
-	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("BarHP");
+	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("BarHP"));
 	HealthWidgetComponent->SetupAttachment(BodyMesh);
 	HealthWidgetComponent->SetWidgetClass(UBarHPWidget::StaticClass());
 }
@@ -156,6 +163,45 @@ void ABasePawn::DamageTaken(float InDamage)
 {
 	UE_LOG(LogTemp, Log, TEXT("Pawn %s taken damage: [%f/%f] "), *GetName(), InDamage, HealthComponent->GetHealth());
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::OnTargetingOverlapBegin(
+	UPrimitiveComponent* OverlappedComp, 
+	AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, 
+	int32 OtherBodyIndex, 
+	bool bFromSweep, 
+	const FHitResult& SweepResult)
+{
+	if (auto OtherPawn = Cast<ABasePawn>(OtherActor))
+	{
+		if (OtherPawn != this && OtherPawn->PlayerGroupID != PlayerGroupID)
+		{
+			if (auto AIController{ Cast<ABaseAIController>(GetController()) })
+			{
+				AIController->SetCurrentEnemy(OtherPawn);
+			}
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::OnTargetingOverlapEnd(
+	UPrimitiveComponent* OverlappedComp, 
+	AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, 
+	int32 OtherBodyIndex)
+{
+	if (auto OtherPawn = Cast<ABasePawn>(OtherActor))
+	{
+		if (auto AIController{ Cast<ABaseAIController>(GetController()) })
+		{
+			AIController->ResetCurrentEnemy();
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------------
