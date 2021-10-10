@@ -8,6 +8,7 @@
 
 class UDragDropOperation;
 class UTextBlock;
+class UBorder;
 
 /**
  * 
@@ -24,9 +25,15 @@ public:
     UPROPERTY(EditAnywhere)
     FText ItemDescription;
 
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<UWidget> ToolTipClass;
+
 protected:
     UPROPERTY(meta = (BindWidgetOptional))
     UTextBlock* ItemNameText;
+
+    UPROPERTY(meta = (BindWidget))
+    UBorder* MainBorder;
 
 public:
     virtual void NativePreConstruct() override;

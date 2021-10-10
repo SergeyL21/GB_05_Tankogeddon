@@ -3,9 +3,11 @@
 
 #include "DraggableItem.h"
 #include "ItemDragDropOperation.h"
+#include "TooltipWidget.h"
 #include <Components/TextBlock.h>
 #include <Components/GridPanel.h>
 #include <Components/GridSlot.h>
+#include <Components/Border.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
 // --------------------------------------------------------------------------------------
@@ -24,7 +26,19 @@ void UDraggableItem::NativePreConstruct()
 // --------------------------------------------------------------------------------------
 void UDraggableItem::NativeConstruct()
 {
-    
+    if (MainBorder && ToolTipClass)
+    {
+        if (auto Widget = CreateWidget<UTooltipWidget>(MainBorder, ToolTipClass.Get()))
+        {
+            MainBorder->SetToolTip(Widget);
+            if (Widget->TooltipTextBlock)
+            {
+                Widget->TooltipTextBlock->SetText(ItemDescription);
+            }
+        }
+    }
+
+    return;
 }
 
 // --------------------------------------------------------------------------------------
