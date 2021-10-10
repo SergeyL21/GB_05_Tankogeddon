@@ -154,6 +154,11 @@ void ABasePawn::Die()
 		GetWorld()->SpawnActor<ABaseBox>(DestructionBonusBox, GetActorLocation(), FRotator::ZeroRotator, SpawnParams);
 	}
 
+	if (HealthWidgetComponent)
+	{
+		HealthWidgetComponent->ReleaseResources();
+	}
+
 	Destroy();
 	return;
 }

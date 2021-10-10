@@ -25,10 +25,14 @@ ABasePawn* ABaseAIController::GetCurrentEnemy() const
 // --------------------------------------------------------------------------------------
 void ABaseAIController::SetCurrentEnemy(ABasePawn* CurrentEnemy)
 {
-    EnemyPawn = CurrentEnemy;
+    if (!EnemyPawn)
+    {
+        EnemyPawn = CurrentEnemy;
+    }
     return;
 }
 
+// --------------------------------------------------------------------------------------
 void ABaseAIController::ResetCurrentEnemy()
 {
     EnemyPawn = nullptr;

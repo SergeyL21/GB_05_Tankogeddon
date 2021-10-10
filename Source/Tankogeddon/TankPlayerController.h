@@ -16,6 +16,9 @@ class TANKOGEDDON_API ATankPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	FSimpleMulticastDelegate OnLeftMouseButtonUpEvent;
+
 protected:
 	UPROPERTY()
 	ATankPawn* TankPawn;
@@ -36,6 +39,9 @@ public:
 	void SetAmmoWidgetValue(int32 CurrentAmmo, int32 MaxAmmo);
 	void SetMinimapPosition(const FVector& WorldLocation, const FVector2D &WorldSize);
 
+	void OnLeftMouseButtonUp();
+	void OnLeftMouseButtonDown();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -44,6 +50,7 @@ protected:
 	void Fire();
 	void FireSpecial();
 	void ChangeWeapon();
+	void InventorySwitch();
 
 	UFUNCTION(exec)
 	void DumpActorPoolSubsystemStats();
