@@ -12,6 +12,16 @@
 #include "StyleSet.h"
 
 // --------------------------------------------------------------------------------------
+void UMainMenuWidget::NativePreConstruct()
+{
+    Super::NativePreConstruct();
+
+    ChangeUITheme(EUITheme::Bright);
+
+    return;
+}
+
+// --------------------------------------------------------------------------------------
 void UMainMenuWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -50,16 +60,6 @@ void UMainMenuWidget::NativeConstruct()
     {
         Settings_CloseBtn->OnClicked.AddDynamic(this, &UMainMenuWidget::OnSettings_CloseBtnClicked);
     }
-
-    return;
-}
-
-// --------------------------------------------------------------------------------------
-void UMainMenuWidget::NativePreConstruct()
-{
-    Super::NativePreConstruct();
-
-    ChangeUITheme(EUITheme::Bright);
 
     return;
 }

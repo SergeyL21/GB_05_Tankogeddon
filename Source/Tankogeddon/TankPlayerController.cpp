@@ -4,6 +4,7 @@
 #include "TankPlayerController.h"
 
 #include <DrawDebugHelpers.h>
+#include <Blueprint/WidgetBlueprintLibrary.h>
 
 #include "Tankogeddon.h"
 #include "TankPawn.h"
@@ -22,6 +23,7 @@ constexpr auto DEBUG_DIRECTION_LENGTH{ 1000.f };
 ATankPlayerController::ATankPlayerController()
 {
 	bShowMouseCursor = true;
+	bEnableClickEvents = true;
 }
 
 // --------------------------------------------------------------------------------------
@@ -33,6 +35,12 @@ void ATankPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Fire", IE_Pressed, this, &ATankPlayerController::Fire);
 	InputComponent->BindAction("AltFire", IE_Pressed, this, &ATankPlayerController::FireSpecial);
 	InputComponent->BindAction("ChangeWeapon", IE_Pressed, this, &ATankPlayerController::ChangeWeapon);
+
+	auto InventoryToggle{ InputComponent->BindAction("Inventory", IE_Pressed, this, &ATankPlayerController::InventorySwitch) };
+	InventoryToggle.bExecuteWhenPaused = true;
+
+	InputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ATankPlayerController::OnLeftMouseButtonUp);
+
 	return;
 }
 
@@ -48,7 +56,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 	auto Direction{ MousePos - PawnPos };
 	Direction.Normalize();
 	MousePos = PawnPos + Direction * DEBUG_DIRECTION_LENGTH;
-	DrawDebugLine(GetWorld(), PawnPos, MousePos, FColor::Green, false, 0.1f, 0, 5.f);
+	//DrawDebugLine(GetWorld(), PawnPos, MousePos, FColor::Green, false, 0.1f, 0, 5.f);
 
 	if (TankPawn)
 	{
@@ -69,6 +77,8 @@ void ATankPlayerController::BeginPlay()
 	{
 		HUD->UseWidget(EWidgetID::PlayerStatus);
 	}
+
+	SetTickableWhenPaused(false);
 
 	return;
 }
@@ -126,6 +136,31 @@ void ATankPlayerController::ChangeWeapon()
 	if (TankPawn)
 	{
 		TankPawn->ChangeWeapon();
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::InventorySwitch()
+{
+	if (auto HUD = GET_HUD)
+	{
+		switch (HUD->GetCurrentWidgetID())
+		{
+		case EWidgetID::GamePause:
+			HUD->UseWidget(EWidgetID::PlayerStatus);
+			//UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+			//SetPause(false);
+			break;
+		case EWidgetID::PlayerStatus:
+			HUD->UseWidget(EWidgetID::GamePause);
+			//UWidgetBlueprintLibrary::SetInputMode_GameAndUI(this);
+			//SetPause(true);
+			break;
+		default:
+			break;
+		}
 	}
 
 	return;
@@ -206,6 +241,19 @@ void ATankPlayerController::SetMinimapPosition(const FVector& WorldLocation, con
 	}
 
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::OnLeftMouseButtonUp()
+{
+	OnLeftMouseButtonUpEvent.Broadcast();
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::OnLeftMouseButtonDown()
+{
+
 }
 
 // --------------------------------------------------------------------------------------

@@ -12,6 +12,7 @@ enum class EWidgetID : uint8
     None,
     MainMenu,
     PlayerStatus,
+    GamePause,
     GameOver
 };
 

@@ -30,8 +30,9 @@ UUserWidget* AGameHUD::UseWidget(EWidgetID WidgetID, int32 ZOrder)
     TSubclassOf<UUserWidget> WidgetClassToUse{ WidgetClasses.FindRef(WidgetID) };
     if (WidgetClassToUse.Get())
     {
+        auto ResultWidget{ AddWidgetToViewportByClass(WidgetClassToUse, ZOrder) };
         CurrentWidgetID = WidgetID;
-        return AddWidgetToViewportByClass(WidgetClassToUse, ZOrder);
+        return ResultWidget;
     };
 
     return nullptr;
