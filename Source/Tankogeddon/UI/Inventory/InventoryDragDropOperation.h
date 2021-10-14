@@ -4,16 +4,17 @@
 
 #include <CoreMinimal.h>
 #include <Blueprint/DragDropOperation.h>
-#include "ItemDragDropOperation.generated.h"
+#include "InventoryDragDropOperation.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TANKOGEDDON_API UItemDragDropOperation : public UDragDropOperation
+class TANKOGEDDON_API UInventoryDragDropOperation : public UDragDropOperation
 {
 	GENERATED_BODY()
 	
 public:
-	FText ItemName;
+	UPROPERTY()
+	class UInventoryCellWidget* SourceCell;
 };

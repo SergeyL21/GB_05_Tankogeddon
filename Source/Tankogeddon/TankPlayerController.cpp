@@ -13,6 +13,7 @@
 #include "UI/GameHUD.h"
 #include "UI/PlayerTankWidget.h"
 #include "UI/MiniMap.h"
+#include "UI/Inventory/InventoryManagerComponent.h"
 
 #define GET_HUD Cast<AGameHUD>(GetHUD())
 
@@ -144,22 +145,18 @@ void ATankPlayerController::ChangeWeapon()
 // --------------------------------------------------------------------------------------
 void ATankPlayerController::InventorySwitch()
 {
-	if (auto HUD = GET_HUD)
+	if (TankPawn)
 	{
-		switch (HUD->GetCurrentWidgetID())
+		if (auto InventoryManager = TankPawn->GetInventoryManagerComponent())
 		{
-		case EWidgetID::GamePause:
-			HUD->UseWidget(EWidgetID::PlayerStatus);
-			//UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
-			//SetPause(false);
-			break;
-		case EWidgetID::PlayerStatus:
-			HUD->UseWidget(EWidgetID::GamePause);
-			//UWidgetBlueprintLibrary::SetInputMode_GameAndUI(this);
-			//SetPause(true);
-			break;
-		default:
-			break;
+			if (InventoryManager->InventoryWidgetIsVisibled())
+			{
+				InventoryManager->SetInventoryWidgetVisible(false);
+			}
+			else
+			{
+				InventoryManager->SetInventoryWidgetVisible(true);
+			}
 		}
 	}
 

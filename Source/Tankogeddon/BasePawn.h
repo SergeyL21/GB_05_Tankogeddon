@@ -15,6 +15,8 @@ class USphereComponent;
 class UParticleSystem;
 class USoundBase;
 class UWidgetComponent;
+class UInventoryComponent;
+class UInventoryManagerComponent;
 class UBarHPWidget;
 class ACannon;
 class ABaseBox;
@@ -46,6 +48,10 @@ protected:
 	UWidgetComponent* HealthWidgetComponent;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	USphereComponent* TargetingCollider;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UInventoryComponent* InventoryComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UInventoryManagerComponent* InventoryManagerComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
@@ -62,7 +68,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret")
 	float TurretRotationSpeed{ 0.5f };
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerGroup")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	EPlayerGroupID PlayerGroupID {EPlayerGroupID::None};
 
 private:
@@ -109,6 +115,8 @@ public:
 
 	UFUNCTION()
 	bool IsPlayerPawn() const;
+
+	FORCEINLINE UInventoryManagerComponent* GetInventoryManagerComponent() const { return InventoryManagerComponent;  }
 
 protected:
 	// Called when the game starts or when spawned
