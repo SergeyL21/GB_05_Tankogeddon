@@ -16,7 +16,11 @@
 #include "Scorable.h"
 #include "TankPlayerController.h"
 #include "HealthComponent.h"
+
 #include "UI/BarHPWidget.h"
+#include "UI/Inventory/InventoryComponent.h"
+#include "UI/Inventory/InventoryWidget.h"
+#include "UI/Inventory/InventoryManagerComponent.h"
 
 #define PLAYER_CONTROLLER Cast<ATankPlayerController>(GetWorld()->GetFirstPlayerController())
 
@@ -133,7 +137,24 @@ void ATankPawn::TargetDestroyed(AActor* Target)
 	{
 		AccumulatedScores += Scorable->GetScorePoints();
 		UE_LOG(LogTemp, Log, TEXT("Destroyed target %s. Current scores: %d"), *Target->GetName(), AccumulatedScores);
+
+		if (InventoryManagerComponent && IsPlayerPawn())
+		{
+			auto LocalComponent{ InventoryManagerComponent->GetLocalInventoryComponent() };
+			auto LocalSlotInfo{ LocalComponent->GetItem(-1) };
+			auto LocalItemInfo{ InventoryManagerComponent->GetItemData(LocalSlotInfo->ID) };
+
+			if (LocalSlotInfo && LocalItemInfo)
+			{
+				LocalSlotInfo->Count = AccumulatedScores;
+				auto InventoryWidget{ InventoryManagerComponent->GetInventoryWidget() };
+				InventoryWidget->ClearItem(-1);
+				InventoryWidget->AddItem(*LocalSlotInfo, *LocalItemInfo);
+			}
+		}
 	}
+
+	return;
 }
 
 // --------------------------------------------------------------------------------------

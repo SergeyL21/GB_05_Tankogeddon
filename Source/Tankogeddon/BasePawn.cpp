@@ -18,8 +18,11 @@
 #include "HealthComponent.h"
 #include "BaseAIController.h"
 #include "BaseBox.h"
+#include "Scorable.h"
 
 #include "UI/BarHPWidget.h"
+#include "UI/Inventory/InventoryComponent.h"
+#include "UI/Inventory/InventoryManagerComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -57,6 +60,9 @@ ABasePawn::ABasePawn()
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("BarHP"));
 	HealthWidgetComponent->SetupAttachment(BodyMesh);
 	HealthWidgetComponent->SetWidgetClass(UBarHPWidget::StaticClass());
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory");
+	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
 }
 
 // --------------------------------------------------------------------------------------
@@ -272,6 +278,11 @@ void ABasePawn::BeginPlay()
 			BarHPWidget->SetHP(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
 		}
 	}
+	else if (InventoryManagerComponent)
+	{
+		InventoryManagerComponent->Init(InventoryComponent);
+	}
+
 	return;
 }
 
