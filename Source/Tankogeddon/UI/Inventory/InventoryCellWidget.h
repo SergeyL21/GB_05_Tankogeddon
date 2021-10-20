@@ -10,8 +10,10 @@
 class UImage;
 class UTextBlock;
 class UBorder;
+class UInventoryCellWidget;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnItemDrop, UInventoryCellWidget* /*DraggedFrom*/, UInventoryCellWidget* /*DroppedTo*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnItemUse, UInventoryCellWidget* /*CellWidget*/);
 
 /**
  * 
@@ -22,9 +24,14 @@ class TANKOGEDDON_API UInventoryCellWidget : public UUserWidget
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere)
     int32 IndexInInventory{ -1 };
 
+    UPROPERTY()
+    class UBaseInventoryWidget* ParentInventoryWidget;
+
     FOnItemDrop OnItemDrop;
+    FOnItemUse OnItemUse;
 
 protected:
     bool bHasItem{ false };
@@ -54,13 +61,13 @@ public:
     FORCEINLINE const FInventorySlotInfo& GetItem() const { return StoredItem; }
 
 protected:
-    FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+    virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
-    void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+    virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 
-    bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+    virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 private:
     void SetBorderColor(EItemType ItemType);
-
+    
 };

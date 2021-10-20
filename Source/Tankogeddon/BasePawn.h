@@ -5,6 +5,8 @@
 #include <CoreMinimal.h>
 #include <GameFramework/Pawn.h>
 #include "DamageTaker.h"
+#include "UI/Inventory/InventoryCellWidget.h"
+#include "UI/Inventory/InventoryItemInfo.h"
 #include "BasePawn.generated.h"
 
 class UStaticMeshComponent;
@@ -17,6 +19,7 @@ class USoundBase;
 class UWidgetComponent;
 class UInventoryComponent;
 class UInventoryManagerComponent;
+class UEquipInventoryComponent;
 class UBarHPWidget;
 class ACannon;
 class ABaseBox;
@@ -52,6 +55,8 @@ protected:
 	UInventoryComponent* InventoryComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UInventoryManagerComponent* InventoryManagerComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UEquipInventoryComponent* EquipmentInventoryComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
@@ -78,6 +83,7 @@ private:
 	UPROPERTY()
 	ACannon* InactiveCannon { nullptr };
 
+	UPROPERTY()
 	UBarHPWidget* BarHPWidget { nullptr };
 
 	UPROPERTY()
@@ -118,6 +124,12 @@ public:
 
 	FORCEINLINE UInventoryManagerComponent* GetInventoryManagerComponent() const { return InventoryManagerComponent;  }
 
+	void EquipItem(EEquipSlot EquipSlot, const FName& ID);
+
+	void UnequipItem(EEquipSlot EquipSlot, const FName& ID);
+
+	TArray<UStaticMeshComponent*> GetEquipComponents(EEquipSlot EquipSlot) const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -148,5 +160,5 @@ protected:
 							   AActor* OtherActor, 
 							   UPrimitiveComponent* OtherComp, 
 							   int32 OtherBodyIndex);
-
+	
 };

@@ -34,6 +34,13 @@ void UInventoryComponent::SetItem(int32 SlotIndex, const FInventorySlotInfo& Ite
 }
 
 // --------------------------------------------------------------------------------------
+int32 UInventoryComponent::GetMaxItemAmount(int32 SlotIndex, const FInventoryItemInfo& Item) const
+{
+    const auto InfoPtr{ Items.Find(SlotIndex) };
+    return (InfoPtr && InfoPtr->ID != Item.ID) ? 0 : -1;
+}
+
+// --------------------------------------------------------------------------------------
 void UInventoryComponent::ClearItem(int32 SlotIndex)
 {
     Items.Remove(SlotIndex);

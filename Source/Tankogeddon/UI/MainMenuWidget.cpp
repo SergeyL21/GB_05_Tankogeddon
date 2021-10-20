@@ -17,7 +17,6 @@ void UMainMenuWidget::NativePreConstruct()
     Super::NativePreConstruct();
 
     ChangeUITheme(EUITheme::Bright);
-
     return;
 }
 
@@ -106,7 +105,7 @@ void UMainMenuWidget::OnSettingsBtnClicked()
     SetHiddenMainScreen(true);
     SettingsCanvasPanel->SetVisibility(ESlateVisibility::Visible);
 
-    true;
+    return;
 }
 
 // --------------------------------------------------------------------------------------
@@ -147,5 +146,7 @@ void UMainMenuWidget::OnExitBtnClicked()
 {
     auto SpecificPlayer{ GetWorld()->GetFirstPlayerController() };
     UKismetSystemLibrary::QuitGame(GetWorld(), SpecificPlayer, EQuitPreference::Quit, true);
+
+    return;
 }
 

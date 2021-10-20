@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "InventoryWidget.h"
 #include <Components/UniformGridPanel.h>
 #include <Components/CheckBox.h>
@@ -10,16 +9,22 @@ void UInventoryWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
+    // TODO: strange behaviour?
+    AllFilterToggle->OnCheckStateChanged.RemoveDynamic(this, &UInventoryWidget::OnAllFilterButtonToggled);
+    EquipmentFilterToggle->OnCheckStateChanged.RemoveDynamic(this, &UInventoryWidget::OnEquipmentFilterButtonToggled);
+    ConsumableFilterToggle->OnCheckStateChanged.RemoveDynamic(this, &UInventoryWidget::OnConsumableFilterButtonToggled);
+    MiscellaneousFilterToggle->OnCheckStateChanged.RemoveDynamic(this, &UInventoryWidget::OnMiscellaneousFilterButtonToggled);
+    
     AllFilterToggle->OnCheckStateChanged.AddDynamic(this, &UInventoryWidget::OnAllFilterButtonToggled);
     EquipmentFilterToggle->OnCheckStateChanged.AddDynamic(this, &UInventoryWidget::OnEquipmentFilterButtonToggled);
     ConsumableFilterToggle->OnCheckStateChanged.AddDynamic(this, &UInventoryWidget::OnConsumableFilterButtonToggled);
     MiscellaneousFilterToggle->OnCheckStateChanged.AddDynamic(this, &UInventoryWidget::OnMiscellaneousFilterButtonToggled);
-
+    
     return;
 }
 
 // --------------------------------------------------------------------------------------
-void UInventoryWidget::Init(int32 ItemsNum)
+void UInventoryWidget::InitItems(int32 ItemsNum)
 {
     if (ItemCellsGrid)
     {
@@ -116,26 +121,6 @@ void UInventoryWidget::ClearItems()
     }
 
     return;
-}
-
-// --------------------------------------------------------------------------------------
-UInventoryCellWidget* UInventoryWidget::CreateCellWidget()
-{
-    if (CellWidgetClass)
-    {
-        auto CellWidget{ CreateWidget<UInventoryCellWidget>(this, CellWidgetClass) };
-        CellWidgets.Add(CellWidget);
-        CellWidget->OnItemDrop.AddUObject(this, &UInventoryWidget::OnItemDropped);
-
-        return CellWidget;
-    }
-    return nullptr;
-}
-
-// --------------------------------------------------------------------------------------
-void UInventoryWidget::OnItemDropped(UInventoryCellWidget* DraggedFrom, UInventoryCellWidget* DroppedTo)
-{
-    OnItemDrop.Broadcast(DraggedFrom, DroppedTo);
 }
 
 // --------------------------------------------------------------------------------------

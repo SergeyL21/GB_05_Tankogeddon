@@ -42,6 +42,8 @@ ATankPawn::ATankPawn()
 	Camera->SetupAttachment(SpringArm);
 
 	HealthWidgetComponent->SetupAttachment(SpringArm);
+
+	InventoryManagerComponent->OnConsumableItemUsed.AddUObject(this, &ATankPawn::OnConsumableItemUse);
 }
 
 // --------------------------------------------------------------------------------------
@@ -171,6 +173,25 @@ void ATankPawn::Die()
 }
 
 // --------------------------------------------------------------------------------------
+void ATankPawn::OnConsumableItemUse(const FInventoryItemInfo* ItemInfo)
+{
+	if (ItemInfo && IsPlayerPawn())
+	{
+		if (ItemInfo->Health > 0.f)
+		{
+			AddHealth(ItemInfo->Health);
+		}
+
+		if (ItemInfo->Ammo > 0.f)
+		{
+			AddAmmoToWeapon(ItemInfo->Ammo);
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void ATankPawn::AddAmmoToWeapon(int32 Count)
 {
 	if (auto Cannon = GetActiveCannon())
@@ -182,6 +203,16 @@ void ATankPawn::AddAmmoToWeapon(int32 Count)
 	}
 
 	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPawn::AddHealth(float Count)
+{
+	if (HealthComponent)
+	{
+		HealthComponent->AddHealth(Count);
+		PLAYER_CONTROLLER->SetHealthWidgetValue(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+	}
 }
 
 // --------------------------------------------------------------------------------------

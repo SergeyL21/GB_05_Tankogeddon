@@ -19,17 +19,25 @@ bool UInventoryCellWidget::AddItem(const FInventorySlotInfo& Item,
 
     SetBorderColor(ItemInfo.Type);
 
+    if (Item.Count <= 0)
+    {
+        Clear();
+        return true;
+    }
+
     if (ItemImage)
     {
         ItemImage->SetBrushFromTexture(ItemInfo.Icon.Get());
         ItemImage->SetBrushTintColor(FLinearColor(1.f, 1.f, 1.f, 1.f));
+        ItemImage->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
         //ItemImage->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
     }
 
     if (CountText)
     {
-        auto String{ FString::FromInt(Item.Count) };
+        const auto String{ FString::FromInt(Item.Count) };
         CountText->SetText(FText::FromString(String));
+        CountText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
     }
 
     bHasItem = true;
@@ -47,12 +55,14 @@ void UInventoryCellWidget::Clear(const FText &DefaultText)
     {
         ItemImage->SetBrush(FSlateBrush());
         ItemImage->SetBrushTintColor(FLinearColor(1.f, 1.f, 1.f, 0.f));
+        ItemImage->SetVisibility(ESlateVisibility::Hidden);
         //ItemImage->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.f));
     }
 
     if (CountText)
     {
         CountText->SetText(DefaultText);
+        CountText->SetVisibility(ESlateVisibility::Hidden);
     }
 
     bHasItem = false;
@@ -64,9 +74,25 @@ void UInventoryCellWidget::Clear(const FText &DefaultText)
 // --------------------------------------------------------------------------------------
 FReply UInventoryCellWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-    if (bIsDraggable && bHasItem && InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+    if (bIsDraggable && bHasItem)
     {
-        return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton).NativeReply;
+        if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+        {
+            return UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton).NativeReply;
+        }
+
+        if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+        {
+            if (StoredItem.Count > 0)
+            {
+                OnItemUse.Broadcast(this);
+            }
+
+            if (--StoredItem.Count <= 0)
+            {
+                Clear();
+            }
+        }
     }
     return FReply::Handled();
 }
@@ -126,3 +152,4 @@ void UInventoryCellWidget::SetBorderColor(EItemType ItemType)
 
     return;
 }
+

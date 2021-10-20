@@ -17,6 +17,17 @@ enum class EItemType : uint8
 };
 
 UENUM()
+enum class EEquipSlot : uint8
+{
+    None,
+    Armor,
+    Weapon_Left,
+    Weapon_Right,
+    Chassis,
+    ControlBlock
+};
+
+UENUM()
 enum class EItemRarity : uint8
 {
     Common,
@@ -58,6 +69,8 @@ public:
     EItemType Type;
     UPROPERTY(EditAnywhere, Category = "Typing")
     EItemRarity Rarity;
+    UPROPERTY(EditAnywhere, Category = "Typing")
+    EEquipSlot EquipSlot;
 
     // visual representation
     UPROPERTY(EditAnywhere, Category = "Visual")
@@ -72,6 +85,10 @@ public:
     float Armor;
     UPROPERTY(EditAnywhere, Category = "Stats")
     float Intelligence;
+    UPROPERTY(EditAnywhere, Category = "Stats")
+    float Ammo;
+    UPROPERTY(EditAnywhere, Category = "Stats")
+    float Health;
 };
 
 USTRUCT(BlueprintType)

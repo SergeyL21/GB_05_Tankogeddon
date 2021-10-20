@@ -149,14 +149,8 @@ void ATankPlayerController::InventorySwitch()
 	{
 		if (auto InventoryManager = TankPawn->GetInventoryManagerComponent())
 		{
-			if (InventoryManager->InventoryWidgetIsVisibled())
-			{
-				InventoryManager->SetInventoryWidgetVisible(false);
-			}
-			else
-			{
-				InventoryManager->SetInventoryWidgetVisible(true);
-			}
+			InventoryManager->SetInventoryWidgetVisible(!InventoryManager->InventoryWidgetIsVisibled());
+			InventoryManager->SetEquipInventoryWidgetVisible(!InventoryManager->EquipInventoryWidgetIsVisibled());
 		}
 	}
 

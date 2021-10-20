@@ -25,7 +25,7 @@ public:
 	FRadioButtonsStyle WidgetStyle;
 
 public:
-	virtual void ReleaseSlateResources(bool bRelealeseChildren) override;
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 
 protected:
 
