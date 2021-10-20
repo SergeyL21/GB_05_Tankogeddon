@@ -64,6 +64,9 @@ public:
 	void AddAmmoToWeapon(int32 Count = 0);
 
 	UFUNCTION()
+	void AddHealth(float Count);
+
+	UFUNCTION()
 	TArray<FVector> GetPatrollingPoints() const;
 
 	UFUNCTION()
@@ -85,6 +88,8 @@ protected:
 	virtual void TargetDestroyed(AActor* Target) override;
 
 	virtual void Die();
+
+	void OnConsumableItemUse(const FInventoryItemInfo* ItemInfo);
 
 public:	
 	// Called every frame

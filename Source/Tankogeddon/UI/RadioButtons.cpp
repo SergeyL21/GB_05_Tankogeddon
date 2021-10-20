@@ -3,9 +3,9 @@
 #include "RadioButtons.h"
 
 // --------------------------------------------------------------------------------------
-void URadioButtons::ReleaseSlateResources(bool bRelealeseChildren)
+void URadioButtons::ReleaseSlateResources(bool bReleaseChildren)
 {
-    Super::ReleaseSlateResources(bRelealeseChildren);
+    Super::ReleaseSlateResources(bReleaseChildren);
     RadioButtonsHolder.Reset();
 
     return;

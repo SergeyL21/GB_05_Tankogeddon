@@ -23,6 +23,7 @@
 #include "UI/BarHPWidget.h"
 #include "UI/Inventory/InventoryComponent.h"
 #include "UI/Inventory/InventoryManagerComponent.h"
+#include "UI/Inventory/EquipInventoryComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -63,6 +64,7 @@ ABasePawn::ABasePawn()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory");
 	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
+	EquipmentInventoryComponent = CreateDefaultSubobject<UEquipInventoryComponent>("EquipInventory");
 }
 
 // --------------------------------------------------------------------------------------
@@ -258,6 +260,76 @@ bool ABasePawn::IsPlayerPawn() const
 }
 
 // --------------------------------------------------------------------------------------
+void ABasePawn::EquipItem(EEquipSlot EquipSlot, const FName& ID)
+{
+	if (auto Data = InventoryManagerComponent->GetItemData(ID))
+	{
+		for (auto StaticMeshComp : GetEquipComponents(EquipSlot))
+		{
+			StaticMeshComp->SetStaticMesh(Data->Mesh.LoadSynchronous());
+		}
+
+		//Damage += Data->Damage;
+		//Armor += Data->Armor;
+		//Intelligence += Data->Intelligence;
+	}
+	
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::UnequipItem(EEquipSlot EquipSlot, const FName& ID)
+{
+	for (auto StaticMeshComp : GetEquipComponents(EquipSlot))
+	{
+		StaticMeshComp->SetStaticMesh(nullptr);
+	}
+	
+	//if (auto Data = InventoryManagerComponent->GetItemData(ID))
+	//{
+	//	Damage += Data->Damage;
+	//	Armor += Data->Armor;
+	//	Intelligence += Data->Intelligence;
+	//}
+	
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+TArray<UStaticMeshComponent*> ABasePawn::GetEquipComponents(EEquipSlot EquipSlot) const
+{
+	TArray<UStaticMeshComponent*> Result;
+	FName Tag;
+	switch (EquipSlot)
+	{
+	case EEquipSlot::Weapon_Right:
+		Tag = "EquipWeapon_Right";
+		break;
+	case EEquipSlot::Weapon_Left:
+		Tag = "EquipWeapon_Left";
+		break;
+	case EEquipSlot::Armor:
+		Tag = "EquipArmor";
+		break;
+	case EEquipSlot::Chassis:
+		Tag = "EquipChassis";
+		break;
+	default:
+		return Result;
+	}
+
+	auto Comps {GetComponentsByTag(UStaticMeshComponent::StaticClass(), Tag)};
+	for (auto Comp : Comps)
+	{
+		if (auto SM_Comp = Cast<UStaticMeshComponent>(Comp))
+		{
+			Result.Add(Cast<UStaticMeshComponent>(Comp));
+		}
+	}
+	return Result;
+}
+
+// --------------------------------------------------------------------------------------
 // Called when the game starts or when spawned
 void ABasePawn::BeginPlay()
 {
@@ -280,7 +352,11 @@ void ABasePawn::BeginPlay()
 	}
 	else if (InventoryManagerComponent)
 	{
-		InventoryManagerComponent->Init(InventoryComponent);
+		InventoryManagerComponent->InitLocalInventory(InventoryComponent);
+		if (IsPlayerPawn())
+		{
+			InventoryManagerComponent->InitEquipment(EquipmentInventoryComponent);
+		}
 	}
 
 	return;

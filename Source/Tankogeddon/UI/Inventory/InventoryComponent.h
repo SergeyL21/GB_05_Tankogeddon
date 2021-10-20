@@ -25,9 +25,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	FInventorySlotInfo* GetItem(int32 SlotIndex);
+	virtual FInventorySlotInfo* GetItem(int32 SlotIndex);
 
-	void SetItem(int32 SlotIndex, const FInventorySlotInfo& Item);
+	virtual void SetItem(int32 SlotIndex, const FInventorySlotInfo& Item);
+
+	virtual int32 GetMaxItemAmount(int32 SlotIndex, const FInventoryItemInfo& Item) const;
 
 	void ClearItem(int32 SlotIndex);
 

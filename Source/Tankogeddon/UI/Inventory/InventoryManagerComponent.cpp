@@ -3,6 +3,9 @@
 #include "InventoryManagerComponent.h"
 #include "InventoryComponent.h"
 #include "InventoryWidget.h"
+#include "EquipInventoryWidget.h"
+
+#include <tuple>
 
 // --------------------------------------------------------------------------------------
 // Sets default values for this component's properties
@@ -12,7 +15,7 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 }
 
 // --------------------------------------------------------------------------------------
-void UInventoryManagerComponent::Init(UInventoryComponent* InInventoryComponent)
+void UInventoryManagerComponent::InitLocalInventory(UInventoryComponent* InInventoryComponent)
 {
     LocalInventoryComponent = InInventoryComponent;
 
@@ -20,10 +23,9 @@ void UInventoryManagerComponent::Init(UInventoryComponent* InInventoryComponent)
     {
         // fill slot items info
         TArray<FInventoryItemInfo*> OutAllRows;
-        FString Context;
-        InventoryItemsData->GetAllRows<FInventoryItemInfo>(Context, OutAllRows);
+        InventoryItemsData->GetAllRows<FInventoryItemInfo>({}, OutAllRows);
         auto SlotIndex{ 0 };
-        for (auto ItemInfo : OutAllRows)
+        for (const auto ItemInfo : OutAllRows)
         {
             FInventorySlotInfo SlotInfo;
             SlotInfo.ID = ItemInfo->ID;
@@ -45,14 +47,26 @@ void UInventoryManagerComponent::Init(UInventoryComponent* InInventoryComponent)
             InventoryWidget = CreateWidget<UInventoryWidget>(GetWorld(), InventoryWidgetClass);
             InventoryWidget->OnItemDrop.AddUObject(this, &UInventoryManagerComponent::OnItemDropped);
             InventoryWidget->OnItemFilterChanged.AddUObject(this, &UInventoryManagerComponent::OnItemFilterChanged);
+            InventoryWidget->OnItemUsed.AddUObject(this, &UInventoryManagerComponent::OnItemUsed);
+            InventoryWidget->RepresentedInventory = LocalInventoryComponent;
             //InventoryWidget->AddToViewport();
         }
 
-        InventoryWidget->Init(FMath::Max(LocalInventoryComponent->GetItemsNum(), MinInventorySize));
+        InventoryWidget->InitItems(FMath::Max(LocalInventoryComponent->GetItemsNum(), MinInventorySize));
         FilterInventoryWidgetCells();
     }
 
     return;
+}
+
+// --------------------------------------------------------------------------------------
+void UInventoryManagerComponent::InitEquipment(UInventoryComponent* InInventoryComponent)
+{
+    ensure(EquipInventoryWidgetClass);
+    EquipInventoryWidget = CreateWidget<UEquipInventoryWidget>(GetWorld(), EquipInventoryWidgetClass);
+    EquipInventoryWidget->OnItemDrop.AddUObject(this, &UInventoryManagerComponent::OnItemDropped);
+    EquipInventoryWidget->RepresentedInventory = InInventoryComponent;
+    //EquipInventoryWidget->AddToViewport();
 }
 
 // --------------------------------------------------------------------------------------
@@ -93,7 +107,7 @@ void UInventoryManagerComponent::FilterInventoryWidgetCells(EItemFilter ItemFilt
 
                 if (bFilterFlag)
                 {
-                    /*std::ignore = */ItemData->Icon.LoadSynchronous();
+                    std::ignore = ItemData->Icon.LoadSynchronous();
                     InventoryWidget->AddItem(Item.Value, *ItemData, Item.Key);
                 }
             }
@@ -107,6 +121,12 @@ void UInventoryManagerComponent::FilterInventoryWidgetCells(EItemFilter ItemFilt
 bool UInventoryManagerComponent::InventoryWidgetIsVisibled() const
 {
     return InventoryWidget ? InventoryWidget->IsInViewport() : false;
+}
+
+// --------------------------------------------------------------------------------------
+bool UInventoryManagerComponent::EquipInventoryWidgetIsVisibled() const
+{
+    return EquipInventoryWidget ? EquipInventoryWidget->IsInViewport() : false;
 }
 
 // --------------------------------------------------------------------------------------
@@ -127,6 +147,23 @@ void UInventoryManagerComponent::SetInventoryWidgetVisible(bool bVisible)
 }
 
 // --------------------------------------------------------------------------------------
+void UInventoryManagerComponent::SetEquipInventoryWidgetVisible(bool bVisible)
+{
+    if (EquipInventoryWidget)
+    {
+        if (bVisible)
+        {
+            EquipInventoryWidget->AddToViewport();
+        }
+        else
+        {
+            EquipInventoryWidget->RemoveFromViewport();
+        }
+    }
+    return;
+}
+
+// --------------------------------------------------------------------------------------
 FInventoryItemInfo* UInventoryManagerComponent::GetItemData(FName ItemID)
 {
     return InventoryItemsData ? InventoryItemsData->FindRow<FInventoryItemInfo>(ItemID, {}) : nullptr;
@@ -135,16 +172,26 @@ FInventoryItemInfo* UInventoryManagerComponent::GetItemData(FName ItemID)
 // --------------------------------------------------------------------------------------
 void UInventoryManagerComponent::OnItemDropped(UInventoryCellWidget* DraggedFrom, UInventoryCellWidget* DroppedTo)
 {
-    if (!DraggedFrom || !DroppedTo || !LocalInventoryComponent)
+    if (!DraggedFrom || !DroppedTo)
     {
         return;
     }
 
-    LocalInventoryComponent->SetItem(DraggedFrom->IndexInInventory, DroppedTo->GetItem());
-    LocalInventoryComponent->SetItem(DroppedTo->IndexInInventory, DraggedFrom->GetItem());
+    auto FromInventory{ DraggedFrom->ParentInventoryWidget->RepresentedInventory };
+    auto ToInventory{ DroppedTo->ParentInventoryWidget->RepresentedInventory };
+
+    if (!FromInventory || !ToInventory)
+    {
+        return;
+    }
 
     auto FromSlot{ DraggedFrom->GetItem() };
     auto ToSlot{ DroppedTo->GetItem() };
+
+    if (FromSlot.Count < 1)
+    {
+        return;
+    }
 
     auto FromInfo{ GetItemData(FromSlot.ID) };
     auto ToInfo{ GetItemData(ToSlot.ID) };
@@ -153,6 +200,29 @@ void UInventoryManagerComponent::OnItemDropped(UInventoryCellWidget* DraggedFrom
     {
         return;
     }
+
+    const auto MaxCount{ ToInventory->GetMaxItemAmount(DroppedTo->IndexInInventory, *FromInfo) };
+    if (MaxCount == 0)
+    {
+        return;
+    }
+    else if (MaxCount > 0)
+    {
+        const auto ItemsToAdd{ FMath::Min(MaxCount, FromSlot.Count) };
+        ToSlot.Count = FromSlot.Count - ItemsToAdd;
+        ToSlot.ID = FromSlot.ID;
+        ToInfo = FromInfo;
+
+        FromSlot.Count = ItemsToAdd;
+    }
+    else if (FromSlot.ID == ToSlot.ID)
+    {
+        FromSlot.Count += ToSlot.Count;
+        ToSlot.Count = 0;
+    }
+
+    FromInventory->SetItem(DraggedFrom->IndexInInventory, ToSlot);
+    ToInventory->SetItem(DroppedTo->IndexInInventory, FromSlot);
 
     DraggedFrom->Clear();
     if (ToInfo)
@@ -170,6 +240,21 @@ void UInventoryManagerComponent::OnItemDropped(UInventoryCellWidget* DraggedFrom
 void UInventoryManagerComponent::OnItemFilterChanged(EItemFilter ItemFilter)
 {
     FilterInventoryWidgetCells(ItemFilter);
+}
+
+// --------------------------------------------------------------------------------------
+void UInventoryManagerComponent::OnItemUsed(UInventoryCellWidget* CellWidget)
+{
+    const auto SlotInfo {CellWidget->GetItem()};
+    if (const auto ItemInfo = GetItemData(SlotInfo.ID))
+    {
+        if (ItemInfo->Type == EItemType::Consumable)
+        {
+            OnConsumableItemUsed.Broadcast(ItemInfo);
+        }
+    }
+
+    return;
 }
 
 

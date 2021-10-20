@@ -8,17 +8,6 @@
 void AGameHUD::BeginPlay()
 {
     Super::BeginPlay();
-
-    /*if (GetWorld())
-    {
-        auto PlayerController{ GetWorld()->GetFirstPlayerController() };
-        if (PlayerController)
-        {
-            UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, nullptr, EMouseLockMode::DoNotLock, false);
-            PlayerController->bShowMouseCursor = true;
-        }
-    }*/
-
     return;
 }
 
