@@ -13,7 +13,9 @@
 #include "UI/GameHUD.h"
 #include "UI/PlayerTankWidget.h"
 #include "UI/MiniMap.h"
-#include "UI/Inventory/InventoryManagerComponent.h"
+
+// InventorySystem plugin include section
+#include "InventoryManagerComponent.h"
 
 #define GET_HUD Cast<AGameHUD>(GetHUD())
 
