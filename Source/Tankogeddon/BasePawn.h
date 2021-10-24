@@ -5,8 +5,11 @@
 #include <CoreMinimal.h>
 #include <GameFramework/Pawn.h>
 #include "DamageTaker.h"
-#include "UI/Inventory/InventoryCellWidget.h"
-#include "UI/Inventory/InventoryItemInfo.h"
+
+// InventorySystem plugin include section
+#include "InventoryCellWidget.h"
+#include "InventoryOwner.h"
+
 #include "BasePawn.generated.h"
 
 class UStaticMeshComponent;
@@ -32,7 +35,7 @@ enum class EPlayerGroupID {
 };
 
 UCLASS()
-class TANKOGEDDON_API ABasePawn : public APawn, public IDamageTaker
+class TANKOGEDDON_API ABasePawn : public APawn, public IDamageTaker, public IInventoryOwner
 {
 	GENERATED_BODY()
 
@@ -124,9 +127,9 @@ public:
 
 	FORCEINLINE UInventoryManagerComponent* GetInventoryManagerComponent() const { return InventoryManagerComponent;  }
 
-	void EquipItem(EEquipSlot EquipSlot, const FName& ID);
+	virtual void EquipItem(EEquipSlot EquipSlot, const FName& ID);
 
-	void UnequipItem(EEquipSlot EquipSlot, const FName& ID);
+	virtual void UnequipItem(EEquipSlot EquipSlot, const FName& ID);
 
 	TArray<UStaticMeshComponent*> GetEquipComponents(EEquipSlot EquipSlot) const;
 

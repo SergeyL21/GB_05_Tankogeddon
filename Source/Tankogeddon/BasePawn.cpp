@@ -21,9 +21,11 @@
 #include "Scorable.h"
 
 #include "UI/BarHPWidget.h"
-#include "UI/Inventory/InventoryComponent.h"
-#include "UI/Inventory/InventoryManagerComponent.h"
-#include "UI/Inventory/EquipInventoryComponent.h"
+
+// InventorySystem plugin include section
+#include "InventoryComponent.h"
+#include "InventoryManagerComponent.h"
+#include "EquipInventoryComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -61,7 +63,7 @@ ABasePawn::ABasePawn()
 	HealthWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("BarHP"));
 	HealthWidgetComponent->SetupAttachment(BodyMesh);
 	HealthWidgetComponent->SetWidgetClass(UBarHPWidget::StaticClass());
-
+	
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory");
 	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
 	EquipmentInventoryComponent = CreateDefaultSubobject<UEquipInventoryComponent>("EquipInventory");

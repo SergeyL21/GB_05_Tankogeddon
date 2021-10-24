@@ -18,9 +18,11 @@
 #include "HealthComponent.h"
 
 #include "UI/BarHPWidget.h"
-#include "UI/Inventory/InventoryComponent.h"
-#include "UI/Inventory/InventoryWidget.h"
-#include "UI/Inventory/InventoryManagerComponent.h"
+
+// InventorySystem plugin include section
+#include "InventoryComponent.h"
+#include "InventoryWidget.h"
+#include "InventoryManagerComponent.h"
 
 #define PLAYER_CONTROLLER Cast<ATankPlayerController>(GetWorld()->GetFirstPlayerController())
 
