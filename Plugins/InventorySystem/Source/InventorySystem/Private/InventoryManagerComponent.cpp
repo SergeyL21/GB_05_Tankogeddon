@@ -25,9 +25,9 @@ void UInventoryManagerComponent::InitLocalInventory(UInventoryComponent* InInven
         {
             ensure(InventoryWidgetClass);
             InventoryWidget = CreateWidget<UInventoryWidget>(GetWorld(), InventoryWidgetClass);
-            InventoryWidget->OnItemDrop.AddUObject(this, &UInventoryManagerComponent::OnItemDropped);
-            InventoryWidget->OnItemFilterChanged.AddUObject(this, &UInventoryManagerComponent::OnItemFilterChanged);
-            InventoryWidget->OnItemUsed.AddUObject(this, &UInventoryManagerComponent::OnItemUsed);
+            InventoryWidget->OnItemDrop.AddUObject(this, &ThisClass::OnItemDropped);
+            InventoryWidget->OnItemFilterChanged.AddUObject(this, &ThisClass::OnItemFilterChanged);
+            InventoryWidget->OnItemUsed.AddUObject(this, &ThisClass::OnItemUsed);
             InventoryWidget->RepresentedInventory = LocalInventoryComponent;
             //InventoryWidget->AddToViewport();
         }
