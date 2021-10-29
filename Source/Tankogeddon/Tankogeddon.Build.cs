@@ -10,7 +10,15 @@ public class Tankogeddon : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
-			"Core", "CoreUObject", "Engine", "InputCore", "UMG", "InventorySystem"
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"UMG",
+			"MediaAssets",
+			"DesktopPlatform",
+			"Slate",
+			"InventorySystem"
 		});
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
