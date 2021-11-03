@@ -26,6 +26,7 @@
 #include "InventoryComponent.h"
 #include "InventoryManagerComponent.h"
 #include "EquipInventoryComponent.h"
+#include "InteractionComponent.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -67,6 +68,9 @@ ABasePawn::ABasePawn()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory");
 	InventoryManagerComponent = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
 	EquipmentInventoryComponent = CreateDefaultSubobject<UEquipInventoryComponent>("EquipInventory");
+
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction");
+	InteractionComponent->SetupAttachment(BodyMesh);
 }
 
 // --------------------------------------------------------------------------------------

@@ -23,6 +23,7 @@ class UWidgetComponent;
 class UInventoryComponent;
 class UInventoryManagerComponent;
 class UEquipInventoryComponent;
+class UInteractionComponent;
 class UBarHPWidget;
 class ACannon;
 class ABaseBox;
@@ -60,6 +61,8 @@ protected:
 	UInventoryManagerComponent* InventoryManagerComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UEquipInventoryComponent* EquipmentInventoryComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UInteractionComponent* InteractionComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Cannon")
 	TSubclassOf<ACannon> MainCannonClass;
