@@ -18,7 +18,8 @@ public class Tankogeddon : ModuleRules
 			"MediaAssets",
 			"DesktopPlatform",
 			"Slate",
-			"InventorySystem"
+			"InventorySystem",
+			"QuestSystem"
 		});
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
