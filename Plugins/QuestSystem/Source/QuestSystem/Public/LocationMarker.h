@@ -27,5 +27,7 @@ class QUESTSYSTEM_API ILocationMarker
 public:
 	virtual void NotifyOverlapWithActor(AActor* LocationMarker, AActor* OverlappedActor);
 
+	virtual void SetMarkerVisibility(bool bEnabled) = 0;
+
 	FOnLocationReached OnLocationReached;
 };

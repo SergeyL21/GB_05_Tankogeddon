@@ -31,6 +31,8 @@ class QUESTSYSTEM_API UObjective : public UObject
 public:
 	FORCEINLINE virtual void ActivateObjective(AActor * Character) {}
 
+	FORCEINLINE virtual void PrepareObjective() {}
+
 	UPROPERTY(EditAnywhere)
 	FText Description;
 	

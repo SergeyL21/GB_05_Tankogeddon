@@ -20,7 +20,7 @@ public:
 	virtual void ActivateObjective(AActor * Character) override;
 
 	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "InteractableObject"))
-	AActor* Target;
+	TArray<AActor*> Targets;
 
 	UPROPERTY(EditAnywhere)
 	int32 TargetCount {0};

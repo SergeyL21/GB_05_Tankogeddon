@@ -15,26 +15,29 @@ void UCollectionObjective::ActivateObjective(AActor* Character)
 {
 	Super::ActivateObjective(Character);
 
-	if (auto InteractableTarget = Cast<IInteractableObject>(Target))
+	for (auto Target : Targets)
 	{
-		InteractableTarget->OnInteractionFinished.AddLambda([this, Character](
-			AActor* InteractableObject, AActor* ActorInteractedWithObject)
+		if (auto InteractableTarget = Cast<IInteractableObject>(Target))
 		{
-			if (bCanBeCompleted && Character == ActorInteractedWithObject)
+			InteractableTarget->OnInteractionFinished.AddLambda([this, Character](
+				AActor* InteractableObject, AActor* ActorInteractedWithObject)
 			{
-				bIsCompleted = true;
+				if (bCanBeCompleted && Character == ActorInteractedWithObject)
+				{
+					bIsCompleted = true;
 
-				if (++Collected >= TargetCount)
-				{
-					OnObjectiveCompleted.Broadcast(this);
+					if (++Collected >= TargetCount)
+					{
+						OnObjectiveCompleted.Broadcast(this);
+					}
+					else
+					{
+						const auto Percent {static_cast<float>(Collected) / TargetCount * 100.f};
+						OnObjectiveInProgress.Broadcast(this, Percent);
+					}
 				}
-				else
-				{
-					const auto Percent {static_cast<float>(Collected) / TargetCount * 100.f};
-					OnObjectiveInProgress.Broadcast(this, Percent);
-				}
-			}
-		});
+			});
+		}
 	}
 
 	return;
