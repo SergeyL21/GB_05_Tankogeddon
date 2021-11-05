@@ -16,6 +16,8 @@ public:
 
 	virtual void ActivateObjective(AActor * Character) override;
 
+	virtual void PrepareObjective() override;
+
 	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "LocationMarker"))
 	AActor* Marker;
 };

@@ -12,7 +12,12 @@ class QUESTSYSTEM_API ALocationMarkerActor : public AActor, public ILocationMark
 {
 	GENERATED_BODY()
 
+public:
+	virtual void BeginPlay() override;
+	
 protected:
 	UFUNCTION(BlueprintCallable)
 	void OnOverlapedByActor(AActor* OverlappingActor);
+
+	virtual void SetMarkerVisibility(bool bEnabled) override;
 };

@@ -125,7 +125,7 @@ public:
 	UFUNCTION()
 	FVector GetEyesPosition() const;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool IsPlayerPawn() const;
 
 	FORCEINLINE UInventoryManagerComponent* GetInventoryManagerComponent() const { return InventoryManagerComponent;  }

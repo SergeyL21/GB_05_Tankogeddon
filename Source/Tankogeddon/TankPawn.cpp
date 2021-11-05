@@ -5,13 +5,10 @@
 #include <Components/StaticMeshComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
-#include <Kismet/KismetMathLibrary.h>
 #include <Kismet/GameplayStatics.h>
-#include <Components/ArrowComponent.h>
 #include <Components/WidgetComponent.h>
 #include <Engine/TargetPoint.h>
 
-#include "Tankogeddon.h"
 #include "Cannon.h"
 #include "Scorable.h"
 #include "TankPlayerController.h"
@@ -23,6 +20,10 @@
 #include "InventoryComponent.h"
 #include "InventoryWidget.h"
 #include "InventoryManagerComponent.h"
+#include "QuestList.h"
+#include "QuestListComponent.h"
+
+#include <Blueprint/WidgetBlueprintLibrary.h>
 
 #define PLAYER_CONTROLLER Cast<ATankPlayerController>(GetWorld()->GetFirstPlayerController())
 
@@ -39,6 +40,8 @@ ATankPawn::ATankPawn()
 	SpringArm->bInheritPitch = false;
 	SpringArm->bInheritYaw = false;
 	SpringArm->bInheritRoll = false;
+
+	QuestList = CreateDefaultSubobject<UQuestListComponent>("Quest List Component");
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
@@ -106,6 +109,33 @@ void ATankPawn::ChangeWeapon()
 }
 
 // --------------------------------------------------------------------------------------
+void ATankPawn::ToggleQuestListVisibility()
+{
+	auto PlayerController {UGameplayStatics::GetPlayerController(GetWorld(), 0)};
+
+	if (QuestListWidget)
+	{
+		QuestListWidget->RemoveFromParent();
+		QuestListWidget = nullptr;
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
+		PlayerController->bShowMouseCursor = true;
+	}
+	else
+	{
+		if (QuestListClass)
+		{
+			QuestListWidget = CreateWidget<UQuestList>(GetWorld(), QuestListClass);
+			QuestListWidget->Init(QuestList);
+			QuestListWidget->AddToViewport();
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController);
+			PlayerController->bShowMouseCursor = true;
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void ATankPawn::DamageTaken(float DamageValue)
 {
 	Super::DamageTaken(DamageValue);
@@ -145,15 +175,15 @@ void ATankPawn::TargetDestroyed(AActor* Target)
 		if (InventoryManagerComponent && IsPlayerPawn())
 		{
 			auto LocalComponent{ InventoryManagerComponent->GetLocalInventoryComponent() };
-			auto LocalSlotInfo{ LocalComponent->GetItem(-1) };
-			auto LocalItemInfo{ InventoryManagerComponent->GetItemData(LocalSlotInfo->ID) };
-
-			if (LocalSlotInfo && LocalItemInfo)
+			if (auto LocalSlotInfo = LocalComponent->GetItem(-1))
 			{
-				LocalSlotInfo->Count = AccumulatedScores;
-				auto InventoryWidget{ InventoryManagerComponent->GetInventoryWidget() };
-				InventoryWidget->ClearItem(-1);
-				InventoryWidget->AddItem(*LocalSlotInfo, *LocalItemInfo);
+				if (auto LocalItemInfo = InventoryManagerComponent->GetItemData(LocalSlotInfo->ID))
+				{
+					LocalSlotInfo->Count = AccumulatedScores;
+					auto InventoryWidget{ InventoryManagerComponent->GetInventoryWidget() };
+					InventoryWidget->ClearItem(-1);
+					InventoryWidget->AddItem(*LocalSlotInfo, *LocalItemInfo);
+				}
 			}
 		}
 	}

@@ -6,6 +6,8 @@
 #include "BasePawn.h"
 #include "TankPawn.generated.h"
 
+class UQuestList;
+class UQuestListComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class UForceFeedbackEffect;
@@ -22,7 +24,14 @@ protected:
 	USpringArmComponent* SpringArm;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UCameraComponent* Camera;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UQuestListComponent* QuestList;
 
+	UPROPERTY()
+	UQuestList * QuestListWidget;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Quest System")
+	TSubclassOf<UQuestList> QuestListClass;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 	float MoveSpeed{ 100.f };
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
@@ -78,6 +87,9 @@ public:
 	virtual void Fire() override;
 
 	virtual void ChangeWeapon() override;
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleQuestListVisibility();    
 
 protected:
 	// Called when the game starts or when spawned

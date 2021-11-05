@@ -7,12 +7,20 @@
 #include "CollectionObjective.h"
 #include "KillingObjective.h"
 
+#include <Components/WidgetComponent.h>
+
 // --------------------------------------------------------------------------------------
 // Sets default values
 AQuest::AQuest()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+	RootComponent = RootSceneComponent;
+	
+	InfoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("QuestInfoWidget"));
+	InfoWidgetComponent->SetupAttachment(RootComponent);
 }
 
 // --------------------------------------------------------------------------------------
@@ -22,12 +30,14 @@ void AQuest::TakeQuest(AActor* Character)
 	{
 		if (Objectives[i])
 		{
-			Objectives[i]->ActivateObjective(Character);
 			Objectives[i]->bCanBeCompleted = !bKeepObjectivesOrder || i == 0;
 			Objectives[i]->OnObjectiveCompleted.AddUObject(this, &AQuest::OnObjectiveCompleted);
+			Objectives[i]->ActivateObjective(Character);
 		}
 	}
 	bIsTaken = true;
+	SetVisibility(false);
+	
 	return;
 }
 
@@ -37,6 +47,11 @@ void AQuest::BeginPlay()
 {
 	Super::BeginPlay();
 
+	/*if (auto ParentActor = GetAttachParentActor())
+	{
+		TakeQuest(ParentActor);
+	}*/
+	
 	return;
 }
 
@@ -89,14 +104,38 @@ void AQuest::OnObjectiveCompleted(UObjective* Objective)
 			Objectives.IsValidIndex(ObjectiveIndex + 1))
 		{
 			Objectives[ObjectiveIndex + 1]->bCanBeCompleted = true;
+			Objectives[ObjectiveIndex + 1]->PrepareObjective();
+		}
+	}
+	
+	OnQuestStatusUpdated.Broadcast(this);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+bool AQuest::IsCompleted() const
+{
+	const auto LastIndex {Objectives.Num() - 1 };
+	if (bKeepObjectivesOrder && Objectives.IsValidIndex(LastIndex))
+	{
+		return Objectives[LastIndex]->bIsCompleted;
+	}
+
+	for (auto Objective : Objectives)
+	{
+		if (Objective && !Objective->bIsCompleted)
+		{
+			return false;
 		}
 	}
 
-	if (OnQuestStatusUpdated.IsBound())
-	{
-		OnQuestStatusUpdated.Broadcast(this);
-	}
-	return;
+	return true;
+}
+
+// --------------------------------------------------------------------------------------
+void AQuest::SetVisibility(bool bEnabled)
+{
+	InfoWidgetComponent->SetVisibility(bEnabled);
 }
 
 

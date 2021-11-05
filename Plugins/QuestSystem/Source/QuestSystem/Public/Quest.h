@@ -4,8 +4,11 @@
 
 #include <CoreMinimal.h>
 #include <GameFramework/Actor.h>
+
 #include "Quest.generated.h"
 
+class UWidgetComponent;
+class UQuestInfoWidget;
 class AQuest;
 class UObjective;
 
@@ -41,12 +44,39 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool bIsTaken {false};
 
+	UPROPERTY(VisibleDefaultsOnly)
+	USceneComponent* RootSceneComponent;
 	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UWidgetComponent* InfoWidgetComponent;
+
 public:	
 	// Sets default values for this actor's properties
 	AQuest();
 
 	void TakeQuest(AActor * Character);
+
+	UFUNCTION(BlueprintPure)
+	const TArray<UObjective*>& GetObjectives() const { return Objectives; }
+
+	UFUNCTION(BlueprintPure)
+	FText GetQuestName() const { return Name; }
+
+	UFUNCTION(BlueprintPure)
+	FText GetQuestDescription() const { return Description; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsTaken() const { return bIsTaken; }
+
+	UFUNCTION(BlueprintPure)
+	AQuest *GetPrerequisiteQuest() const { return PrerequisiteQuest; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsStoryQuest() const { return bIsStoryQuest; }
+	
+	bool IsCompleted() const;
+
+	void SetVisibility(bool bEnabled);
 
 protected:
 	// Called when the game starts or when spawned
