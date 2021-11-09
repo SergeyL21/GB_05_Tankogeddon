@@ -35,5 +35,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void Interact_Implementation(AActor* ActorInteractedWithObject) override;
-	
+
+private:
+	/* bool PawnHasQuest {false}; */
 };

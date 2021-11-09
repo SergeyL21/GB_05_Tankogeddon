@@ -18,6 +18,8 @@ UCLASS()
 class QUESTSYSTEM_API AQuest : public AActor
 {
 	GENERATED_BODY()
+	
+	friend class SMultiColumnQuestRow;
 
 public:
 	FOnQuestStatusUpdated OnQuestStatusUpdated;
@@ -61,7 +63,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FText GetQuestName() const { return Name; }
-
+	
 	UFUNCTION(BlueprintPure)
 	FText GetQuestDescription() const { return Description; }
 

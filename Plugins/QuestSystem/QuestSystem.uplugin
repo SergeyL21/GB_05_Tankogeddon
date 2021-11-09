@@ -19,6 +19,12 @@
 			"Name": "QuestSystem",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "HelperEditorWindow",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
+		
 	]
 }
