@@ -20,4 +20,6 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "LocationMarker"))
 	AActor* Marker;
+
+	virtual TArray<AActor*> GetObjectiveActors() const override;
 };

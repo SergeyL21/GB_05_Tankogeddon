@@ -49,4 +49,10 @@ void ULocationObjective::PrepareObjective()
 	return;
 }
 
+// --------------------------------------------------------------------------------------
+TArray<AActor*> ULocationObjective::GetObjectiveActors() const
+{
+	return TArray<AActor*> { Marker };
+}
+
 

@@ -24,7 +24,11 @@
 			"Name": "HelperEditorWindow",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "HelperEditorMode",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
-		
 	]
 }

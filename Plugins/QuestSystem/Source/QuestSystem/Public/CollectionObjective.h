@@ -28,6 +28,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bAutoCollect {false};
 
+	virtual TArray<AActor*> GetObjectiveActors() const override { return Targets; }
+
 private:
 	int32 Collected {0};
 };

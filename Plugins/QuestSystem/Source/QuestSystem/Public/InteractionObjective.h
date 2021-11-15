@@ -21,4 +21,6 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "InteractableObject"))
 	AActor* Target;
+
+	virtual TArray<AActor*> GetObjectiveActors() const override;
 };
