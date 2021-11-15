@@ -29,7 +29,7 @@ class QUESTSYSTEM_API UObjective : public UObject
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE virtual void ActivateObjective(AActor * Character) {}
+	FORCEINLINE virtual void ActivateObjective(AActor* Character) {}
 
 	FORCEINLINE virtual void PrepareObjective() {}
 
@@ -47,4 +47,6 @@ public:
 	
 	UPROPERTY(VisibleAnywhere)
 	bool bCanBeCompleted {true};
+
+	virtual TArray<AActor*> GetObjectiveActors() const { return {}; }
 };

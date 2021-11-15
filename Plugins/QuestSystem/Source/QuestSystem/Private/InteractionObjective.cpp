@@ -31,3 +31,9 @@ void UInteractionObjective::ActivateObjective(AActor* Character)
 
 	return;
 }
+
+// --------------------------------------------------------------------------------------
+TArray<AActor*> UInteractionObjective::GetObjectiveActors() const
+{
+	return TArray<AActor*>{ Target };
+}
