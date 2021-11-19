@@ -21,5 +21,6 @@ protected:
 	UProgressBar* MainBar;
 
 public:
+	
 	void SetHP(float CurrentHealth, float MaxHealth);
 };

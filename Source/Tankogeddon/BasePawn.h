@@ -27,6 +27,7 @@ class UInteractionComponent;
 class UBarHPWidget;
 class ACannon;
 class ABaseBox;
+class UPawnSaveGame;
 
 UENUM()
 enum class EPlayerGroupID {
@@ -130,11 +131,17 @@ public:
 
 	FORCEINLINE UInventoryManagerComponent* GetInventoryManagerComponent() const { return InventoryManagerComponent;  }
 
-	virtual void EquipItem(EEquipSlot EquipSlot, const FName& ID);
+	virtual void EquipItem(EEquipSlot EquipSlot, const FName& ID) override;
 
-	virtual void UnequipItem(EEquipSlot EquipSlot, const FName& ID);
+	virtual void UnequipItem(EEquipSlot EquipSlot, const FName& ID) override;
 
 	TArray<UStaticMeshComponent*> GetEquipComponents(EEquipSlot EquipSlot) const;
+
+	UFUNCTION()
+	virtual void SavePawnState(UPawnSaveGame* PawnSaveGame) const;
+
+	UFUNCTION()
+	virtual void LoadPawnState(const UPawnSaveGame* LevelLoadGame);
 
 protected:
 	// Called when the game starts or when spawned

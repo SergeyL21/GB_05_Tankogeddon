@@ -42,6 +42,8 @@ public:
 	void OnLeftMouseButtonUp();
 	void OnLeftMouseButtonDown();
 
+	void PauseMenuEnabled(bool bEnabled);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -51,6 +53,7 @@ protected:
 	void FireSpecial();
 	void ChangeWeapon();
 	void InventorySwitch();
+	void PauseMenuSwitch();
 
 	UFUNCTION(exec)
 	void DumpActorPoolSubsystemStats();

@@ -9,6 +9,7 @@
 
 #include "Cannon.h"
 #include "HealthComponent.h"
+#include "Saving/LevelSaveGame.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -22,15 +23,15 @@ void ATurret::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	auto TurretMeshTemp{ LoadObject<UStaticMesh>(this, *TurretMeshPath) };
-	if (TurretMeshTemp)
+	LocalTurretMesh = LoadObject<UStaticMesh>(this, *TurretMeshPath);
+	if (LocalTurretMesh)
 	{
-		TurretMesh->SetStaticMesh(TurretMeshTemp);
+		TurretMesh->SetStaticMesh(LocalTurretMesh);
 	}
-	auto BodyMeshTemp{ LoadObject<UStaticMesh>(this, *BodyMeshPath) };
-	if (BodyMeshTemp)
+	LocalBodyMesh = LoadObject<UStaticMesh>(this, *BodyMeshPath);
+	if (LocalBodyMesh)
 	{
-		BodyMesh->SetStaticMesh(BodyMeshTemp);
+		BodyMesh->SetStaticMesh(LocalBodyMesh);
 	}
 
 	return;

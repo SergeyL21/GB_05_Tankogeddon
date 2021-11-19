@@ -43,4 +43,8 @@ public:
     float GetHealthState() const;
 
     void AddHealth(float AddiditionalHealthValue);
+
+    void SetHealth(float HealthValue);
+
+    void SetMaxHealth(float HealthValue);
 };

@@ -60,6 +60,13 @@ void UInventoryComponent::ClearItem(int32 SlotIndex)
 }
 
 // --------------------------------------------------------------------------------------
+void UInventoryComponent::ClearItems()
+{
+    Items.Empty();
+    return;
+}
+
+// --------------------------------------------------------------------------------------
 const TMap<int32, FInventorySlotInfo>& UInventoryComponent::GetItems() const
 {
     return Items;

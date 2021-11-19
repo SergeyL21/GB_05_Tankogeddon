@@ -20,6 +20,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Scorable")
     int32 DestructionScores{ 3 };
 
+    UPROPERTY()
+    UStaticMesh *LocalTurretMesh;
+
+    UPROPERTY()
+    UStaticMesh *LocalBodyMesh;
+
     const FString BodyMeshPath{ "StaticMesh'/Game/CSC/Meshes/SM_CSC_Tower1.SM_CSC_Tower1'" };
     const FString TurretMeshPath{ "StaticMesh'/Game/CSC/Meshes/SM_CSC_Gun1.SM_CSC_Gun1'" };
 
@@ -28,7 +34,7 @@ public:
 
 protected:
     virtual void PostInitializeComponents() override;
-
+    
     virtual int32 GetScorePoints() const override;
 };
 

@@ -39,6 +39,8 @@ public:
 
 	void ClearItem(int32 SlotIndex);
 
+	void ClearItems();
+
 	const TMap<int32, FInventorySlotInfo> &GetItems() const;
 
 	int32 GetItemsNum() const;
