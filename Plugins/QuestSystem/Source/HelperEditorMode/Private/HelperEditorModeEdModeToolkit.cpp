@@ -80,7 +80,6 @@ void FHelperEditorModeEdModeToolkit::Init(const TSharedPtr<IToolkitHost>& InitTo
 								DisplayInlineVersion(true).
 								OnColorCommitted_Lambda([this](FLinearColor Color)
 								{
-									TIsDerivedFrom<>
 									if (auto CurrentEditorMode = StaticCast<FHelperEditorModeEdMode*>(GetEditorMode()))
 									{
 										CurrentEditorMode->ChangeSelectionColor(Color);

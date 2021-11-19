@@ -27,6 +27,9 @@
 #include "InventoryManagerComponent.h"
 #include "EquipInventoryComponent.h"
 #include "InteractionComponent.h"
+#include "InventoryWidget.h"
+
+#include "Saving/LevelSaveGame.h"
 
 // --------------------------------------------------------------------------------------
 // Sets default values
@@ -172,7 +175,7 @@ void ABasePawn::Die()
 	{
 		HealthWidgetComponent->ReleaseResources();
 	}
-
+	
 	Destroy();
 	return;
 }
@@ -336,6 +339,66 @@ TArray<UStaticMeshComponent*> ABasePawn::GetEquipComponents(EEquipSlot EquipSlot
 }
 
 // --------------------------------------------------------------------------------------
+void ABasePawn::SavePawnState(UPawnSaveGame* PawnSaveGame) const
+{
+	if (PawnSaveGame)
+	{
+		PawnSaveGame->BasePawnClass = this->GetClass();
+		PawnSaveGame->CurrentHealth = HealthComponent->GetHealth();
+		PawnSaveGame->MaxHealth = HealthComponent->GetMaxHealth();
+		if (ActiveCannon)
+		{
+			PawnSaveGame->CurrentAmmo = ActiveCannon->GetCurrentAmmo();
+			PawnSaveGame->MaxAmmo = ActiveCannon->GetMaxAmmo();
+		}
+		PawnSaveGame->Transform = GetActorTransform();
+
+		if (InventoryComponent)
+		{
+			PawnSaveGame->InventoryItems = InventoryComponent->GetItems();
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ABasePawn::LoadPawnState(const UPawnSaveGame* PawnLoadGame)
+{
+	if (PawnLoadGame)
+	{
+		HealthComponent->SetHealth(PawnLoadGame->CurrentHealth);
+		HealthComponent->SetMaxHealth(PawnLoadGame->MaxHealth);
+		if (ActiveCannon)
+		{
+			ActiveCannon->SetAmmo(PawnLoadGame->CurrentAmmo);
+			ActiveCannon->SetMaxAmmo(PawnLoadGame->MaxAmmo);
+		}
+		SetActorTransform(
+			PawnLoadGame->Transform,
+			false,
+			nullptr,
+			ETeleportType::TeleportPhysics
+		);
+
+		auto InventoryWidget {InventoryManagerComponent->GetInventoryWidget()};
+		if (InventoryManagerComponent && InventoryComponent && InventoryWidget)
+		{
+			InventoryComponent->ClearItems();
+			InventoryWidget->ClearItems();
+			for (const auto& Pair : PawnLoadGame->InventoryItems)
+			{
+				const auto ItemData {InventoryManagerComponent->GetItemData(Pair.Value.ID)};
+				InventoryComponent->SetItem(Pair.Key, Pair.Value);
+				InventoryWidget->AddItem(Pair.Value, *ItemData, Pair.Key);
+			}
+		}
+	}
+
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 // Called when the game starts or when spawned
 void ABasePawn::BeginPlay()
 {
@@ -368,19 +431,25 @@ void ABasePawn::BeginPlay()
 	return;
 }
 
-// --------------------------------------------------------------------------------------
-void ABasePawn::Destroyed()
-{
-	if (ActiveCannon)
-	{
-		ActiveCannon->Destroy();
+// -------------------------------------------------------------------------------------- 
+void ABasePawn::Destroyed() 
+{ 
+	if (ActiveCannon) 
+	{ 
+		ActiveCannon->Destroy(); 
+	} 
+	if (InactiveCannon) 
+	{ 
+		InactiveCannon->Destroy(); 
 	}
-	if (InactiveCannon)
+
+	if (HealthWidgetComponent->GetWidget())
 	{
-		InactiveCannon->Destroy();
+		HealthWidgetComponent->GetWidget()->Destruct();
 	}
-	return;
-}
+	
+	return; 
+} 
 
 // --------------------------------------------------------------------------------------
 void ABasePawn::TargetDestroyed(AActor* Target)

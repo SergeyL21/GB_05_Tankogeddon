@@ -79,6 +79,20 @@ void ACannon::AddAmmo(int32 Count)
 }
 
 // --------------------------------------------------------------------------------------
+void ACannon::SetAmmo(int32 AmmoValue)
+{
+	CurrentAmmo = FMath::Clamp(AmmoValue, 0, MaxAmmo);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
+void ACannon::SetMaxAmmo(int AmmoValue)
+{
+	MaxAmmo = FMath::Clamp(AmmoValue, CurrentAmmo, AmmoValue);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 int32 ACannon::GetCurrentAmmo() const
 {
 	return CurrentAmmo;

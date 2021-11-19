@@ -62,7 +62,7 @@ protected:
 public:
 	// Sets default values for this pawn's properties
 	ATankPawn();
-
+	
 	UFUNCTION()
 	void MoveForward(float AxisValue);
 
@@ -89,7 +89,7 @@ public:
 	virtual void ChangeWeapon() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ToggleQuestListVisibility();    
+	void ToggleQuestListVisibility();
 
 protected:
 	// Called when the game starts or when spawned

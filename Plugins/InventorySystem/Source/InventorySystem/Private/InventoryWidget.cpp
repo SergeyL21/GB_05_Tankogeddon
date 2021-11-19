@@ -4,6 +4,8 @@
 #include <Components/UniformGridPanel.h>
 #include <Components/CheckBox.h>
 
+#include "InventoryComponent.h"
+
 // --------------------------------------------------------------------------------------
 void UInventoryWidget::NativeConstruct()
 {

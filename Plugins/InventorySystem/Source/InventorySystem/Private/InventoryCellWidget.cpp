@@ -83,16 +83,15 @@ FReply UInventoryCellWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry
 
         if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
         {
-            if (StoredItem.Count > 0)
+            if (--StoredItem.Count > 0)
             {
                 OnItemUse.Broadcast(this);
             }
-
-            if (--StoredItem.Count <= 0)
+            else
             {
                 Clear();
             }
-
+            
             const auto String{ FString::FromInt(StoredItem.Count) };
             CountText->SetText(FText::FromString(String));
         }

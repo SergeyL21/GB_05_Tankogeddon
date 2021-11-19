@@ -68,4 +68,16 @@ void UHealthComponent::AddHealth(float AddiditionalHealthValue)
 	CurrentHealth = FMath::Clamp(CurrentHealth + AddiditionalHealthValue, 0.f, MaxHealth);
 }
 
+// --------------------------------------------------------------------------------------
+void UHealthComponent::SetHealth(float HealthValue)
+{
+	CurrentHealth = FMath::Clamp(HealthValue, 0.f, MaxHealth);
+}
+
+// --------------------------------------------------------------------------------------
+void UHealthComponent::SetMaxHealth(float HealthValue)
+{
+	MaxHealth = FMath::Clamp(HealthValue, CurrentHealth, HealthValue);
+}
+
 

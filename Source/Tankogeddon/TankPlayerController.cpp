@@ -16,6 +16,12 @@
 
 // InventorySystem plugin include section
 #include "InventoryManagerComponent.h"
+#include "TankogeddonGameInstance.h"
+
+#include <Kismet/GameplayStatics.h>
+
+#include "Saving/LevelSaveGame.h"
+#include "Saving/SavingsManager.h"
 
 #define GET_HUD Cast<AGameHUD>(GetHUD())
 
@@ -41,6 +47,7 @@ void ATankPlayerController::SetupInputComponent()
 
 	auto InventoryToggle{ InputComponent->BindAction("Inventory", IE_Pressed, this, &ATankPlayerController::InventorySwitch) };
 	InventoryToggle.bExecuteWhenPaused = true;
+	InputComponent->BindAction("GamePause", IE_Pressed, this, &ATankPlayerController::PauseMenuSwitch);
 
 	InputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ATankPlayerController::OnLeftMouseButtonUp);
 
@@ -160,6 +167,13 @@ void ATankPlayerController::InventorySwitch()
 }
 
 // --------------------------------------------------------------------------------------
+void ATankPlayerController::PauseMenuSwitch()
+{
+	PauseMenuEnabled(true);
+	return;
+}
+
+// --------------------------------------------------------------------------------------
 void ATankPlayerController::Die()
 {
 	if (auto HUD = GET_HUD)
@@ -247,6 +261,28 @@ void ATankPlayerController::OnLeftMouseButtonUp()
 void ATankPlayerController::OnLeftMouseButtonDown()
 {
 
+}
+
+// --------------------------------------------------------------------------------------
+void ATankPlayerController::PauseMenuEnabled(bool bEnabled)
+{
+	if (auto HUD = GET_HUD)
+	{
+		HUD->UseWidget(bEnabled ? EWidgetID::GamePause : EWidgetID::PlayerStatus);
+
+		auto GameInstance {Cast<UTankogeddonGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))};
+		if (!bEnabled && GameInstance->SaveManager->DoesSaveGameExist(GameInstance->GetQuickSaveSlotName()))
+		{
+			auto GameData { GameInstance->SaveManager->GetCurrentGameObject()};
+			if (GameData)
+			{
+				SetHealthWidgetValue(GameData->Player->CurrentHealth, GameData->Player->MaxHealth);
+				SetAmmoWidgetValue(GameData->Player->CurrentAmmo, GameData->Player->MaxAmmo);
+			}
+		}
+		
+		SetPause(bEnabled);
+	}
 }
 
 // --------------------------------------------------------------------------------------

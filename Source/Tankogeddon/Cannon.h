@@ -63,6 +63,8 @@ public:
 	bool FireSpecial();
 
 	void AddAmmo(int32 Count);
+	void SetAmmo(int32 AmmoValue);
+	void SetMaxAmmo(int AmmoValue);
 	int32 GetCurrentAmmo() const;
 	int32 GetMaxAmmo() const;
 

@@ -25,6 +25,8 @@
 
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
+#include "Saving/LevelSaveGame.h"
+
 #define PLAYER_CONTROLLER Cast<ATankPlayerController>(GetWorld()->GetFirstPlayerController())
 
 // --------------------------------------------------------------------------------------

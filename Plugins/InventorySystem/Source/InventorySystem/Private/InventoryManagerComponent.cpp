@@ -230,6 +230,7 @@ void UInventoryManagerComponent::OnItemUsed(UInventoryCellWidget* CellWidget)
     {
         if (ItemInfo->Type == EItemType::Consumable)
         {
+            LocalInventoryComponent->SetItem(CellWidget->IndexInInventory, SlotInfo);
             OnConsumableItemUsed.Broadcast(ItemInfo);
         }
     }
