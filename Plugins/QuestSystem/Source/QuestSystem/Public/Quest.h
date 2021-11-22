@@ -24,7 +24,6 @@ class QUESTSYSTEM_API AQuest : public AActor
 public:
 	FOnQuestStatusUpdated OnQuestStatusUpdated;
 	
-protected:
 	UPROPERTY(EditAnywhere)
 	FText Name;
 	
@@ -75,9 +74,14 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsStoryQuest() const { return bIsStoryQuest; }
+
+	UFUNCTION(BlueprintPure)
+	bool KeepObjectivesOrder() const { return bKeepObjectivesOrder; }
 	
 	bool IsCompleted() const;
 
+	bool IsVisible() const;
+	
 	void SetVisibility(bool bEnabled);
 
 protected:

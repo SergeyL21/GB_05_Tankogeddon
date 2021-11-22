@@ -5,13 +5,18 @@
 #include <CoreMinimal.h>
 #include <GameFramework/SaveGame.h>
 
+THIRD_PARTY_INCLUDES_START
+#include "json.hpp"
+THIRD_PARTY_INCLUDES_END
+
 #include "InventoryItemInfo.h"
 #include "LevelSaveGame.generated.h"
 
 class ABasePawn;
+class AQuest;
 
 UCLASS()
-class TANKOGEDDON_API UPawnSaveGame : public USaveGame
+class TANKOGEDDON_API UPawnSaveGame : public UObject
 {
 	GENERATED_BODY()
 
@@ -54,4 +59,15 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<UPawnSaveGame*> Enemies;
+
+	UPROPERTY(BlueprintReadWrite)
+	AQuest *ActiveQuest;
+	
+	UPROPERTY(BlueprintReadWrite)
+	TArray<AQuest*> Quests;
+
+public:
+	FString SerializeToJSON() const;
+	
+	void DeserializeFromJSON(const FString &Text);
 };

@@ -19,7 +19,8 @@ public class Tankogeddon : ModuleRules
 			"DesktopPlatform",
 			"Slate",
 			"InventorySystem",
-			"QuestSystem"
+			"QuestSystem",
+			"JSONLib"
 		});
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

@@ -1,27 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "TankPlayerController.h"
 
-#include <DrawDebugHelpers.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
-#include "Tankogeddon.h"
 #include "TankPawn.h"
 #include "ActorPoolSubsystem.h"
 
 #include "UI/GameHUD.h"
 #include "UI/PlayerTankWidget.h"
-#include "UI/MiniMap.h"
 
 // InventorySystem plugin include section
 #include "InventoryManagerComponent.h"
-#include "TankogeddonGameInstance.h"
 
 #include <Kismet/GameplayStatics.h>
 
+#include "Cannon.h"
+#include "HealthComponent.h"
 #include "Saving/LevelSaveGame.h"
-#include "Saving/SavingsManager.h"
 
 #define GET_HUD Cast<AGameHUD>(GetHUD())
 
@@ -270,14 +266,14 @@ void ATankPlayerController::PauseMenuEnabled(bool bEnabled)
 	{
 		HUD->UseWidget(bEnabled ? EWidgetID::GamePause : EWidgetID::PlayerStatus);
 
-		auto GameInstance {Cast<UTankogeddonGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))};
-		if (!bEnabled && GameInstance->SaveManager->DoesSaveGameExist(GameInstance->GetQuickSaveSlotName()))
+		auto LocalPlayer {Cast<ABasePawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))};
+		if (LocalPlayer)
 		{
-			auto GameData { GameInstance->SaveManager->GetCurrentGameObject()};
-			if (GameData)
+			const auto HealthComponent {LocalPlayer->GetHealthComponent()};
+			SetHealthWidgetValue(HealthComponent->GetHealth(), HealthComponent->GetMaxHealth());
+			if (const auto ActiveCannon = LocalPlayer->GetActiveCannon())
 			{
-				SetHealthWidgetValue(GameData->Player->CurrentHealth, GameData->Player->MaxHealth);
-				SetAmmoWidgetValue(GameData->Player->CurrentAmmo, GameData->Player->MaxAmmo);
+				SetAmmoWidgetValue(ActiveCannon->GetCurrentAmmo(), ActiveCannon->GetMaxAmmo());
 			}
 		}
 		

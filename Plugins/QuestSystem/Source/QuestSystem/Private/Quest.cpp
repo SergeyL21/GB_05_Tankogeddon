@@ -133,9 +133,16 @@ bool AQuest::IsCompleted() const
 }
 
 // --------------------------------------------------------------------------------------
+bool AQuest::IsVisible() const
+{
+	return InfoWidgetComponent->IsVisible();
+}
+
+// --------------------------------------------------------------------------------------
 void AQuest::SetVisibility(bool bEnabled)
 {
 	InfoWidgetComponent->SetVisibility(bEnabled);
+	return;
 }
 
 

@@ -5,8 +5,11 @@
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/Button.h>
+#include <Components/EditableText.h>
 #include <GameFramework/GameModeBase.h>
 
+#include "Quest.h"
+#include "QuestListComponent.h"
 #include "Tankogeddon/BasePawn.h"
 #include "Tankogeddon/TankPlayerController.h"
 #include "Tankogeddon/TankogeddonGameInstance.h"
@@ -48,18 +51,29 @@ void UPauseGameWidget::OnLoadBtnClicked()
 		return;
 	}
 
-	GameInstance->SaveManager->LoadGame(GameInstance->GetQuickSaveSlotName());
+	const auto SlotName {SlotNameTextBox->Text.IsEmpty() ?
+		GameInstance->GetQuickSaveSlotName() : SlotNameTextBox->Text.ToString()};
+	//GameInstance->SaveManager->LoadGame(SlotName);
+	FString Text;
+	GameInstance->SaveManager->ExtLoadGame(SlotName, Text);
+	LoadData->DeserializeFromJSON(Text);
+	
 	// destroy all base pawn actors
 	for (const auto Actor : FoundActors)
 	{
 		auto Pawn = Cast<ABasePawn>(Actor);
 		if (!Pawn->IsPlayerPawn())
 		{
-			Pawn->Destroy();
+			//Pawn->Destroy();
 		}
 		else
 		{
 			Pawn->LoadPawnState(LoadData->Player);
+			auto QuestListCmp {Cast<UQuestListComponent>(Pawn->GetComponentByClass(UQuestListComponent::StaticClass()))};
+			if (QuestListCmp)
+			{
+				QuestListCmp->SetActiveQuest(LoadData->ActiveQuest);
+			}
 		}
 	}
 
@@ -75,19 +89,13 @@ void UPauseGameWidget::OnLoadBtnClicked()
 			FRotator::ZeroRotator,
 			SpawnParams)
 		};
-			
-		/*auto OtherPawn {GetWorld()->SpawnActorDeferred<ABasePawn>(
-			LoadPawn->BasePawnClass,
-			LoadPawn->Transform,
-			GameMode,
-			nullptr,
-			ESpawnActorCollisionHandlingMethod::AlwaysSpawn)
-		};*/
+		
 		if (OtherPawn)
 		{
 			OtherPawn->LoadPawnState(LoadPawn);
 		}
 	}
+	
 	return;
 }
 
@@ -96,31 +104,47 @@ void UPauseGameWidget::OnSaveBtnClicked()
 {
 	auto GameInstance {Cast<UTankogeddonGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))};
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasePawn::StaticClass(), FoundActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), FoundActors);
 	auto SaveData {GameInstance->SaveManager->GetCurrentGameObject()};
 
 	if (!SaveData)
 	{
 		return;
 	}
-
+	
 	SaveData->Enemies.Empty();
+	SaveData->Quests.Empty();
 	for (const auto Actor : FoundActors)
 	{
-		auto Pawn = Cast<ABasePawn>(Actor);
-		if (Pawn->IsPlayerPawn())
+		if (auto Quest = Cast<AQuest>(Actor))
 		{
-			Pawn->SavePawnState(SaveData->Player);
+			SaveData->Quests.AddUnique(Quest);
 		}
-		else
+		else if (auto Pawn = Cast<ABasePawn>(Actor))
 		{
-			auto EnemySaveData {NewObject<UPawnSaveGame>()};
-			Pawn->SavePawnState(EnemySaveData);
-			SaveData->Enemies.Add(EnemySaveData);
+			if (Pawn->IsPlayerPawn())
+			{
+				Pawn->SavePawnState(SaveData->Player);
+
+				auto QuestListCmp {Cast<UQuestListComponent>(Pawn->GetComponentByClass(UQuestListComponent::StaticClass()))};
+				if (QuestListCmp)
+				{
+					SaveData->ActiveQuest = QuestListCmp->GetActiveQuest();
+				}
+			}
+			else
+			{
+				auto EnemySaveData {NewObject<UPawnSaveGame>()};
+				Pawn->SavePawnState(EnemySaveData);
+				SaveData->Enemies.Add(EnemySaveData);
+			}
 		}
 	}
 	
-	GameInstance->SaveManager->SaveGame(GameInstance->GetQuickSaveSlotName());
+	const auto SlotName {SlotNameTextBox->Text.IsEmpty() ?
+		GameInstance->GetQuickSaveSlotName() : SlotNameTextBox->Text.ToString()};
+	//GameInstance->SaveManager->SaveGame(SlotName);
+	GameInstance->SaveManager->ExtSaveGame(SlotName, SaveData->SerializeToJSON());
 	return;
 }
 
