@@ -79,7 +79,7 @@ AQuest* UQuestListComponent::GetActiveQuest() const
 // --------------------------------------------------------------------------------------
 void UQuestListComponent::SetActiveQuest(AQuest* Quest)
 {
-	if (AcceptedQuests.Contains(Quest))
+	if (!Quest || AcceptedQuests.Contains(Quest))
 	{
 		ActiveQuest = Quest;
 		OnActiveQuestChanged.Broadcast(ActiveQuest);

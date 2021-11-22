@@ -14,8 +14,14 @@
 				"AIModule",
 				"UMG",
 				"Slate",
-				"SlateCore"	
+				"SlateCore"
 			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ThirdPartyLibs",
+			"Enabled": false
 		}
 	]
 }

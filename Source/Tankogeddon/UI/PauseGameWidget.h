@@ -4,9 +4,11 @@
 
 #include <CoreMinimal.h>
 #include <Blueprint/UserWidget.h>
+
 #include "PauseGameWidget.generated.h"
 
 class UButton;
+class UEditableText;
 
 /**
  * 
@@ -17,6 +19,9 @@ class TANKOGEDDON_API UPauseGameWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UEditableText *SlotNameTextBox;
+	
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UButton* LoadBtn;
 

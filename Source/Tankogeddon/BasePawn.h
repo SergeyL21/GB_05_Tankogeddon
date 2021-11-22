@@ -137,6 +137,8 @@ public:
 
 	TArray<UStaticMeshComponent*> GetEquipComponents(EEquipSlot EquipSlot) const;
 
+	const UHealthComponent *GetHealthComponent() const { return HealthComponent; }
+
 	UFUNCTION()
 	virtual void SavePawnState(UPawnSaveGame* PawnSaveGame) const;
 

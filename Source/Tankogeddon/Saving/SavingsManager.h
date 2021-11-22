@@ -33,19 +33,33 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void LoadGame(const FString& SlotName);
+
+	UFUNCTION(BlueprintCallable)
+	void ExtLoadGame(const FString& SlotName, FString &Text);
 	
 	UFUNCTION(BlueprintCallable)
 	void SaveGame(const FString& SlotName);
 
 	UFUNCTION(BlueprintCallable)
+	void ExtSaveGame(const FString& SlotName, const FString &Text);
+
+	UFUNCTION(BlueprintCallable)
 	ULevelSaveGame* GetCurrentGameObject() const { return CurrentGameObject; }
+
+	UFUNCTION(BlueprintCallable)
+	const TArray<FString>& GetExistingSavedSlots() const { return ExistingSavedSlots; }
 
 protected:
 	UPROPERTY(BlueprintReadWrite)
 	ULevelSaveGame* CurrentGameObject;
 
+	TArray<FString> ExistingSavedSlots;
+	const FString ExistingSavedSlotsFilePath {"existing_slots.txt"};
+
 protected:
 	void OnGameLoadedFromSlotHandle(const FString& SlotName, const int32 UserIndex, USaveGame* SaveGame);
 	
 	void OnGameSavedToSlotHandle(const FString& SlotName, const int32 UserIndex, bool bSuccess);
+
+	void CacheExistingSavedSlotsInfo();
 };
